@@ -29,7 +29,7 @@ public class SwaggerConfig {
                 .build()
                 .apiInfo(apiInfo())
                 .enable(true)
-                .useDefaultResponseMessages(true);
+                .useDefaultResponseMessages(false);
     }
 
     /**
