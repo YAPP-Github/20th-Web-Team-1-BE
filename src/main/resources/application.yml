@@ -1,0 +1,42 @@
+spring.output.ansi.enabled: ALWAYS
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        ddl-auto: update
+    generate-ddl : true
+  config:
+    activate:
+      on-profile: default
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/betreelocal?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password:
+    hikari:
+      idleTimeout: 10000
+      connection-timeout: 10000
+      validation-timeout: 10000
+      maxLifetime: 580000
+  transaction:
+    rollback-on-commit-failure: true
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+    session:
+      tracking-modes: COOKIE
