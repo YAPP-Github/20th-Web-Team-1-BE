@@ -1,6 +1,7 @@
 package com.yapp.betree.controller;
 
 import com.yapp.betree.dto.response.ForestResponseDto;
+import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.service.FolderService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +25,13 @@ public class ForestController {
 
         log.info("나무숲 조회 userId: {}", userId);
         return ResponseEntity.ok(folderService.userForest(userId));
+    }
+
+    @GetMapping("/api/users/{userId}/forest/{treeId}")
+    public ResponseEntity<TreeFullResponseDto> userDetailTree(
+            @PathVariable Long userId) {
+
+        log.info("유저 나무 조회 userId: {}", userId);
+        return ResponseEntity.ok(folderService.userDetailTree(userId));
     }
 }
