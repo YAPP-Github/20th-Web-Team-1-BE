@@ -47,7 +47,6 @@ public class User extends BaseTimeEntity {
     private List<Message> receivedMessages = new ArrayList<>();
 
     @Builder
-
     public User(Long id, Long oauthId, String nickName, String email, String userImage, LocalDateTime lastAccessTime, String url, boolean randomMessageRemind, boolean forestOff, boolean onlyFriends, List<Message> receivedMessages) {
         this.id = id;
         this.oauthId = oauthId;

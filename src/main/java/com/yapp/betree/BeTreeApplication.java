@@ -11,5 +11,4 @@ public class BeTreeApplication {
     public static void main(String[] args) {
         SpringApplication.run(BeTreeApplication.class, args);
     }
-
 }
