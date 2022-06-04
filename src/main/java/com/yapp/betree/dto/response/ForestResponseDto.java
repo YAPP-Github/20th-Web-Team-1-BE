@@ -11,12 +11,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ForestResponseDto {
 
-    private Long entireTreeSize;
+    private Long totalTreeSize;
     private List<TreeResponseDto> trees;
 
     @Builder
-    public ForestResponseDto(Long entireTreeSize, List<TreeResponseDto> trees) {
-        this.entireTreeSize = entireTreeSize;
+    public ForestResponseDto(Long totalTreeSize, List<TreeResponseDto> trees) {
+        this.totalTreeSize = totalTreeSize;
         this.trees = trees;
     }
 }
