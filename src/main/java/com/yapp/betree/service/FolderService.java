@@ -15,7 +15,7 @@ public class FolderService {
         return null;
     }
 
-    public TreeFullResponseDto userDetailTree(Long userId) {
+    public TreeFullResponseDto userDetailTree(Long userId, Long treeId) {
         return null;
     }
 }

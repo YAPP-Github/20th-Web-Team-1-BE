@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Api
@@ -19,19 +20,31 @@ public class ForestController {
 
     private FolderService folderService;
 
-    @GetMapping("/api/users/{userId}/forest")
+    /**
+     * 유저 나무숲 조회
+     * @param userId
+     * @return ForestResponseDto
+     */
+    @GetMapping("/api/forest")
     public ResponseEntity<ForestResponseDto> userForest(
-            @PathVariable Long userId) {
+            @RequestParam Long userId) {
 
         log.info("나무숲 조회 userId: {}", userId);
         return ResponseEntity.ok(folderService.userForest(userId));
     }
 
-    @GetMapping("/api/users/{userId}/forest/{treeId}")
+    /**
+     * 유저 상세 나무 조회
+     * @param userId
+     * @param treeId
+     * @return TreeFullResponseDto
+     */
+    @GetMapping("/api/forest/{treeId}")
     public ResponseEntity<TreeFullResponseDto> userDetailTree(
-            @PathVariable Long userId) {
+            @RequestParam Long userId,
+            @PathVariable Long treeId) {
 
-        log.info("유저 나무 조회 userId: {}", userId);
-        return ResponseEntity.ok(folderService.userDetailTree(userId));
+        log.info("유저 상세 나무 조회 userId: {}", userId);
+        return ResponseEntity.ok(folderService.userDetailTree(userId, treeId));
     }
 }
