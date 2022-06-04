@@ -19,7 +19,6 @@ public class NoticeTreeController {
 
     /**
      * 알림나무에 띄워 줄 메세지 리스트 조회
-     *
      * @param userId
      * @return NoticeResponseDto
      */
