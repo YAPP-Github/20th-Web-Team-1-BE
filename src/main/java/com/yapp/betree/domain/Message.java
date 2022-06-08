@@ -22,7 +22,7 @@ public class Message extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false)
-    private Long sender;
+    private Long senderId;
 
     private boolean anonymous;
     private boolean alreadyRead;
@@ -38,15 +38,29 @@ public class Message extends BaseTimeEntity {
     private Folder folder;
 
     @Builder
-    public Message(Long id, String content, Long sender, boolean anonymous, boolean alreadyRead, boolean favorite, boolean opening, User user, Folder folder) {
+    public Message(Long id, String content, Long senderId, boolean anonymous, boolean alreadyRead, boolean favorite, boolean opening, User user, Folder folder) {
         this.id = id;
         this.content = content;
-        this.sender = sender;
+        this.senderId = senderId;
         this.anonymous = anonymous;
         this.alreadyRead = alreadyRead;
         this.favorite = favorite;
         this.opening = opening;
         this.user = user;
         this.folder = folder;
+    }
+
+    /**
+     * 읽음 여부 상태 변경 메서드
+     */
+    public void updateAlreadyRead() {
+        this.alreadyRead = !this.alreadyRead;
+    }
+
+    /**
+     * 익명 여부 상태 변경 메서드
+     */
+    public void updateAnonymous() {
+        this.anonymous = !this.anonymous;
     }
 }
