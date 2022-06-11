@@ -11,14 +11,14 @@ public class MessageRequestDto {
 
     private Long receiverId;
     private String content;
-    private String folderName;
+    private Long folderId;
     private boolean anonymous;
 
     @Builder
-    public MessageRequestDto(Long receiverId, String content, String folderName, boolean anonymous) {
+    public MessageRequestDto(Long receiverId, String content, Long folderId, boolean anonymous) {
         this.receiverId = receiverId;
         this.content = content;
-        this.folderName = folderName;
+        this.folderId = folderId;
         this.anonymous = anonymous;
     }
 }

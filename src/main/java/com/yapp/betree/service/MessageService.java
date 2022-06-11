@@ -35,7 +35,7 @@ public class MessageService {
                 NoSuchElementException::new
         );
 
-        Folder folder = folderRepository.findByUserIdAndName(requestDto.getReceiverId(), requestDto.getFolderName());
+        Folder folder = folderRepository.getById(requestDto.getFolderId());
 
         Message message = Message.builder()
                 .senderId(senderId)
