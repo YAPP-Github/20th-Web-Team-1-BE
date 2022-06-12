@@ -19,14 +19,13 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 @DisplayName("ForestController Test")
 public class ForestControllerTest {
 
@@ -47,6 +46,29 @@ public class ForestControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(ForestController)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true)) // utf-8 필터 추가
                 .build();
+    }
+
+    @DisplayName("유저 나무숲 조회")
+    @Test
+    void userForest() throws Exception {
+
+        mockMvc.perform(get("/api/forest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("userId", String.valueOf(1L)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.trees.length()").value(4));
+    }
+
+    @DisplayName("유저 상세 나무 조회")
+    @Test
+    void userDetailTree() throws Exception {
+
+        mockMvc.perform(get("/api/forest/10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", String.valueOf(1L)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @DisplayName("나무 추가")
