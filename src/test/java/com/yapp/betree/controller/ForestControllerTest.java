@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 @DisplayName("ForestController Test")
 public class ForestControllerTest {
@@ -52,7 +53,7 @@ public class ForestControllerTest {
     @Test
     void userForest() throws Exception {
 
-        mockMvc.perform(get("/api/forest")
+        mockMvc.perform(get("/api/forest?page=0")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("userId", String.valueOf(1L)))
                 .andDo(print())

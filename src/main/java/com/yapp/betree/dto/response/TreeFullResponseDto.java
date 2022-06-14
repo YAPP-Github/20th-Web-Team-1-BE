@@ -15,13 +15,17 @@ public class TreeFullResponseDto {
     private Long id;
     private String name;
     private Long level;
+    private Long prevId;
+    private Long nextId;
     private List<MessageResponseDto> messages;
 
     @Builder
-    public TreeFullResponseDto(Folder folder, List<MessageResponseDto> messages) {
+    public TreeFullResponseDto(Folder folder, Long prevId, Long nextId, List<MessageResponseDto> messages) {
         this.id = folder.getId();
         this.name = folder.getName();
-        this.level = folder.getLevel();
+        this.level =folder.getLevel();
+        this.prevId = prevId;
+        this.nextId = nextId;
         this.messages = messages;
     }
 }

@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    List<Message> findTop8ByFolderIdAndAnonymous(Long treeId, boolean anonymous);
+    List<Message> findTop8ByFolderIdAndOpening(Long treeId, boolean opening);
 }
