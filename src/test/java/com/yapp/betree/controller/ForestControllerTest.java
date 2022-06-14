@@ -81,7 +81,7 @@ public class ForestControllerTest {
         input.put("name", "new folder");
         input.put("fruitType", FruitType.APPLE);
 
-        mockMvc.perform(post("/api/trees")
+        mockMvc.perform(post("/api/forest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", String.valueOf(1L))
                         .content(objectMapper.writeValueAsString(input)))
@@ -98,7 +98,7 @@ public class ForestControllerTest {
         input.put("name", "update folder");
         input.put("fruitType", FruitType.APPLE);
 
-        mockMvc.perform(put("/api/trees/10")
+        mockMvc.perform(put("/api/forest/18")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", String.valueOf(1L))
                         .content(objectMapper.writeValueAsString(input)))
