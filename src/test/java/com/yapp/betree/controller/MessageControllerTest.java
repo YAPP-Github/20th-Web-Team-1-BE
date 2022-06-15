@@ -13,12 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,6 +69,34 @@ class MessageControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isNoContent());
+    }
+
+    @DisplayName("메세지함 목록 조회")
+    @Test
+    void getMessageList() throws Exception {
+
+        mockMvc.perform(get("/api/messages")
+                        .param("userId", String.valueOf(1L))
+                        .param("page", String.valueOf(1)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+    }
+
+    @DisplayName("열매 맺기")
+    @Test
+    void updateMessageOpening() throws Exception {
+
+        List<String> idList = Arrays.asList(String.valueOf(9L),String.valueOf(10L));
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.addAll("messageIdList", idList);
+
+
+        mockMvc.perform(put("/api/messages/opening")
+                        .param("userId", String.valueOf(1L))
+                        .params(params))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 }

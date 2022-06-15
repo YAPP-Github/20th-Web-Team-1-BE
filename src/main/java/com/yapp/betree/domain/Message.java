@@ -63,4 +63,12 @@ public class Message extends BaseTimeEntity {
     public void updateAnonymous() {
         this.anonymous = !this.anonymous;
     }
+
+    /**
+     * 공개 여부 상태 변경 메서드
+     */
+    public void updateOpening() {
+        this.opening = !this.opening;
+    }
+
 }
