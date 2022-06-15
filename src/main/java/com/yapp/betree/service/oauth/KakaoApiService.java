@@ -4,6 +4,7 @@ import com.yapp.betree.dto.oauth.KakaoTokenInfoDto;
 import com.yapp.betree.dto.oauth.KakaoUserInfoDto;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,8 +19,9 @@ public class KakaoApiService {
 
     private final WebClient webClient;
 
+    @Autowired
     public KakaoApiService() {
-        this.webClient = initWebClient(KAPI_BASE_URL);
+        this(KAPI_BASE_URL);
     }
 
     public KakaoApiService(String apiUrl) {
