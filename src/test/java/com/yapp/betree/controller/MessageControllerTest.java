@@ -69,7 +69,7 @@ class MessageControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input)))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isCreated());
     }
 
     @DisplayName("메세지함 목록 조회")
@@ -97,6 +97,6 @@ class MessageControllerTest {
                         .param("userId", String.valueOf(1L))
                         .params(params))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class MessageService {
 
     private final UserRepository userRepository;
@@ -36,6 +36,7 @@ public class MessageService {
      * @param senderId   발신유저아이디
      * @param requestDto messageRequestDto
      */
+    @Transactional
     public void createMessage(Long senderId, MessageRequestDto requestDto) {
 
         //수신자 유저 객체 조회
@@ -91,6 +92,7 @@ public class MessageService {
      *
      * @param messageIdList 선택한 메세지 ID list
      */
+    @Transactional
     public void updateMessageOpening(Long userId, List<Long> messageIdList) throws Exception {
         //선택한 개수 8개 초과면 오류
         if (messageIdList.size() > 8) {

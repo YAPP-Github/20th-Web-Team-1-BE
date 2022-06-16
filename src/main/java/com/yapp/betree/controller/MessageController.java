@@ -6,6 +6,7 @@ import com.yapp.betree.service.MessageService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +49,7 @@ public class MessageController {
 
         messageService.createMessage(userId, requestDto);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
@@ -72,14 +73,14 @@ public class MessageController {
      * @param messageIdList 선택한 메세지 ID List
      */
     @PutMapping("/api/messages/opening")
-    public ResponseEntity<Void> openingMessage(@RequestParam Long userId,
+    public ResponseEntity<Object> openingMessage(@RequestParam Long userId,
                                                @RequestParam List<Long> messageIdList) throws Exception {
 
         log.info("[messageIdList] : {}", messageIdList);
 
         messageService.updateMessageOpening(userId, messageIdList);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 }
