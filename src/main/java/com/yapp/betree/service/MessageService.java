@@ -6,20 +6,19 @@ import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -78,14 +77,22 @@ public class MessageService {
 
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
 
+        //다음 페이지 존재 여부
         boolean hasNext = messageRepository.findByUserId(userId, pageRequest).hasNext();
 
-        List<MessageBoxResponseDto> responseDtos = messageRepository.findByUserId(userId, pageRequest)
-                .stream()
-                .map(message -> new MessageBoxResponseDto(message,
-                        message.getUser().getNickName(),
-                        message.getUser().getUserImage()))
-                .collect(Collectors.toList());
+        Slice<Message> messages = messageRepository.findByUserId(userId, pageRequest);
+
+        List<MessageBoxResponseDto> responseDtos = new ArrayList<>();
+
+        for (Message m : messages) {
+            MessageBoxResponseDto message;
+            if (m.isAnonymous()) {
+                message = new MessageBoxResponseDto(m, "익명", "기본이미지");
+            } else {
+                message = new MessageBoxResponseDto(m, m.getUser().getNickName(), m.getUser().getUserImage());
+            }
+            responseDtos.add(message);
+        }
         return new MessagePageResponseDto(responseDtos, hasNext);
     }
 
@@ -95,10 +102,10 @@ public class MessageService {
      * @param messageIdList 선택한 메세지 ID list
      */
     @Transactional
-    public void updateMessageOpening(Long userId, List<Long> messageIdList) throws Exception {
+    public void updateMessageOpening(Long userId, List<Long> messageIdList) {
         //선택한 개수 8개 초과면 오류
         if (messageIdList.size() > 8) {
-            throw new Exception();
+            throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "열매로 맺을 수 있는 메세지 개수는 최대 8개입니다.");
         }
         //이미 선택된 메세지 가져와서 false로 변경
         List<Message> messages = messageRepository.findByUserIdAndOpening(userId, true);
@@ -111,5 +118,4 @@ public class MessageService {
             message.ifPresent(Message::updateOpening);
         }
     }
-
 }
