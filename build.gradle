@@ -27,6 +27,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //Swagger
     implementation "io.springfox:springfox-boot-starter:3.0.0"
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.5.2'
+    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 }
 
 tasks.named('test') {
