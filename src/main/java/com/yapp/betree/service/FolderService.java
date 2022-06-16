@@ -90,9 +90,15 @@ public class FolderService {
         //messageList를 dto로 감싸기
         List<MessageResponseDto> messageResponseDtoList = new ArrayList<>();
         for (Message m : messageList) {
+
             User sender = userRepository.findById(m.getSenderId()).orElseThrow(Exception::new);
 
-            messageResponseDtoList.add(new MessageResponseDto(m, sender.getNickName(), sender.getUserImage()));
+            //익명이면 닉네임 '익명' 으로 변경
+            if (m.isAnonymous()) {
+                messageResponseDtoList.add(new MessageResponseDto(m, "익명", "기본 이미지"));
+            } else {
+                messageResponseDtoList.add(new MessageResponseDto(m, sender.getNickName(), sender.getUserImage()));
+            }
         }
 
         return new TreeFullResponseDto(folder, prevId, nextId, messageResponseDtoList);

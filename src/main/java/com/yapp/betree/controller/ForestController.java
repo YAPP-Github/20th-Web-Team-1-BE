@@ -88,6 +88,6 @@ public class ForestController {
 
         folderService.updateTree(userId, treeId, treeRequestDto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
