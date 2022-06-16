@@ -30,6 +30,8 @@ public class MessageService {
     private final FolderRepository folderRepository;
     private final MessageRepository messageRepository;
 
+    private static final int PAGE_SIZE = 7;
+
     /**
      * 칭찬 메세지 생성 (물 주기)
      *
@@ -74,7 +76,7 @@ public class MessageService {
      */
     public MessagePageResponseDto getMessageList(Long userId, int page) {
 
-        PageRequest pageRequest = PageRequest.of(page, 7, Sort.by(Sort.Direction.DESC, "createdDate"));
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
 
         boolean hasNext = messageRepository.findByUserId(userId, pageRequest).hasNext();
 
