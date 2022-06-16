@@ -9,6 +9,8 @@ import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
@@ -42,7 +44,7 @@ public class FolderService {
 
         // TO DO - page != 0,1 일때 예외처리 개선
         if (page != 0 && page != 1) {
-            throw new Exception();
+            throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "페이지는 0 또는 1이여야 합니다.");
         }
 
         PageRequest pageRequest = PageRequest.of(page, 4);
