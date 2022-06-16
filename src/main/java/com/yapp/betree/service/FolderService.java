@@ -15,8 +15,8 @@ import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,21 +33,26 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final MessageRepository messageRepository;
 
+    private final int PAGE_SIZE = 4;
+
     /**
      * 유저 나무숲 조회
      *
      * @param userId
      * @return ForestResponseDto
      */
-    public ForestResponseDto userForest(Long userId, int page) throws Exception {
-        Page<Folder> folderList;
+    public ForestResponseDto userForest(Long userId, int page) {
+        Slice<Folder> folderList;
 
         // TO DO - page != 0,1 일때 예외처리 개선
         if (page != 0 && page != 1) {
             throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "페이지는 0 또는 1이여야 합니다.");
         }
 
-        PageRequest pageRequest = PageRequest.of(page, 4);
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
+
+        //다음 페이지 존재 여부
+        boolean hasNext = folderRepository.findByUserId(userId, pageRequest).hasNext();
 
         folderList = folderRepository.findByUserId(userId, pageRequest);
 
@@ -56,7 +61,7 @@ public class FolderService {
             treeResponseDtoList.add(new TreeResponseDto(folder.getId(), folder.getName()));
         }
 
-        return new ForestResponseDto(folderRepository.count(), treeResponseDtoList);
+        return new ForestResponseDto(hasNext, treeResponseDtoList);
     }
 
     /**
