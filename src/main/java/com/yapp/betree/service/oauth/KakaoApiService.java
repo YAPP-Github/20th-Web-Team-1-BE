@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 
 @Service
 @Slf4j
@@ -41,44 +40,34 @@ public class KakaoApiService {
      * @return boolean
      */
     public boolean supports(String accessToken) {
-        try {
-            KakaoTokenInfoDto kakaoTokenInfoDto = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(KAKAO_TOKEN_INFO_URL)
-                            .build())
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                    .retrieve()
-                    .bodyToMono(KakaoTokenInfoDto.class)
-                    .block();
+        KakaoTokenInfoDto kakaoTokenInfoDto = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(KAKAO_TOKEN_INFO_URL)
+                        .build())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(KakaoTokenInfoDto.class)
+                .block();
 
-            return kakaoTokenInfoDto.getExpiresIn() > 0;
-        } catch (WebClientException e) {
-            log.error("카카오 API 요청에 실패했습니다. accessToken: {}", accessToken);
-            throw new IllegalArgumentException("카카오 API 요청에 실패했습니다. accessToken: " + accessToken); // TODO 예외처리
-        }
+        return kakaoTokenInfoDto.getExpiresIn() > 0;
     }
 
     /**
-     * 요청에서 받은 카카오 accessToken을 이용해서 카카오 API서버에서 token에 해당하는 유저 ㅅ보를 얻어온다.
+     * 요청에서 받은 카카오 accessToken을 이용해서 카카오 API서버에서 token에 해당하는 유저 정보를 얻어온다.
      *
      * @param accessToken
      * @return OAuthUserInfoDto
      */
     public OAuthUserInfoDto getUserInfo(String accessToken) {
-        try {
-            KakaoUserInfoDto kakaoUserInfoDto = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(KAKAO_USER_INFO_URL)
-                            .build())
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                    .retrieve()
-                    .bodyToMono(KakaoUserInfoDto.class)
-                    .block();
+        KakaoUserInfoDto kakaoUserInfoDto = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(KAKAO_USER_INFO_URL)
+                        .build())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(KakaoUserInfoDto.class)
+                .block();
 
-            return kakaoUserInfoDto.buildUserInfo();
-        } catch (WebClientException e) {
-            log.error("카카오 API 요청에 실패했습니다. accessToken: {}", accessToken);
-            throw new IllegalArgumentException("카카오 API 요청에 실패했습니다. accessToken: " + accessToken); // TODO 예외처리
-        }
+        return kakaoUserInfoDto.buildUserInfo();
     }
 }

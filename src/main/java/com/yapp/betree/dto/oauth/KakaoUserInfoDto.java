@@ -1,6 +1,8 @@
 package com.yapp.betree.dto.oauth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,7 @@ public class KakaoUserInfoDto {
 
     public OAuthUserInfoDto buildUserInfo() {
         if (Objects.isNull(kakaoAccount.getEmail())) {
-            throw new IllegalStateException("카카오 유저 정보 중 email은 null일 수 없습니다."); // TODO 예외처리
+            throw new BetreeException(ErrorCode.OAUTH_INVALID_USERINFO, "Kakao email is null");
         }
         return OAuthUserInfoDto.builder()
                 .id(id)

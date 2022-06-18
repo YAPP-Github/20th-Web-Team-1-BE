@@ -6,6 +6,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.yapp.betree.dto.oauth.KakaoTokenInfoDto;
 import com.yapp.betree.dto.oauth.KakaoUserInfoDto;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
+import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -103,8 +104,8 @@ public class KakaoApiServiceTest {
                 .setBody(objectMapper.writeValueAsString(kakaoUserInfo))
                 .addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE));
 
-        assertThatThrownBy(()->kakaoApiService.getUserInfo("accessToken"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("email");
+        assertThatThrownBy(() -> kakaoApiService.getUserInfo("accessToken"))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("email is null");
     }
 }
