@@ -1,9 +1,6 @@
 package com.yapp.betree.controller;
 
-import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
-import com.yapp.betree.exception.BetreeException;
-import com.yapp.betree.exception.ErrorCode;
-import com.yapp.betree.service.oauth.KakaoApiService;
+import com.yapp.betree.service.LoginService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -21,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class OAuthController {
 
-    private final KakaoApiService kakaoApiService;
+    private final LoginService loginService;
 
     /**
      * 카카오 OAuth이용한 로그인 [토큰검증 - 토큰에서 사용자 정보 획득(+회원가입) - JWT토큰 발급]
@@ -37,17 +34,11 @@ public class OAuthController {
                     "[O002]OAuth로 받아온 액세스 토큰이 만료되었습니다.\n"),
     })
     @GetMapping("/api/signin")
-    public ResponseEntity<OAuthUserInfoDto> oauthTest(@RequestHeader("X-Kakao-Access-Token") String accessToken) {
-        log.info("카카오 로그인 요청 accessToken: {}", accessToken);
-
-        if (!kakaoApiService.supports(accessToken)) {
-            throw new BetreeException(ErrorCode.OAUTH_ACCESS_TOKEN_EXPIRED, "accessToken = " + accessToken);
-        }
-
-        OAuthUserInfoDto oAuthUserInfoDto = kakaoApiService.getUserInfo(accessToken);
-        log.info("카카오 유저 정보 : {}", oAuthUserInfoDto);
+    public ResponseEntity<String> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken) {
+        log.info("회원 로그인 요청 accessToken: {}", accessToken);
 
         // TODO jwt토큰 발급
-        return ResponseEntity.ok(oAuthUserInfoDto);
+        String betreeToken = loginService.createToken(accessToken);
+        return ResponseEntity.ok(betreeToken);
     }
 }

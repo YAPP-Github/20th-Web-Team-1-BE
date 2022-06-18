@@ -8,4 +8,8 @@ public class BetreeUtils {
     public static String makeUserAccessUrl(OAuthUserInfoDto user) {
         return "accessUrl";
     }
+
+    public static String makeUserAccessUrl(Long oauthId) {
+        return "accessUrl";
+    }
 }

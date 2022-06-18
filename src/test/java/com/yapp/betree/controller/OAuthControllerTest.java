@@ -1,6 +1,6 @@
 package com.yapp.betree.controller;
 
-import com.yapp.betree.service.oauth.KakaoApiService;
+import com.yapp.betree.service.LoginService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class OAuthControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private KakaoApiService kakaoApiService;
+    private LoginService loginService;
 
     @Test
     @DisplayName("MockMvc는 null이 아니다.")
@@ -44,24 +44,10 @@ public class OAuthControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입,로그인 - OAuth로 받아온 액세스 토큰이 만료되면 예외가 발생한다.")
-    void accessTokenExpiredTest() throws Exception {
-        String accessToken = "accessToken";
-        given(kakaoApiService.supports(accessToken)).willReturn(false);
-
-        mockMvc.perform(get("/api/signin")
-                .header("X-Kakao-Access-Token", accessToken))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("code").value("O002"))
-                .andDo(print());
-    }
-
-    @Test
     @DisplayName("회원가입,로그인 - OAuth API 요청에 실패하면 예외가 발생한다. ")
     void oauthUserInfoInvalidTest() throws Exception {
         String accessToken = "accessToken";
-        given(kakaoApiService.supports(accessToken)).willReturn(true);
-        given(kakaoApiService.getUserInfo(accessToken)).willThrow(new KakaoWebClientException("401"));
+        given(loginService.createToken(accessToken)).willThrow(new KakaoWebClientException("401"));
 
         mockMvc.perform(get("/api/signin")
                 .header("X-Kakao-Access-Token", accessToken))

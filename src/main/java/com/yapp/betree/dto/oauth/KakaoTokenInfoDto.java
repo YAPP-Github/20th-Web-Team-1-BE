@@ -6,10 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class KakaoTokenInfoDto {
     @JsonProperty("id")
+    @NotNull
     private Long id;
 
     @JsonProperty("expires_in")

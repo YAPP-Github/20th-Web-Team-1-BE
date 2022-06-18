@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 
@@ -32,6 +33,7 @@ public class KakaoApiServiceTest {
     private static MockWebServer mockWebServer;
     private static ObjectMapper objectMapper;
 
+    @InjectMocks
     private KakaoApiService kakaoApiService;
 
     @BeforeAll
@@ -54,7 +56,7 @@ public class KakaoApiServiceTest {
     }
 
     @Test
-    @DisplayName("카카오 토큰 유효 검증 - expiresIn값이 양수이면 유효한 토큰이다.")
+    @DisplayName("카카오 토큰 유효 검증 - API호출이 성공하고 expiresIn값이 양수이면 유저 OAuthId를 반환한다.")
     void supportsTest() throws Exception {
         KakaoTokenInfoDto kakaoTokenInfoDto = createKakaoTokenInfoResponse();
 
@@ -62,11 +64,11 @@ public class KakaoApiServiceTest {
                 .setBody(objectMapper.writeValueAsString(kakaoTokenInfoDto))
                 .addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE));
 
-        assertThat(kakaoApiService.supports("accessToken")).isTrue();
+        assertThat(kakaoApiService.getOauthId("accessToken")).isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("카카오 토큰 유효 검증 - expiresIn값이 0이하이면 유효하지 않은 토큰이다.")
+    @DisplayName("카카오 토큰 유효 검증 - API호출이 성공하고 expiresIn값이 음수이면 예외가 발생한다.")
     void supportsFailTest() throws Exception {
         KakaoTokenInfoDto kakaoTokenInfoDto = createKakaoTokenInfoFailResponse();
 
@@ -74,7 +76,9 @@ public class KakaoApiServiceTest {
                 .setBody(objectMapper.writeValueAsString(kakaoTokenInfoDto))
                 .addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE));
 
-        assertThat(kakaoApiService.supports("accessToken")).isFalse();
+        assertThatThrownBy(() -> kakaoApiService.getOauthId("accessToken"))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("accessToken");
     }
 
     @Test
