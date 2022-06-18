@@ -16,33 +16,39 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    public static final String ERROR_MESSAGE_DELIMITER = ": ";
+    public static final String OAUTH_UNAUTHORIZED_CODE = "401";
+
+
     @ExceptionHandler(value = BetreeException.class)
     public ResponseEntity<ErrorResponse> handleBetreeException(BetreeException e) {
         ErrorResponse er = getErrorResponse(e.getMessage(), e.getCode());
-        log.error("handleBetreeException[{}]", er);
-        return ResponseEntity
-                .status(e.getCode().getStatus())
-                .body(er);
+        return getResponseEntity(e.getCode(), er, "handleBetreeException");
     }
+
+    /**
+     * 새로운 예외 핸들러 생성 방식
+     * 1. 적절한 에러 코드 지정 - 주로 Common or 특정 예외 코드
+     * 2. ErrorResponse 생성 - e.getMessage() 그대로 또는 적절하게 변형
+     * 3. getResponseEntity(errorCode, er, " 예외 이름 ") 메서드를 이용해 반환
+     *
+     * @param e
+     * @return ResponseEntity<ErrorResponse>
+     */
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         ErrorResponse er = getErrorResponse(e, errorCode);
-        log.error("handleValidationException[{}]", er);
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(er);
+        return getResponseEntity(errorCode, er, "handleValidationException");
     }
 
     @ExceptionHandler(value = ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         ErrorResponse er = getErrorResponse(e, errorCode);
-        log.error("ConstraintViolationException[{}]", er);
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(er);
+        return getResponseEntity(errorCode, er, "handleConstraintViolationException");
     }
 
     // header에 required 필드에 값이 들어오지 않은 경우
@@ -50,10 +56,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(Exception e) {
         ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         ErrorResponse er = getErrorResponse(e.getMessage(), errorCode);
-        log.error("MissingRequestHeaderExcpetion[{}]", er);
-        return ResponseEntity
-                .status(errorCode.getStatus())
-                .body(er);
+        return getResponseEntity(errorCode, er, "handleMissingRequestHeaderException");
     }
 
     // WebClient를 이용한 외부 API요청에 예외가 발생한 경우
@@ -61,13 +64,29 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleWebClientException(WebClientException e) {
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         ErrorResponse er = getErrorResponse(e.getMessage(), errorCode);
-        log.error("WebClientExcpetion[{}]", er);
+        if (e.getMessage().contains(OAUTH_UNAUTHORIZED_CODE)) {
+            errorCode = ErrorCode.OAUTH_SERVER_ERROR;
+            er = getErrorResponse(errorCode.getMessage() + ERROR_MESSAGE_DELIMITER + e.getMessage(), errorCode);
+        }
+        return getResponseEntity(errorCode, er, "handleWebClientException");
+    }
+
+    /**
+     * 공통 응답값 반환 메서드
+     *
+     * @param errorCode
+     * @param er
+     * @param exceptionName
+     * @return ResponseEntity<ErrorResponse>
+     */
+    private ResponseEntity<ErrorResponse> getResponseEntity(ErrorCode errorCode, ErrorResponse er, String exceptionName) {
+        log.error("{}[{}]", exceptionName, er);
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(er);
     }
 
-    public static ErrorResponse getErrorResponse(String message, ErrorCode code) {
+    private ErrorResponse getErrorResponse(String message, ErrorCode code) {
         return ErrorResponse.builder()
                 .code(code.getCode())
                 .message(message)
@@ -75,7 +94,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    public static ErrorResponse getErrorResponse(BindException e, ErrorCode code) {
+    private ErrorResponse getErrorResponse(BindException e, ErrorCode code) {
 
         List<ErrorResponse.ValidationError> validationErrorList = e.getBindingResult()
                 .getFieldErrors()
@@ -91,7 +110,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    public static ErrorResponse getErrorResponse(ConstraintViolationException e, ErrorCode code) {
+    private ErrorResponse getErrorResponse(ConstraintViolationException e, ErrorCode code) {
 
         List<ErrorResponse.ValidationError> validationErrorList = e.getConstraintViolations()
                 .stream()
@@ -105,4 +124,5 @@ public class GlobalExceptionHandler {
                 .status(code.getStatus())
                 .build();
     }
+
 }

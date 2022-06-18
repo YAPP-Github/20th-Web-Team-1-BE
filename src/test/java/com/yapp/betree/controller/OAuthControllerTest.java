@@ -51,7 +51,7 @@ public class OAuthControllerTest {
 
         mockMvc.perform(get("/api/signin")
                 .header("X-Kakao-Access-Token", accessToken))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("code").value("O002"))
                 .andDo(print());
     }
@@ -61,12 +61,12 @@ public class OAuthControllerTest {
     void oauthUserInfoInvalidTest() throws Exception {
         String accessToken = "accessToken";
         given(kakaoApiService.supports(accessToken)).willReturn(true);
-        given(kakaoApiService.getUserInfo(accessToken)).willThrow(new KakaoWebClientException("kakao"));
+        given(kakaoApiService.getUserInfo(accessToken)).willThrow(new KakaoWebClientException("401"));
 
         mockMvc.perform(get("/api/signin")
                 .header("X-Kakao-Access-Token", accessToken))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("code").value("C002"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("code").value("O000"))
                 .andDo(print());
     }
 

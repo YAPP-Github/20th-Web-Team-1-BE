@@ -31,10 +31,10 @@ public class OAuthController {
      */
     @ApiOperation(value = "OAuth 인증", notes = "카카오에서 받아온 토큰으로 로그인(회원가입)")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "[C001]Invalid input value(Required request header is not present)\n" +
-                    "[O001]OAuth로 받아온 유저정보가 올바르지 않습니다.\n" +
+            @ApiResponse(code = 400, message = "[C001]Invalid input value(Required request header is not present)"),
+            @ApiResponse(code = 401, message = "[O000]OAuth 서버와의 연동에 실패했습니다.(kakao api 실패, 토큰 만료 등)\n" +
+                    "[O001]OAuth로 받아온 유저정보가 올바르지 않습니다. - 이메일 누락 등 \n" +
                     "[O002]OAuth로 받아온 액세스 토큰이 만료되었습니다.\n"),
-            @ApiResponse(code = 500, message = "[C002]Internal server error(kakao api요청 실패)"),
     })
     @GetMapping("/api/signin")
     public ResponseEntity<OAuthUserInfoDto> oauthTest(@RequestHeader("X-Kakao-Access-Token") String accessToken) {
