@@ -25,7 +25,6 @@ public class EntityTest {
     @DisplayName("기본 DB 값 생성")
     @Test
     void createEntity() {
-
         User user = User.builder()
                 .nickName("user")
                 .email("user@user.com")
