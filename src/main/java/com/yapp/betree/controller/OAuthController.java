@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Api
 @RestController
@@ -28,7 +29,10 @@ import java.util.Arrays;
 @Slf4j
 public class OAuthController {
 
-    public static final int BEARER_INDEX = 7;
+    public static final String SET_COOKIE_HEADER = "Set-Cookie";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String AUTH_TYPE = "Bearer ";
+    public static final String COOKIE_REFRESH_TOKEN = "refreshToken";
 
     private final LoginService loginService;
 
@@ -52,19 +56,7 @@ public class OAuthController {
         log.info("회원 로그인 요청 accessToken: {}", accessToken);
 
         JwtTokenDto token = loginService.createToken(accessToken);
-        log.info("JWT 토큰 발급 : {}", token);
-
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
-                .maxAge(24 * 60 * 60 * 7)
-                .path("/")
-                .secure(true)
-                .sameSite("None")
-                .httpOnly(true)
-                .build();
-        response.setHeader("Set-Cookie", cookie.toString());
-        response.setHeader("Authorization", "Bearer " + token.getAccessToken());
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return buildTokenResponse(response, token);
     }
 
     @ApiOperation(value = "토큰 재발급", notes = "RefreshToken으로 AccessToken 재발급\n" +
@@ -77,26 +69,33 @@ public class OAuthController {
     @GetMapping("/api/refresh-token")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        // TODO token string값 검증, 필터나 인터셉터로 한번에 처리하는거 필요
+        if (Objects.isNull(request.getCookies())) {
+            throw new BetreeException(ErrorCode.USER_REFRESH_ERROR, "쿠키에 토큰이 존재하지 않습니다.");
+        }
+
         String refreshToken = Arrays.stream(request.getCookies())
-                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .filter(cookie -> COOKIE_REFRESH_TOKEN.equals(cookie.getName()))
                 .findAny()
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_REFRESH_ERROR, "쿠키에 토큰이 존재하지 않습니다."))
                 .getValue();
+
         log.info("회원 토큰 재발급 요청 refreshToken: {}", refreshToken);
         JwtTokenDto token = loginService.refreshToken(refreshToken);
+        return buildTokenResponse(response, token);
+    }
+
+    private ResponseEntity<Void> buildTokenResponse(HttpServletResponse response, JwtTokenDto token) {
         log.info("JWT 토큰 발급 : {}", token);
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+        ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, token.getRefreshToken())
                 .maxAge(24 * 60 * 60 * 7)
                 .path("/")
                 .secure(true)
                 .sameSite("None")
                 .httpOnly(true)
                 .build();
-        response.setHeader("Set-Cookie", cookie.toString());
-        response.setHeader("Authorization", "Bearer " + token.getAccessToken());
-
+        response.setHeader(SET_COOKIE_HEADER, cookie.toString());
+        response.setHeader(AUTHORIZATION_HEADER, AUTH_TYPE + token.getAccessToken());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

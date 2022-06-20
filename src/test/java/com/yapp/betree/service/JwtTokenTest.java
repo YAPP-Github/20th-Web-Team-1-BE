@@ -5,6 +5,9 @@ import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +21,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Jwt 토큰 관련 테스트")
 public class JwtTokenTest {
+
+    public static final String JWT_TOKEN_TEST = Jwts.builder()
+            .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+            .signWith(SignatureAlgorithm.HS256, "secretKey")
+            .claim("id","1")
+            .claim("nickname","닉네임")
+            .claim("email","email@email.com")
+            .compact();
+
 
     private JwtTokenProvider jwtTokenProvider;
 

@@ -21,8 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("OAuth 컨트롤러 테스트")
 @WebMvcTest(OAuthController.class)
-@MockBean(JpaMetamodelMappingContext.class)
-public class OAuthControllerTest {
+public class OAuthControllerTest extends ControllerTest{
 
     @Autowired
     private MockMvc mockMvc;
