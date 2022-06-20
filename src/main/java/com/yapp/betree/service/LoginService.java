@@ -4,6 +4,8 @@ import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,23 @@ public class LoginService {
             loginUser = Optional.of(userService.save(oAuthUserInfoDto.generateSignUpUser()));
         }
 
-        return jwtTokenProvider.createToken(LoginUserDto.of(loginUser.get()));
+        JwtTokenDto token = jwtTokenProvider.createToken(LoginUserDto.of(loginUser.get()));
+        userService.saveRefreshToken(token.getRefreshToken(), loginUser.get().getId());
+        return token;
+    }
+
+    @Transactional
+    public JwtTokenDto refreshToken(String refreshToken) {
+        // 1. 파싱 (유효성 체크)
+        log.info("refreshToken 파싱 시도 token: {}", refreshToken);
+        Long userId = jwtTokenProvider.parseRefreshToken(refreshToken);
+        log.info("refreshToken 파싱 성공 token: {}, id: {}", refreshToken, userId);
+
+        // 2. DB와 값 비교
+        if (!userService.isValidRefreshToken(refreshToken, userId)) {
+            throw new BetreeException(ErrorCode.USER_REFRESH_ERROR, "userId = " + userId);
+        }
+        User user = userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
+        return jwtTokenProvider.refreshToken(LoginUserDto.of(user), refreshToken);
     }
 }

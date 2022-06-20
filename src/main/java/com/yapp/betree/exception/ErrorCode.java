@@ -20,6 +20,9 @@ public enum ErrorCode {
     // User
     USER_TOKEN_EXPIRED(401, "U001","JWT 토큰이 만료되었습니다. 재발급이 필요합니다."),
     USER_TOKEN_ERROR(401,"U002","JWT 토큰 파싱에 실패했습니다."),
+    USER_REFRESH_TOKEN_EXPIRED(401,"U003", "JWT 리프레시 토큰이 만료되었습니다. 재로그인이 필요합니다."),
+    USER_REFRESH_ERROR(401,"U004", "유효하지 않은 JWT 리프레시 토큰입니다. 재로그인이 필요합니다."),
+    USER_NOT_FOUND(404, "U005", "회원을 찾을 수 없습니다."),
     ;
 
     private final int status;

@@ -30,7 +30,7 @@ public class LoginUserDto {
      */
     public static LoginUserDto of(User user) {
         return LoginUserDto.builder()
-                .id(user.getOauthId())
+                .id(user.getId())
                 .nickname(user.getNickName())
                 .email(user.getEmail())
                 .build();

@@ -39,11 +39,18 @@ public class JwtTokenProvider {
     public JwtTokenDto createToken(LoginUserDto user) {
         return JwtTokenDto.builder()
                 .accessToken(createAccessToken(user))
-                .refreshToken(createRefreshToken())
+                .refreshToken(createRefreshToken(user.getId()))
                 .build();
     }
 
-    String createAccessToken(LoginUserDto user) {
+    public JwtTokenDto refreshToken(LoginUserDto user, String refreshToken) {
+        return JwtTokenDto.builder()
+                .accessToken(createAccessToken(user))
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public String createAccessToken(LoginUserDto user) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -57,13 +64,14 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    String createRefreshToken() {
+    String createRefreshToken(Long userId) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer(ISSUER)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenValidMilliseconds))
+                .claim("id", userId)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
@@ -78,6 +86,20 @@ public class JwtTokenProvider {
             throw new BetreeException(ErrorCode.USER_TOKEN_EXPIRED, "token = " + token);
         } catch (JwtException e) {
             throw new BetreeException(ErrorCode.USER_TOKEN_ERROR, "token = " + token);
+        }
+    }
+
+    public Long parseRefreshToken(String token) {
+        try {
+            Claims body = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return Long.valueOf(String.valueOf(body.get("id")));
+        } catch (ExpiredJwtException e) {
+            throw new BetreeException(ErrorCode.USER_REFRESH_TOKEN_EXPIRED, "token = " + token);
+        } catch (JwtException e) {
+            throw new BetreeException(ErrorCode.USER_REFRESH_ERROR, "token = " + token);
         }
     }
 }
