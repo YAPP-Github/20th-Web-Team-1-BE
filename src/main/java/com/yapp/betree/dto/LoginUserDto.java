@@ -1,5 +1,7 @@
 package com.yapp.betree.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.yapp.betree.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,6 +12,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginUserDto {
     private Long id;
     private String nickname;

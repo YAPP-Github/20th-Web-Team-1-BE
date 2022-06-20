@@ -25,17 +25,19 @@ public class JwtTokenTest {
     public static final String JWT_TOKEN_TEST = Jwts.builder()
             .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
             .signWith(SignatureAlgorithm.HS256, "secretKey")
-            .claim("id","1")
-            .claim("nickname","닉네임")
-            .claim("email","email@email.com")
+            .claim("id", "1")
+            .claim("nickname", "닉네임")
+            .claim("email", "email@email.com")
             .compact();
+
+    public static final JwtTokenProvider JWT_PROVIDER = new JwtTokenProvider("secretKey", 600000L, 864000000L);
 
 
     private JwtTokenProvider jwtTokenProvider;
 
     @BeforeEach
     void setUp() {
-        jwtTokenProvider = new JwtTokenProvider("secretKey", 600000L, 864000000L);
+        jwtTokenProvider = JWT_PROVIDER;
     }
 
     @Test

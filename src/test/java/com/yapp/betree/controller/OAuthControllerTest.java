@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.reactive.function.client.WebClientException;
@@ -21,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("OAuth 컨트롤러 테스트")
 @WebMvcTest(OAuthController.class)
-public class OAuthControllerTest extends ControllerTest{
+public class OAuthControllerTest extends ControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

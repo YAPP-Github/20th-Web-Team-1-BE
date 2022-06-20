@@ -1,5 +1,6 @@
 package com.yapp.betree.interceptor;
 
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
@@ -15,6 +16,7 @@ import java.util.Optional;
 @Slf4j
 public class TokenInterceptor implements HandlerInterceptor {
 
+    public static final String USER_ATTR_KEY = "user";
     private final JwtTokenProvider jwtTokenProvider;
 
     public TokenInterceptor(JwtTokenProvider jwtTokenProvider) {
@@ -36,6 +38,15 @@ public class TokenInterceptor implements HandlerInterceptor {
             throw new BetreeException(ErrorCode.USER_TOKEN_ERROR, "토큰의 payload는 null일 수 없습니다.");
         }
         log.info("[토큰 검증 성공] claims: {}", claims);
+
+        if (claims.containsKey("id")) { // @LoginUser 생성 위함 -> 테스트할때는 claims가 {}라서 제외
+            request.setAttribute(USER_ATTR_KEY, LoginUserDto.builder()
+                    .id(Long.parseLong(String.valueOf(claims.get("id"))))
+                    .nickname((String) claims.get("nickname"))
+                    .email((String) claims.get("email"))
+                    .build()
+            );
+        }
         return true;
     }
 }
