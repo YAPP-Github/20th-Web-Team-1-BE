@@ -8,10 +8,15 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Api
 @RestController
@@ -27,7 +32,8 @@ public class OAuthController {
      * @param accessToken
      * @return
      */
-    @ApiOperation(value = "OAuth 인증", notes = "카카오에서 받아온 토큰으로 로그인(회원가입)")
+    @ApiOperation(value = "OAuth 인증", notes = "카카오에서 받아온 토큰으로 로그인(회원가입\n" +
+            "요청 완료시 쿠키(HttpOnly)로 리프레시 토큰, 헤더(Authorization)로 Bearer accessToken이 발급됩니다.")
     @ApiResponses({
             @ApiResponse(code = 400, message = "[C001]Invalid input value(Required request header is not present)"),
             @ApiResponse(code = 401, message = "[O000]OAuth 서버와의 연동에 실패했습니다.(kakao api 실패, 토큰 만료 등)\n" +
@@ -35,11 +41,23 @@ public class OAuthController {
                     "[O002]OAuth로 받아온 액세스 토큰이 만료되었습니다.\n"),
     })
     @GetMapping("/api/signin")
-    public ResponseEntity<JwtTokenDto> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Void> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken, HttpServletResponse response) {
         log.info("회원 로그인 요청 accessToken: {}", accessToken);
 
         JwtTokenDto token = loginService.createToken(accessToken);
         log.info("JWT 토큰 발급 : {}", token);
-        return ResponseEntity.ok(token);
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+                .maxAge(24 * 60 * 60 * 7)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
+        response.setHeader("Authorization", "Bearer " + token.getAccessToken());
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

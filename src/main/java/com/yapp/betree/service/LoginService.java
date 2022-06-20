@@ -23,6 +23,7 @@ public class LoginService {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Transactional
     public JwtTokenDto createToken(String accessToken) {
         // 1. 토큰 유효성 검증 및 oAuthId 획득
         Long oauthId = kakaoApiService.getOauthId(accessToken);

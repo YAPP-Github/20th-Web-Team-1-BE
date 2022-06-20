@@ -1,5 +1,6 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.service.LoginService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,5 +62,24 @@ public class OAuthControllerTest {
         public KakaoWebClientException(String msg) {
             super(msg);
         }
+    }
+
+    @Test
+    @DisplayName("회원가입, 로그인 - 성공하면 헤더를 통해 토큰이 발급된다.")
+    void signAndCreateTokenTest() throws Exception {
+        String accessToken = "accessToken";
+        given(loginService.createToken(accessToken)).willReturn(JwtTokenDto.builder()
+                .accessToken("betreeAccessToken")
+                .refreshToken("betreeRefreshToken")
+                .build());
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/signin")
+                .header("X-Kakao-Access-Token", accessToken))
+                .andExpect(status().isCreated())
+                .andDo(print())
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getCookie("refreshToken").getValue()).isEqualTo("betreeRefreshToken");
+        assertThat(mvcResult.getResponse().getHeader("Authorization")).isEqualTo("Bearer betreeAccessToken");
     }
 }
