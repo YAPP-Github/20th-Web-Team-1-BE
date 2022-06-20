@@ -1,5 +1,6 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.service.LoginService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,11 +35,11 @@ public class OAuthController {
                     "[O002]OAuth로 받아온 액세스 토큰이 만료되었습니다.\n"),
     })
     @GetMapping("/api/signin")
-    public ResponseEntity<String> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken) {
+    public ResponseEntity<JwtTokenDto> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken) {
         log.info("회원 로그인 요청 accessToken: {}", accessToken);
 
-        // TODO jwt토큰 발급
-        String betreeToken = loginService.createToken(accessToken);
-        return ResponseEntity.ok(betreeToken);
+        JwtTokenDto token = loginService.createToken(accessToken);
+        log.info("JWT 토큰 발급 : {}", token);
+        return ResponseEntity.ok(token);
     }
 }

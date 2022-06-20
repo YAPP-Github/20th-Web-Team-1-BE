@@ -1,7 +1,10 @@
 package com.yapp.betree.service;
 
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.LoginUserDto;
+import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
+import com.yapp.betree.service.oauth.JwtTokenProvider;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +21,9 @@ public class LoginService {
 
     private final KakaoApiService kakaoApiService;
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public String createToken(String accessToken) {
+    public JwtTokenDto createToken(String accessToken) {
         // 1. 토큰 유효성 검증 및 oAuthId 획득
         Long oauthId = kakaoApiService.getOauthId(accessToken);
 
@@ -31,6 +35,7 @@ public class LoginService {
             // 2-2. DB에 유저 등록(회원가입)하며 로그인 유저 생성
             loginUser = Optional.of(userService.save(oAuthUserInfoDto.generateSignUpUser()));
         }
-        return null;
+
+        return jwtTokenProvider.createToken(LoginUserDto.of(loginUser.get()));
     }
 }
