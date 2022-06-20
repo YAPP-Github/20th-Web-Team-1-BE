@@ -40,4 +40,8 @@ public class Folder extends BaseTimeEntity {
         this.level = level;
         this.user = user;
     }
+
+    public void updateUser(User user){
+        this.user = user;
+    }
 }

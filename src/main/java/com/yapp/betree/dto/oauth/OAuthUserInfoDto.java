@@ -1,5 +1,7 @@
 package com.yapp.betree.dto.oauth;
 
+import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.util.BetreeUtils;
 import lombok.AccessLevel;
@@ -31,7 +33,13 @@ public class OAuthUserInfoDto {
      * @return
      */
     public User generateSignUpUser() {
-        return User.builder()
+        Folder folder = Folder.builder()
+                .fruit(FruitType.DEFAULT)
+                .level(0L)
+                .name("DEFAULT")
+                .build();
+
+        User user = User.builder()
                 .oauthId(id)
                 .nickName(nickname)
                 .email(email)
@@ -39,5 +47,7 @@ public class OAuthUserInfoDto {
                 .lastAccessTime(LocalDateTime.now())
                 .url(BetreeUtils.makeUserAccessUrl(this))
                 .build();
+        user.addFolder(folder);
+        return user;
     }
 }

@@ -6,10 +6,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,8 +55,11 @@ public class User extends BaseTimeEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Message> receivedMessages = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Folder> folders = new ArrayList<>();
+
     @Builder
-    public User(Long id, Long oauthId, String nickName, String email, String userImage, LocalDateTime lastAccessTime, String url, boolean randomMessageRemind, boolean forestOff, boolean onlyFriends, List<Message> receivedMessages) {
+    public User(Long id, Long oauthId, String nickName, String email, String userImage, LocalDateTime lastAccessTime, String url, boolean randomMessageRemind, boolean forestOff, boolean onlyFriends, List<Message> receivedMessages, List<Folder> folders) {
         this.id = id;
         this.oauthId = oauthId;
         this.nickName = nickName;
@@ -59,5 +71,17 @@ public class User extends BaseTimeEntity {
         this.forestOff = forestOff;
         this.onlyFriends = onlyFriends;
         this.receivedMessages = receivedMessages;
+        if (Objects.isNull(receivedMessages)) {
+            this.receivedMessages = new ArrayList<>();
+        }
+        this.folders = folders;
+        if (Objects.isNull(folders)) {
+            this.folders = new ArrayList<>();
+        }
+    }
+
+    public void addFolder(Folder folder) {
+        this.folders.add(folder);
+        folder.updateUser(this); // 원래 이거만 해도 추가됨
     }
 }
