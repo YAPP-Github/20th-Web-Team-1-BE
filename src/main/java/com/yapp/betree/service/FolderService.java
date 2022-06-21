@@ -42,26 +42,26 @@ public class FolderService {
      * @return ForestResponseDto
      */
     public ForestResponseDto userForest(Long userId, int page) {
-        Slice<Folder> folderList;
-
-        // TO DO - page != 0,1 일때 예외처리 개선
+        // TODO - page != 0,1 일때 예외처리 개선
+        // 다음 페이지 존재여부 + 빈값 프론트에서 처리하게 할지 ,백엔드에서 에러로 페이지 에러를 보내주는게 나을지 결정 필요
         if (page != 0 && page != 1) {
-            throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "페이지는 0 또는 1이여야 합니다.");
+            throw new BetreeException(ErrorCode.FOREST_PAGE_ERROR, "page = " + page);
         }
 
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
 
-        //다음 페이지 존재 여부
-        boolean hasNext = folderRepository.findByUserId(userId, pageRequest).hasNext();
+        Slice<Folder> folderList = folderRepository.findByUserId(userId, pageRequest);
 
-        folderList = folderRepository.findByUserId(userId, pageRequest);
+        if (!folderList.hasContent()) {
+            throw new BetreeException(ErrorCode.FOREST_EMPTY_PAGE, "page = " + page);
+        }
 
         List<TreeResponseDto> treeResponseDtoList = new ArrayList<>();
         for (Folder folder : folderList) {
             treeResponseDtoList.add(new TreeResponseDto(folder.getId(), folder.getName()));
         }
 
-        return new ForestResponseDto(hasNext, treeResponseDtoList);
+        return new ForestResponseDto(folderList.hasNext(), treeResponseDtoList);
     }
 
     /**

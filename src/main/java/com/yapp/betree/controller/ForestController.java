@@ -5,6 +5,9 @@ import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.service.FolderService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,12 @@ public class ForestController {
      * @param page
      * @return ForestResponseDto
      */
+    @ApiOperation(value = "유저 나무숲 조회", notes = "유저 나무숲 조회" +
+            "<br/> 옵션: 페이지(0,1)")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "[F001]페이지는 0 또는 1이여야 합니다.\n" +
+                    "[F002]해당 페이지에 나무가 존재하지 않습니다.")
+    })
     @GetMapping("/api/forest")
     public ResponseEntity<ForestResponseDto> userForest(
             @RequestParam Long userId,
