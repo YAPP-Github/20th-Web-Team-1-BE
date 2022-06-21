@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Api
 @RestController
 @RequiredArgsConstructor
@@ -72,10 +74,16 @@ public class ForestController {
      * @param treeRequestDto 나무(이름,타입) DTO
      * @return
      */
+    @ApiOperation(value = "유저 나무 추가", notes = "유저 나무 추가")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "[C004]잘못된 ENUM값 입니다.\n" +
+                    "[C001]Invalid input value (나무 이름은 빈 값일 수 없습니다)")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/forest")
     public ResponseEntity<Object> createTree(
             @RequestParam Long userId,
-            @RequestBody TreeRequestDto treeRequestDto) throws Exception {
+            @Valid @RequestBody TreeRequestDto treeRequestDto) throws Exception {
 
         log.info("나무 추가 userId: {}", userId);
 

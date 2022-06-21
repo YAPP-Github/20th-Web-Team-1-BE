@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(400, "C001", "Invalid input value"),
     INTERNAL_SERVER_ERROR(500, "C002", "Internal server error"),
     METHOD_NOT_ALLOWED(405, "C003", "Method not allowed"),
+    ENUM_FORMAT_INVALID(400, "C004", "잘못된 ENUM값 입니다."),
 
     // Forest
     FOREST_PAGE_ERROR(400,"F001","페이지는 0 또는 1이어야 합니다."),

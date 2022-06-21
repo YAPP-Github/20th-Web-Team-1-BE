@@ -120,7 +120,7 @@ public class FolderService {
     @Transactional
     public void createTree(Long userId, TreeRequestDto treeRequestDto) throws Exception {
 
-        User user = userRepository.findById(userId).orElseThrow(Exception::new);
+        User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + userId));
 
         Folder folder = Folder.builder()
                 .fruit(treeRequestDto.getFruitType())
