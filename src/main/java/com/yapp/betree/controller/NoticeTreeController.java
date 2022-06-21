@@ -2,6 +2,7 @@ package com.yapp.betree.controller;
 
 import com.yapp.betree.dto.response.NoticeResponseDto;
 import com.yapp.betree.service.NoticeTreeService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Api
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class NoticeTreeController {
      * @param userId
      * @return NoticeResponseDto
      */
-    @GetMapping(value = "/api/notice")
+    @GetMapping("/api/notice")
     public ResponseEntity<NoticeResponseDto> getUnreadMessageList(@RequestParam Long userId) {
 
         log.info("[userId] : {}", userId);

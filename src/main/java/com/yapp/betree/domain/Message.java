@@ -49,4 +49,26 @@ public class Message extends BaseTimeEntity {
         this.user = user;
         this.folder = folder;
     }
+
+    /**
+     * 읽음 여부 상태 변경 메서드
+     */
+    public void updateAlreadyRead() {
+        this.alreadyRead = !this.alreadyRead;
+    }
+
+    /**
+     * 익명 여부 상태 변경 메서드
+     */
+    public void updateAnonymous() {
+        this.anonymous = !this.anonymous;
+    }
+
+    /**
+     * 공개 여부 상태 변경 메서드
+     */
+    public void updateOpening() {
+        this.opening = !this.opening;
+    }
+
 }
