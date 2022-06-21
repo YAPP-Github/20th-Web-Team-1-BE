@@ -1,6 +1,7 @@
 package com.yapp.betree.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.yapp.betree.domain.Message;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +19,10 @@ public class MessageResponseDto {
     private String senderProfileImage;
 
     @Builder
-    public MessageResponseDto(Long id, String content, boolean anonymous, String senderNickName, String senderProfileImage) {
-        this.id = id;
-        this.content = content;
-        this.anonymous = anonymous;
+    public MessageResponseDto(Message message, String senderNickName, String senderProfileImage) {
+        this.id = message.getId();
+        this.content = message.getContent();
+        this.anonymous = message.isAnonymous();
         this.senderNickName = senderNickName;
         this.senderProfileImage = senderProfileImage;
     }
