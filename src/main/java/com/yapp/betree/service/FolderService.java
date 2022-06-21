@@ -76,7 +76,7 @@ public class FolderService {
         Long prevId;
         Long nextId;
 
-        Folder folder = folderRepository.findById(treeId).orElseThrow(Exception::new);
+        Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
         // 이전, 다음 폴더 없을때 0L으로 처리
         try {
@@ -98,7 +98,7 @@ public class FolderService {
         List<MessageResponseDto> messageResponseDtoList = new ArrayList<>();
         for (Message m : messageList) {
 
-            User sender = userRepository.findById(m.getSenderId()).orElseThrow(Exception::new);
+            User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + m.getSenderId()));
 
             //익명이면 닉네임 '익명' 으로 변경
             if (m.isAnonymous()) {

@@ -14,7 +14,13 @@ public enum ErrorCode {
 
     // Forest
     FOREST_PAGE_ERROR(400,"F001","페이지는 0 또는 1이어야 합니다."),
-    FOREST_EMPTY_PAGE(400, "FOO2", "해당 페이지에 나무가 존재하지 않습니다.")
+    FOREST_EMPTY_PAGE(400, "FOO2", "해당 페이지에 나무가 존재하지 않습니다."),
+
+    // Tree
+    TREE_NOT_FOUND(404,"T001", "나무가 존재하지 않습니다."),
+
+    // User
+    USER_NOT_FOUND(404, "U001","회원을 찾을 수 없습니다.")
     ;
 
     private final int status;

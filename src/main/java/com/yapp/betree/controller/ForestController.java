@@ -51,6 +51,11 @@ public class ForestController {
      * @param treeId
      * @return TreeFullResponseDto
      */
+    @ApiOperation(value = "유저 상세 나무 조회", notes = "유저 상세 나무 조회")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
+                    "[U001]회원을 찾을 수 없습니다.")
+    })
     @GetMapping("/api/forest/{treeId}")
     public ResponseEntity<TreeFullResponseDto> userDetailTree(
             @RequestParam Long userId,
