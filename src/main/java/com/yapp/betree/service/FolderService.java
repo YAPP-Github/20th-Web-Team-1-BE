@@ -65,6 +65,22 @@ public class FolderService {
     }
 
     /**
+     * 유저 전체 나무숲 조회
+     *
+     * @param userId
+     * @return
+     */
+    public ForestResponseDto userForestAll(Long userId) {
+        List<Folder> folderList = folderRepository.findAllByUserId(userId);
+
+        List<TreeResponseDto> treeResponseDtoList = new ArrayList<>();
+        for (Folder folder : folderList) {
+            treeResponseDtoList.add(new TreeResponseDto(folder.getId(), folder.getName()));
+        }
+        return new ForestResponseDto(false, treeResponseDtoList);
+    }
+
+    /**
      * 유저 상세 나무 조회
      *
      * @param userId
