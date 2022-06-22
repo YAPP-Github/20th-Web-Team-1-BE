@@ -93,7 +93,7 @@ public class MessageService {
             if (m.isAnonymous()) {
                 message = new MessageBoxResponseDto(m, "익명", "기본이미지");
             } else {
-                message = new MessageBoxResponseDto(m, m.getUser().getNickName(), m.getUser().getUserImage());
+                message = new MessageBoxResponseDto(m, m.getUser().getNickname(), m.getUser().getUserImage());
             }
             responseDtos.add(message);
         }

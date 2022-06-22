@@ -33,7 +33,7 @@ public class ArgumentResolverTest {
 
         Assertions.assertThat(user.getId()).isEqualTo(TEST_SAVE_USER.getId());
         Assertions.assertThat(user.getEmail()).isEqualTo(TEST_SAVE_USER.getEmail());
-        Assertions.assertThat(user.getNickname()).isEqualTo(TEST_SAVE_USER.getNickName());
+        Assertions.assertThat(user.getNickname()).isEqualTo(TEST_SAVE_USER.getNickname());
     }
 
     static class testArgumentResolver extends UserHandlerMethodArgumentResolver {

@@ -18,18 +18,18 @@ public class MessageBoxResponseDto {
     private boolean alreadyRead;
     private boolean favorite;
     private boolean opening;
-    private String senderNickName;
+    private String senderNickname;
     private String senderProfileImage;
 
     @Builder
-    public MessageBoxResponseDto(Message message, String senderNickName, String senderProfileImage) {
+    public MessageBoxResponseDto(Message message, String senderNickname, String senderProfileImage) {
         this.id = message.getId();
         this.content = message.getContent();
         this.anonymous = message.isAnonymous();
         this.alreadyRead = message.isAlreadyRead();
         this.favorite = message.isFavorite();
         this.opening = message.isOpening();
-        this.senderNickName = senderNickName;
+        this.senderNickname = senderNickname;
         this.senderProfileImage = senderProfileImage;
     }
 }
