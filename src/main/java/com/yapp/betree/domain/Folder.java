@@ -41,7 +41,15 @@ public class Folder extends BaseTimeEntity {
         this.user = user;
     }
 
+
     public void updateUser(User user){
         this.user = user;
+
+    /**
+     * 나무 편집 메서드
+     */
+    public void update(String name, FruitType fruit) {
+        this.name = name;
+        this.fruit = fruit;
     }
 }

@@ -1,7 +1,6 @@
 package com.yapp.betree.dto.response;
 
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,14 +8,13 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ForestResponseDto {
+public class MessagePageResponseDto {
 
+    private List<MessageBoxResponseDto> responseDto;
     private boolean hasNext;
-    private List<TreeResponseDto> trees;
 
-    @Builder
-    public ForestResponseDto(boolean hasNext, List<TreeResponseDto> trees) {
+    public MessagePageResponseDto(List<MessageBoxResponseDto> responseDto, boolean hasNext) {
+        this.responseDto = responseDto;
         this.hasNext = hasNext;
-        this.trees = trees;
     }
 }
