@@ -1,5 +1,7 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.annotation.LoginUser;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
@@ -9,6 +11,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.web.bind.annotation.*;
 
 @Api
@@ -22,17 +29,14 @@ public class ForestController {
     /**
      * 유저 나무숲 조회
      *
-     * @param userId
-     * @param page
+     * @param loginUser
      * @return ForestResponseDto
      */
     @GetMapping("/api/forest")
-    public ResponseEntity<ForestResponseDto> userForest(
-            @RequestParam Long userId,
-            @RequestParam int page) throws Exception {
+    public ResponseEntity<ForestResponseDto> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser) {
 
-        log.info("나무숲 조회 userId: {}", userId);
-        return ResponseEntity.ok(folderService.userForest(userId, page));
+        log.info("나무숲 조회 userId: {}", loginUser.getId());
+        return ResponseEntity.ok(folderService.userForest(loginUser.getId()));
     }
 
     /**
