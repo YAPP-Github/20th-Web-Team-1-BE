@@ -15,8 +15,6 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     List<Folder> findAllByUserId(Long userId);
 
-    Slice<Folder> findByUserId(Long userId, Pageable pageable);
-
     //prev
     Folder findTop1ByUserAndIdLessThanOrderByIdDesc(User user, Long id);
 

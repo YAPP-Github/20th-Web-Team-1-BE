@@ -3,8 +3,8 @@ package com.yapp.betree.controller;
 import com.yapp.betree.annotation.LoginUser;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
-import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
+import com.yapp.betree.dto.response.TreeResponseDto;
 import com.yapp.betree.service.FolderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @Api
 @RestController
@@ -42,7 +45,7 @@ public class ForestController {
                     "[F002]해당 페이지에 나무가 존재하지 않습니다.")
     })
     @GetMapping("/api/forest")
-    public ResponseEntity<ForestResponseDto> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser) {
+    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser) {
 
         log.info("나무숲 조회 userId: {}", loginUser.getId());
         return ResponseEntity.ok(folderService.userForest(loginUser.getId()));
