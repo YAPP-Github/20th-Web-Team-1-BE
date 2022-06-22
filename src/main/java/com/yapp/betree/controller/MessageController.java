@@ -4,12 +4,16 @@ import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.service.MessageService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,26 +26,27 @@ public class MessageController {
 
     private final MessageService messageService;
 
-
     /**
      * 칭찬 메세지 생성 (물 주기)
      *
-     * @param data       HTTP header
      * @param requestDto messageRequestDto
      */
+    @ApiOperation(value = "칭찬 메시지 생성(물주기)", notes = "칭찬 메시지 생성(물주기)")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "[C001]Invalid input value\n" +
+                    "[F002]해당 페이지에 나무가 존재하지 않습니다."),
+            @ApiResponse(code = 404, message = "[U001]회원을 찾을 수 없습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/messages")
-    public ResponseEntity<Object> createMessage(@RequestHeader Map<String, String> data,
-                                                @RequestBody MessageRequestDto requestDto) {
+    public ResponseEntity<Object> createMessage(@RequestParam boolean isLogin,
+                                                @Valid @RequestBody MessageRequestDto requestDto) {
 
-        log.info("[HeaderMap] : {}", data);
-
-        String token = data.getOrDefault("Authorization", String.valueOf(0));
+        log.info("물주기 요청 : {}", requestDto);
 
         long userId;
-        if (!Objects.equals(token, "0")) {
-            //TO-DO
-            //디코딩 하는 부분
-            //나중에 util로 빼더라도.. 일단 이런 식이 괜찮은 지 적어봤습니다..
+        if (isLogin) {
             userId = 30L;
         } else {
             userId = 1L;

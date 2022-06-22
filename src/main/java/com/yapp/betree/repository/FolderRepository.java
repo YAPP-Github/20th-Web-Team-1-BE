@@ -7,10 +7,13 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
-    Slice<Folder> findByUserId(Long userId, Pageable pageable);
+
+    List<Folder> findAllByUserId(Long userId);
 
     //prev
     Folder findTop1ByUserAndIdLessThanOrderByIdDesc(User user, Long id);

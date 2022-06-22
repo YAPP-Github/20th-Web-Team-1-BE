@@ -18,7 +18,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.yapp.betree.exception.ErrorCode.TREE_NOT_FOUND;
+import static com.yapp.betree.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -41,11 +47,9 @@ public class MessageService {
     public void createMessage(Long senderId, MessageRequestDto requestDto) {
 
         //수신자 유저 객체 조회
-        User user = userRepository.findById(requestDto.getReceiverId()).orElseThrow(
-                NoSuchElementException::new
-        );
+        User user = userRepository.findById(requestDto.getReceiverId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "receiverId = " + requestDto.getReceiverId()));
 
-        Folder folder = folderRepository.getById(requestDto.getFolderId());
+        Folder folder = folderRepository.findById(requestDto.getFolderId()).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "tree = " + requestDto.getFolderId()));
 
         Message message = Message.builder()
                 .senderId(senderId)
