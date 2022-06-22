@@ -34,7 +34,7 @@ public class User extends BaseTimeEntity {
     private Long oauthId;
 
     @Column(nullable = false)
-    private String nickName;
+    private String nickname;
 
     @Column(nullable = false)
     private String email;
@@ -59,10 +59,10 @@ public class User extends BaseTimeEntity {
     private List<Folder> folders = new ArrayList<>();
 
     @Builder
-    public User(Long id, Long oauthId, String nickName, String email, String userImage, LocalDateTime lastAccessTime, String url, boolean randomMessageRemind, boolean forestOff, boolean onlyFriends, List<Message> receivedMessages, List<Folder> folders) {
+    public User(Long id, Long oauthId, String nickname, String email, String userImage, LocalDateTime lastAccessTime, String url, boolean randomMessageRemind, boolean forestOff, boolean onlyFriends, List<Message> receivedMessages, List<Folder> folders) {
         this.id = id;
         this.oauthId = oauthId;
-        this.nickName = nickName;
+        this.nickname = nickname;
         this.email = email;
         this.userImage = userImage;
         this.lastAccessTime = lastAccessTime;

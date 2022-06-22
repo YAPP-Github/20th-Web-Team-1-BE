@@ -89,7 +89,7 @@ public class FolderService {
             if (m.isAnonymous()) {
                 messageResponseDtoList.add(new MessageResponseDto(m, "익명", "기본 이미지"));
             } else {
-                messageResponseDtoList.add(new MessageResponseDto(m, sender.getNickName(), sender.getUserImage()));
+                messageResponseDtoList.add(new MessageResponseDto(m, sender.getNickname(), sender.getUserImage()));
             }
         }
 

@@ -51,7 +51,7 @@ public class JwtTokenTest {
 
         // then
         assertThat(String.valueOf(accessTokenClaims.get("id"))).isEqualTo(String.valueOf(TEST_SAVE_USER.getId()));
-        assertThat(accessTokenClaims.get("nickname")).isEqualTo(TEST_SAVE_USER.getNickName());
+        assertThat(accessTokenClaims.get("nickname")).isEqualTo(TEST_SAVE_USER.getNickname());
         assertThat(accessTokenClaims.get("email")).isEqualTo(TEST_SAVE_USER.getEmail());
     }
 

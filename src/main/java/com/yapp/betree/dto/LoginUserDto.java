@@ -1,6 +1,5 @@
 package com.yapp.betree.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.yapp.betree.domain.User;
 import lombok.AccessLevel;
@@ -34,7 +33,7 @@ public class LoginUserDto {
     public static LoginUserDto of(User user) {
         return LoginUserDto.builder()
                 .id(user.getId())
-                .nickname(user.getNickName())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .build();
     }

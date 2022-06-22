@@ -29,6 +29,6 @@ public class UserRepositoryTest {
         // then
         Optional<User> userByOauthId = userRepository.findByOauthId(user.getOauthId());
         assertThat(userByOauthId).isPresent();
-        assertThat(userByOauthId.get().getNickName()).isEqualTo(user.getNickName());
+        assertThat(userByOauthId.get().getNickname()).isEqualTo(user.getNickname());
     }
 }
