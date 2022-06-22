@@ -1,5 +1,7 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.annotation.LoginUser;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
@@ -14,14 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
+import springfox.documentation.annotations.ApiIgnore;
+import org.springframework.web.bind.annotation.*;
 
 @Api
 @RestController
@@ -34,8 +32,7 @@ public class ForestController {
     /**
      * 유저 나무숲 조회
      *
-     * @param userId
-     * @param page
+     * @param loginUser
      * @return ForestResponseDto
      */
     @ApiOperation(value = "유저 나무숲 조회", notes = "유저 나무숲 조회(userId로 다른사람 것도 볼 수 있는 나무숲)" +
@@ -45,27 +42,10 @@ public class ForestController {
                     "[F002]해당 페이지에 나무가 존재하지 않습니다.")
     })
     @GetMapping("/api/forest")
-    public ResponseEntity<ForestResponseDto> userForest(
-            @RequestParam Long userId,
-            @RequestParam int page) throws Exception {
+    public ResponseEntity<ForestResponseDto> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser) {
 
-        log.info("나무숲 조회 userId: {}", userId);
-        return ResponseEntity.ok(folderService.userForest(userId, page));
-    }
-
-    /**
-     * 유저 나무숲 전체 조회
-     *
-     * @param userId (TODO 나중에 로그인 처리하면 param 지워야함)
-     * @return ForestResponseDto
-     */
-    @ApiOperation(value = "유저 나무숲 전체 조회", notes = "유저 나무숲 조회(로그인된 사용자 자신의 나무숲 전체 조회 - 물주기 폴더 선택 용)")
-    @GetMapping("/api/forest-all")
-    public ResponseEntity<ForestResponseDto> userForestAll(
-            @RequestParam Long userId) throws Exception {
-
-        log.info("나무숲 전체 조회 userId: {}", userId);
-        return ResponseEntity.ok(folderService.userForestAll(userId));
+        log.info("나무숲 조회 userId: {}", loginUser.getId());
+        return ResponseEntity.ok(folderService.userForest(loginUser.getId()));
     }
 
     /**

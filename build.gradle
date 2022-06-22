@@ -29,6 +29,16 @@ dependencies {
     implementation "io.springfox:springfox-boot-starter:3.0.0"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.5.2'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient 테스트
+    testImplementation group: 'com.squareup.okhttp', name: 'mockwebserver', version: '1.2.1'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.2.0'
+
+    // 테스트용 H2
+    runtimeOnly 'com.h2database:h2'
+
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
 }
 
 tasks.named('test') {
