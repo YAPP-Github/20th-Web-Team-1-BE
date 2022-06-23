@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TreeResponseDto {
@@ -28,7 +30,7 @@ public class TreeResponseDto {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(id, name);
     }
 
     @Override
