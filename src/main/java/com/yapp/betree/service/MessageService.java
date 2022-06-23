@@ -74,23 +74,40 @@ public class MessageService {
 
     /**
      * 메세지함 목록 조회
+     * - treeId 입력시 폴더별 조회
      *
      * @param userId
+     * @param page
+     * @param treeId
+     * @return
      */
-    public MessagePageResponseDto getMessageList(Long userId, int page) {
+    public MessagePageResponseDto getMessageList(Long userId, int page, Long treeId) {
 
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
 
         //다음 페이지 존재 여부
         boolean hasNext = messageRepository.findByUserId(userId, pageRequest).hasNext();
 
-        Slice<Message> messages = messageRepository.findByUserId(userId, pageRequest);
+        Slice<Message> messages;
+        if (treeId == null) {
+            //전체 목록 조회
+            messages = messageRepository.findByUserId(userId, pageRequest);
+        } else {
+            if (folderRepository.findById(treeId).isPresent()) {
+                //해당 폴더 메세지 목록 조회
+                messages = messageRepository.findByUserIdAndFolderId(userId, treeId, pageRequest);
+            } else {
+                //존재하지 않는 treeId 입력시
+                throw new BetreeException(TREE_NOT_FOUND, "treeId = " + treeId);
+            }
+        }
 
         List<MessageBoxResponseDto> responseDtos = new ArrayList<>();
 
         for (Message m : messages) {
             MessageBoxResponseDto message;
             if (m.isAnonymous()) {
+                //TODO 기본이미지 링크 넣기
                 message = new MessageBoxResponseDto(m, "익명", "기본이미지");
             } else {
                 message = new MessageBoxResponseDto(m, m.getUser().getNickname(), m.getUser().getUserImage());
@@ -103,7 +120,8 @@ public class MessageService {
     /**
      * 선택한 메세지 공개로 설정 (열매 맺기)
      *
-     * @param messageIdList 선택한 메세지 ID list
+     * @param userId
+     * @param messageIdList
      */
     @Transactional
     public void updateMessageOpening(Long userId, List<Long> messageIdList) {

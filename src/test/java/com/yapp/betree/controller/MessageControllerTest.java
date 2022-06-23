@@ -2,6 +2,7 @@ package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
@@ -67,6 +68,7 @@ class MessageControllerTest {
 
         mockMvc.perform(post("/api/messages")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("isLogin", String.valueOf(true))
                         .content(objectMapper.writeValueAsString(input)))
                 .andDo(print())
                 .andExpect(status().isCreated());
@@ -77,8 +79,9 @@ class MessageControllerTest {
     void getMessageList() throws Exception {
 
         mockMvc.perform(get("/api/messages")
-                        .param("userId", String.valueOf(1L))
-                        .param("page", String.valueOf(1)))
+                        .param("userId", String.valueOf(12L))
+                        .param("page", String.valueOf(0))
+                        .param("treeId", String.valueOf(19L)))
                 .andDo(print())
                 .andExpect(status().isOk());
 

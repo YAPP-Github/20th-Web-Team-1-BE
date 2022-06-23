@@ -11,6 +11,10 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByUserIdAndOpening(Long userId, boolean opening);
+
     Slice<Message> findByUserId(Long userId, Pageable pageable);
+
+    Slice<Message> findByUserIdAndFolderId(Long userId, Long treeId, Pageable pageable);
+
     List<Message> findTop8ByFolderIdAndOpening(Long treeId, boolean opening);
 }

@@ -26,7 +26,7 @@ public class EntityTest {
     @Test
     void createEntity() {
         User user = User.builder()
-                .nickName("user")
+                .nickname("user")
                 .email("user@user.com")
                 .url("testUrl")
                 .lastAccessTime(LocalDateTime.now())
