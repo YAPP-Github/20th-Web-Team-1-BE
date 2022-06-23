@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -35,18 +36,13 @@ public class FolderService {
      * 유저 나무숲 조회
      *
      * @param userId
-     * @return ForestResponseDto
+     * @return List<TreeResponseDto>
      */
     public List<TreeResponseDto> userForest(Long userId) {
-
-        List<Folder> folderList = folderRepository.findAllByUserId(userId);
-
-        List<TreeResponseDto> treeResponseDtoList = new ArrayList<>();
-        for (Folder folder : folderList) {
-            treeResponseDtoList.add(new TreeResponseDto(folder.getId(), folder.getName()));
-        }
-
-        return treeResponseDtoList;
+        return folderRepository.findAllByUserId(userId)
+                .stream()
+                .map(TreeResponseDto::of)
+                .collect(Collectors.toList());
     }
 
     /**

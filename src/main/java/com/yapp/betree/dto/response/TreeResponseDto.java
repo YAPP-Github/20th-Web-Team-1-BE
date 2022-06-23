@@ -25,4 +25,21 @@ public class TreeResponseDto {
                 .name(folder.getName())
                 .build();
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        TreeResponseDto objDto = (TreeResponseDto) obj;
+        if (this.id != objDto.getId()) {
+            return false;
+        }
+        if (!this.name.equals(objDto.getName())) {
+            return false;
+        }
+        return true;
+    }
 }

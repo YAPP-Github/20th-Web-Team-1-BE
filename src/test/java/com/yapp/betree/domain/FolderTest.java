@@ -1,12 +1,11 @@
 package com.yapp.betree.domain;
 
 import com.yapp.betree.dto.response.TreeResponseDto;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("폴더(나무) 도메인, DTO 테스트")
 public class FolderTest {
@@ -50,5 +49,17 @@ public class FolderTest {
 
         assertThat(treeDto.getId()).isEqualTo(TEST_SAVE_APPLE_TREE.getId());
         assertThat(treeDto.getName()).isEqualTo(TEST_SAVE_APPLE_TREE.getName());
+    }
+
+    @Test
+    @DisplayName("override 메서드 테스트")
+    void overrideTest() {
+        TreeResponseDto of = TreeResponseDto.of(TEST_SAVE_APPLE_TREE);
+        TreeResponseDto build = TreeResponseDto.builder()
+                .id(TEST_SAVE_APPLE_TREE.getId())
+                .name(TEST_SAVE_APPLE_TREE.getName())
+                .build();
+        assertThat(of).isEqualTo(build);
+        assertThat(of.hashCode()).isEqualTo(build.hashCode());
     }
 }

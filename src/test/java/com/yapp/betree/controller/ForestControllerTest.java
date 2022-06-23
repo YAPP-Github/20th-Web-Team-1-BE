@@ -2,63 +2,75 @@ package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.FruitType;
-import com.yapp.betree.repository.FolderRepository;
-import com.yapp.betree.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.yapp.betree.dto.response.TreeResponseDto;
+import com.yapp.betree.exception.ErrorCode;
+import com.yapp.betree.service.FolderService;
+import com.yapp.betree.service.JwtTokenTest;
+import com.yapp.betree.service.UserService;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Transactional
-@AutoConfigureMockMvc
 @DisplayName("ForestController Test")
-public class ForestControllerTest {
+@WebMvcTest(ForestController.class)
+public class ForestControllerTest extends ControllerTest {
 
-    @Autowired
-    ForestController ForestController;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    FolderRepository folderRepository;
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
-    protected MockMvc mockMvc;
+    private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(ForestController)
-                .addFilters(new CharacterEncodingFilter("UTF-8", true)) // utf-8 필터 추가
-                .build();
+    @MockBean
+    private UserService userService;
+
+    @MockBean
+    private FolderService folderService;
+
+    @DisplayName("유저 나무숲 조회 - 존재하지 않는 userId는 예외가 발생한다.")
+    @Test
+    void userFailForest() throws Exception {
+        Long userId = 1L;
+        given(userService.isExist(userId)).willReturn(false);
+
+        mockMvc.perform(get("/api/forest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("userId", String.valueOf(userId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code").value(ErrorCode.USER_NOT_FOUND.getCode()))
+                .andDo(print());
     }
 
-    @DisplayName("유저 나무숲 조회")
+    @DisplayName("유저 나무숲 조회 - userId에 해당하는 유저가 가진 나무숲이 전체 조회된다.")
     @Test
     void userForest() throws Exception {
+        Long userId = 1L;
+        given(userService.isExist(userId)).willReturn(true);
+        given(folderService.userForest(userId)).willReturn(Lists.newArrayList(TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE)));
 
-        mockMvc.perform(get("/api/forest?page=0")
+        mockMvc.perform(get("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("userId", String.valueOf(1L)))
-                .andDo(print())
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("userId", String.valueOf(userId)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.trees.length()").value(4));
+                .andExpect(jsonPath("$[0].id").value(TEST_SAVE_DEFAULT_TREE.getId()))
+                .andDo(print());
     }
 
     @DisplayName("유저 상세 나무 조회")
@@ -66,8 +78,8 @@ public class ForestControllerTest {
     void userDetailTree() throws Exception {
 
         mockMvc.perform(get("/api/forest/10")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", String.valueOf(1L)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("userId", String.valueOf(1L)))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -82,9 +94,9 @@ public class ForestControllerTest {
         input.put("fruitType", FruitType.APPLE);
 
         mockMvc.perform(post("/api/forest")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", String.valueOf(1L))
-                        .content(objectMapper.writeValueAsString(input)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("userId", String.valueOf(1L))
+                .content(objectMapper.writeValueAsString(input)))
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
@@ -99,9 +111,9 @@ public class ForestControllerTest {
         input.put("fruitType", FruitType.APPLE);
 
         mockMvc.perform(put("/api/forest/18")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", String.valueOf(1L))
-                        .content(objectMapper.writeValueAsString(input)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("userId", String.valueOf(1L))
+                .content(objectMapper.writeValueAsString(input)))
                 .andDo(print())
                 .andExpect(status().isCreated());
     }

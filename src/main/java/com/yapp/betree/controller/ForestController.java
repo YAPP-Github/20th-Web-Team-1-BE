@@ -5,7 +5,10 @@ import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.FolderService;
+import com.yapp.betree.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,10 +19,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
-import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,6 +37,7 @@ import java.util.List;
 public class ForestController {
 
     private final FolderService folderService;
+    private final UserService userService;
 
     /**
      * 유저 나무숲 조회
@@ -38,17 +45,15 @@ public class ForestController {
      * @param loginUser
      * @return ForestResponseDto
      */
-    @ApiOperation(value = "유저 나무숲 조회", notes = "유저 나무숲 조회(userId로 다른사람 것도 볼 수 있는 나무숲)" +
-            "<br/> 옵션: 페이지(0,1)")
-    @ApiResponses({
-            @ApiResponse(code = 400, message = "[F001]페이지는 0 또는 1이여야 합니다.\n" +
-                    "[F002]해당 페이지에 나무가 존재하지 않습니다.")
-    })
+    @ApiOperation(value = "유저 나무숲 조회", notes = "유저 나무숲 조회")
     @GetMapping("/api/forest")
-    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser) {
-
-        log.info("나무숲 조회 userId: {}", loginUser.getId());
-        return ResponseEntity.ok(folderService.userForest(loginUser.getId()));
+    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                            @RequestParam Long userId) {
+        log.info("[나무숲] 유저 나무숲 조회 userId: {}", userId);
+        if (!userService.isExist(userId)) {
+            throw new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = "+userId);
+        }
+        return ResponseEntity.ok(folderService.userForest(userId));
     }
 
     /**
