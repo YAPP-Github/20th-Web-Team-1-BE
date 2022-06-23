@@ -2,7 +2,6 @@ package com.yapp.betree.service;
 
 
 import com.yapp.betree.domain.Folder;
-import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,44 +50,30 @@ public class FolderService {
      * @param treeId
      * @return TreeFullResponseDto
      */
-    public TreeFullResponseDto userDetailTree(Long userId, Long treeId) throws Exception {
-
-        Long prevId;
-        Long nextId;
-
+    public TreeFullResponseDto userDetailTree(Long userId, Long treeId) {
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
+        if (folder.getUser().getId() != userId) {
+            throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "잘못된 접근입니다. 유저와 나무의 주인이 일치하지 않습니다.");
+        }
+
         // 이전, 다음 폴더 없을때 0L으로 처리
-        try {
-            prevId = folderRepository.findTop1ByUserAndIdLessThanOrderByIdDesc(folder.getUser(), treeId).getId();
-        } catch (NullPointerException e) {
-            prevId = 0L;
-        }
+        Long prevId = folderRepository.findTop1ByUserAndIdLessThanOrderByIdDesc(folder.getUser(), treeId)
+                .map(Folder::getId)
+                .orElse(0L);
+        Long nextId = folderRepository.findTop1ByUserAndIdGreaterThan(folder.getUser(), treeId)
+                .map(Folder::getId)
+                .orElse(0L);
 
-        try {
-            nextId = folderRepository.findTop1ByUserAndIdGreaterThan(folder.getUser(), treeId).getId();
-        } catch (NullPointerException e) {
-            nextId = 0L;
-        }
-
-        //opening== true 인 메세지 8개 가져오기
-        List<Message> messageList = messageRepository.findTop8ByFolderIdAndOpening(treeId, true);
-
-        //messageList를 dto로 감싸기
-        List<MessageResponseDto> messageResponseDtoList = new ArrayList<>();
-        for (Message m : messageList) {
-
-            User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + m.getSenderId()));
-
-            //익명이면 닉네임 '익명' 으로 변경
-            if (m.isAnonymous()) {
-                messageResponseDtoList.add(new MessageResponseDto(m, "익명", "기본 이미지"));
-            } else {
-                messageResponseDtoList.add(new MessageResponseDto(m, sender.getNickname(), sender.getUserImage()));
-            }
-        }
-
-        return new TreeFullResponseDto(folder, prevId, nextId, messageResponseDtoList);
+        // opening == true 인 메세지 8개 가져오기
+        List<MessageResponseDto> messageResponseDtos = messageRepository.findTop8ByFolderIdAndOpening(treeId, true)
+                .stream()
+                .map(m -> {
+                    User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + m.getSenderId()));
+                    return MessageResponseDto.of(m, sender);
+                })
+                .collect(Collectors.toList());
+        return new TreeFullResponseDto(folder, prevId, nextId, messageResponseDtos);
     }
 
     /**

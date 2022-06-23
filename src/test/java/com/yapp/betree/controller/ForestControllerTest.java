@@ -2,6 +2,9 @@ package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.FruitType;
+import com.yapp.betree.domain.MessageTest;
+import com.yapp.betree.dto.response.MessageResponseDto;
+import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.FolderService;
@@ -20,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
+import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -42,13 +46,21 @@ public class ForestControllerTest extends ControllerTest {
     @MockBean
     private FolderService folderService;
 
-    @DisplayName("유저 나무숲 조회 - 존재하지 않는 userId는 예외가 발생한다.")
+    @DisplayName("유저 나무숲 , 상세 나무 조회 - 존재하지 않는 userId는 예외가 발생한다.")
     @Test
     void userFailForest() throws Exception {
         Long userId = 1L;
         given(userService.isExist(userId)).willReturn(false);
 
         mockMvc.perform(get("/api/forest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("userId", String.valueOf(userId)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code").value(ErrorCode.USER_NOT_FOUND.getCode()))
+                .andDo(print());
+
+        mockMvc.perform(get("/api/forest/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
@@ -76,10 +88,20 @@ public class ForestControllerTest extends ControllerTest {
     @DisplayName("유저 상세 나무 조회")
     @Test
     void userDetailTree() throws Exception {
-
-        mockMvc.perform(get("/api/forest/10")
+        Long userId = 1L;
+        given(userService.isExist(userId)).willReturn(true);
+        given(folderService.userDetailTree(userId, 1L)).willReturn(
+                TreeFullResponseDto.builder()
+                        .folder(TEST_SAVE_DEFAULT_TREE)
+                        .messages(Lists.newArrayList(MessageResponseDto.of(MessageTest.TEST_SAVE_MESSAGE, TEST_SAVE_USER)))
+                        .prevId(0L)
+                        .nextId(0L)
+                        .build()
+        );
+        mockMvc.perform(get("/api/forest/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("userId", String.valueOf(1L)))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("userId", String.valueOf(userId)))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
