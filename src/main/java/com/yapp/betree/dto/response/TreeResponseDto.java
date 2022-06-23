@@ -1,5 +1,6 @@
 package com.yapp.betree.dto.response;
 
+import com.yapp.betree.domain.Folder;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +17,12 @@ public class TreeResponseDto {
     public TreeResponseDto(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public static TreeResponseDto of(Folder folder) {
+        return TreeResponseDto.builder()
+                .id(folder.getId())
+                .name(folder.getName())
+                .build();
     }
 }
