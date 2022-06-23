@@ -1,6 +1,7 @@
 package com.yapp.betree.service;
 
 import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.request.MessageRequestDto;
@@ -49,7 +50,13 @@ public class MessageService {
         //수신자 유저 객체 조회
         User user = userRepository.findById(requestDto.getReceiverId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "receiverId = " + requestDto.getReceiverId()));
 
-        Folder folder = folderRepository.findById(requestDto.getFolderId()).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "tree = " + requestDto.getFolderId()));
+        Folder folder;
+        if (requestDto.getFolderId() == null) {
+            //상대방 디폴트 폴더로 지정
+            folder = folderRepository.findByUserIdAndFruit(requestDto.getReceiverId(), FruitType.DEFAULT);
+        } else {
+            folder = folderRepository.findById(requestDto.getFolderId()).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "tree = " + requestDto.getFolderId()));
+        }
 
         Message message = Message.builder()
                 .senderId(senderId)

@@ -62,8 +62,8 @@ class MessageControllerTest {
         Map<String, Object> input = new HashMap<>();
 
         input.put("receiverId", user.getId());
-        input.put("content", "컨트롤러 테스트");
-        input.put("folderId", 10L);
+        input.put("content", "컨트롤러 테스트하겠스비다 ^^;;");
+        input.put("folderId", 18L); //없으면 디폴트 폴더로 자동 지정
         input.put("anonymous", false);
 
         mockMvc.perform(post("/api/messages")
