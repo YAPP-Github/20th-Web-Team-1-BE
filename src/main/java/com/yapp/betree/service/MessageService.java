@@ -43,6 +43,7 @@ public class MessageService {
      *
      * @param senderId   발신유저아이디
      * @param requestDto messageRequestDto
+     * @return
      */
     @Transactional
     public void createMessage(Long senderId, MessageRequestDto requestDto) {
@@ -67,9 +68,9 @@ public class MessageService {
                 .build();
 
         //로그인 안 한 상태에서 메세지 전송시 익명 여부 true 설정
-        if (senderId == 1L) {
-            message.updateAnonymous();
-        }
+//        if (senderId == 1L && !message.isAnonymous()) {
+//            message.updateAnonymous();
+//        }
 
         // 본인에게 보낸 메세지일 때 읽음 여부 true 설정
         if (Objects.equals(senderId, requestDto.getReceiverId())) {

@@ -57,9 +57,10 @@ public class MessageController {
         if (isLogin && loginUser.getId() != null) {
             userId = loginUser.getId();
         } else if (!isLogin && loginUser.getId() == null) {
-            userId = 1L;
 
+            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
             //TODO 비로그인 물 주기
+
         } else {
             //로그인 여부와 로그인 유저 값이 맞지 않음
             throw new BetreeException(INVALID_INPUT_VALUE, "isLogin = " + isLogin + ", loginUser = " + loginUser);
