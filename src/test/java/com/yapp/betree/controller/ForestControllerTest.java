@@ -24,6 +24,8 @@ import java.util.Map;
 
 import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,7 +50,7 @@ public class ForestControllerTest extends ControllerTest {
 
     @DisplayName("유저 나무숲 , 상세 나무 조회 - 존재하지 않는 userId는 예외가 발생한다.")
     @Test
-    void userFailForest() throws Exception {
+    void userFailForestTest() throws Exception {
         Long userId = 1L;
         given(userService.isExist(userId)).willReturn(false);
 
@@ -71,7 +73,7 @@ public class ForestControllerTest extends ControllerTest {
 
     @DisplayName("유저 나무숲 조회 - userId에 해당하는 유저가 가진 나무숲이 전체 조회된다.")
     @Test
-    void userForest() throws Exception {
+    void userForestTest() throws Exception {
         Long userId = 1L;
         given(userService.isExist(userId)).willReturn(true);
         given(folderService.userForest(userId)).willReturn(Lists.newArrayList(TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE)));
@@ -87,7 +89,7 @@ public class ForestControllerTest extends ControllerTest {
 
     @DisplayName("유저 상세 나무 조회")
     @Test
-    void userDetailTree() throws Exception {
+    void userDetailTreeTest() throws Exception {
         Long userId = 1L;
         given(userService.isExist(userId)).willReturn(true);
         given(folderService.userDetailTree(userId, 1L)).willReturn(
@@ -108,27 +110,80 @@ public class ForestControllerTest extends ControllerTest {
 
     @DisplayName("나무 추가")
     @Test
-    void createTree() throws Exception {
-
+    void createTreeTest() throws Exception {
+        // given
         Map<String, Object> input = new HashMap<>();
-
-        input.put("name", "new folder");
+        input.put("name", "update folder");
         input.put("fruitType", FruitType.APPLE);
+
+        // when
+        given(folderService.createTree(anyLong(), any())).willReturn(1L);
 
         mockMvc.perform(post("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("userId", String.valueOf(1L))
-                .content(objectMapper.writeValueAsString(input)))
-                .andDo(print())
-                .andExpect(status().isCreated());
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$").value(1L))
+                .andDo(print());
+    }
+
+    @DisplayName("나무 추가 - DEFAULT 나무 추가를 시도하면 예외가 발생한다.")
+    @Test
+    void createTreeEnumTest() throws Exception {
+        // given
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "update folder");
+        input.put("fruitType", FruitType.DEFAULT);
+
+        mockMvc.perform(post("/api/forest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("T002"))
+                .andDo(print());
+    }
+
+    @DisplayName("나무 추가 - 나무 이름은 20자를 넘을 수 없다.")
+    @Test
+    void createTreeNameTest() throws Exception {
+        // given
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "update folder over length limit");
+        input.put("fruitType", FruitType.DEFAULT);
+
+        mockMvc.perform(post("/api/forest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("C001"))
+                .andDo(print());
+    }
+
+    @DisplayName("나무 추가 - 나무 이름은 빈값일 수 없다")
+    @Test
+    void createTreeNameBlankTest() throws Exception {
+        // given
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "");
+        input.put("fruitType", FruitType.DEFAULT);
+
+        mockMvc.perform(post("/api/forest")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("C001"))
+                .andDo(print());
     }
 
     @DisplayName("나무 편집")
     @Test
     void updateTree() throws Exception {
-
+        // given
         Map<String, Object> input = new HashMap<>();
-
         input.put("name", "update folder");
         input.put("fruitType", FruitType.APPLE);
 

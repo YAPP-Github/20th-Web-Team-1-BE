@@ -51,6 +51,7 @@ public class FolderService {
      * @return TreeFullResponseDto
      */
     public TreeFullResponseDto userDetailTree(Long userId, Long treeId) {
+
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
         if (folder.getUser().getId() != userId) {
@@ -83,7 +84,7 @@ public class FolderService {
      * @param treeRequestDto
      */
     @Transactional
-    public void createTree(Long userId, TreeRequestDto treeRequestDto) throws Exception {
+    public Long createTree(Long userId, TreeRequestDto treeRequestDto) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + userId));
 
@@ -94,7 +95,7 @@ public class FolderService {
                 .level(0L)
                 .build();
 
-        folderRepository.save(folder);
+        return folderRepository.save(folder).getId();
     }
 
     /**

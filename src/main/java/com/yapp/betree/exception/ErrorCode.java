@@ -19,6 +19,7 @@ public enum ErrorCode {
 
     // Tree
     TREE_NOT_FOUND(404,"T001", "나무가 존재하지 않습니다."),
+    TREE_NOT_DEFAULT(400,"T002","기본 나무를 생성,변경 할 수 없습니다."),
 
     //OAuth
     OAUTH_SERVER_ERROR(401, "O000", "OAuth 서버와의 연동에 실패했습니다."),

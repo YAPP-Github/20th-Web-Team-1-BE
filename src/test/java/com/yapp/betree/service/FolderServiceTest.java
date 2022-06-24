@@ -1,6 +1,9 @@
 package com.yapp.betree.service;
 
+import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
+import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
@@ -19,13 +22,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static com.yapp.betree.domain.FolderTest.TEST_SAVE_APPLE_TREE;
-import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
+import static com.yapp.betree.domain.FolderTest.*;
 import static com.yapp.betree.domain.MessageTest.TEST_SAVE_ANONYMOUS_MESSAGE;
 import static com.yapp.betree.domain.MessageTest.TEST_SAVE_MESSAGE;
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -135,5 +138,37 @@ public class FolderServiceTest {
         // then
         assertThat(trees.getPrevId()).isEqualTo(0L);
         assertThat(trees.getNextId()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("유저 나무 추가 - 나무를 추가하려는 userId가 존재하지 않으면 에외가 발생한다.")
+    void createTreeUserNotFoundTest() {
+        // given
+        Long userId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> folderService.createTree(userId, null))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("회원을 찾을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 나무 추가 - 나무 추가")
+    void createTreeTest() {
+        // given
+        Long userId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+
+        TreeRequestDto treeRequestDto = TreeRequestDto.builder()
+                .name("나무")
+                .fruitType(FruitType.APPLE)
+                .build();
+        given(folderRepository.save(any(Folder.class))).willReturn(TEST_APPLE_TREE);
+
+        // when
+        Long treeId = folderService.createTree(userId, treeRequestDto);
+
+        // then
+        assertThat(treeId).isEqualTo(TEST_APPLE_TREE.getId());
     }
 }
