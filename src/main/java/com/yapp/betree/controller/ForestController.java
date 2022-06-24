@@ -72,7 +72,7 @@ public class ForestController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
                     "[U005]회원을 찾을 수 없습니다."),
-            @ApiResponse(code = 400, message = "[C001]Invalid input value : 잘못된 접근입니다. 유저와 나무의 주인이 일치하지 않습니다.")
+            @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무의 주인이 일치하지 않습니다.")
     })
     @GetMapping("/api/forest/{treeId}")
     public ResponseEntity<TreeFullResponseDto> userDetailTree(
@@ -103,12 +103,12 @@ public class ForestController {
     @PostMapping("/api/forest")
     public ResponseEntity<Long> createTree(
             @ApiIgnore @LoginUser LoginUserDto loginUser,
-            @Valid @RequestBody TreeRequestDto treeRequestDto) throws Exception {
+            @Valid @RequestBody TreeRequestDto treeRequestDto) {
 
-        log.info("[나무 추가] userId: {}, reqeust: {}", loginUser.getId(), treeRequestDto);
+        log.info("[나무 추가] userId: {}, request: {}", loginUser.getId(), treeRequestDto);
 
         if (FruitType.DEFAULT == treeRequestDto.getFruitType()) {
-            throw new BetreeException(ErrorCode.TREE_NOT_DEFAULT, "기본 나무 이외의 다른 나무를 선택해주세요.");
+            throw new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "기본 나무 이외의 다른 나무를 선택해주세요.");
         }
 
         Long treeId = folderService.createTree(loginUser.getId(), treeRequestDto);
@@ -121,20 +121,29 @@ public class ForestController {
     /**
      * 유저 나무 편집
      *
-     * @param userId
      * @param treeId         편집할 나무 Id
      * @param treeRequestDto 나무(이름,타입) DTO
      * @return
      */
+    @ApiOperation(value = "유저 나무 편집", notes = "유저 나무 편집")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "[C004]잘못된 ENUM값 입니다.\n" +
+                    "[C001]Invalid input value (나무 이름은 빈 값일 수 없습니다, 나무 이름은 20자를 넘을 수 없습니다.)\n" +
+                    "[T002]기본 나무를 생성,변경할 수 없습니다. - treeId에 해당하는 나무가 DEFAULT일 경우, requestDto.fruitType이 DEFAULT일 경우"),
+            @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무 주인이 일치하지 않습니다."),
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다."),
+    })
     @PutMapping("/api/forest/{treeId}")
-    public ResponseEntity<Object> updateTree(
-            @RequestParam Long userId,
+    public ResponseEntity<Void> updateTree(
+            @ApiIgnore @LoginUser LoginUserDto loginUser,
             @PathVariable Long treeId,
-            @RequestBody TreeRequestDto treeRequestDto) throws Exception {
+            @Valid @RequestBody TreeRequestDto treeRequestDto) {
 
-        log.info("나무 편집 treeId: {}", treeId);
+        log.info("[나무 편집] userId: {}, treeId: {}, request: {}", loginUser.getId(), treeId, treeRequestDto);
 
-        folderService.updateTree(userId, treeId, treeRequestDto);
+        folderService.updateTree(loginUser.getId(), treeId, treeRequestDto);
+        log.info("[나무 편집 완료] treeId : {}, {}", treeId, treeRequestDto);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

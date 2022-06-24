@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
+import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
@@ -79,7 +80,7 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.userDetailTree(2L, TREE_ID))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("Invalid input");
+                .hasMessageContaining("잘못된 접근입니다.");
     }
 
     @Test
@@ -162,6 +163,7 @@ public class FolderServiceTest {
         TreeRequestDto treeRequestDto = TreeRequestDto.builder()
                 .name("나무")
                 .fruitType(FruitType.APPLE)
+                .fruitType(FruitType.APPLE)
                 .build();
         given(folderRepository.save(any(Folder.class))).willReturn(TEST_APPLE_TREE);
 
@@ -170,5 +172,65 @@ public class FolderServiceTest {
 
         // then
         assertThat(treeId).isEqualTo(TEST_APPLE_TREE.getId());
+    }
+
+
+    @Test
+    @DisplayName("유저 나무 편집 - 수정하려는 회원의 userId가 존재하지 않으면 에외가 발생한다.")
+    void updateTreeUserNotFoundTest() {
+        // given
+        Long userId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> folderService.updateTree(userId, null, null))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("회원을 찾을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 나무 편집 - 수정하려는 나무가 존재하지 않으면 에외가 발생한다.")
+    void updateTreeNotFoundTest() {
+        // given
+        Long userId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+
+        Long treeId = 1L;
+        given(folderRepository.findById(treeId)).willReturn(Optional.empty());
+        assertThatThrownBy(() -> folderService.updateTree(userId, treeId, null))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("나무가 존재하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 나무 편집 - 수정하려는 나무의 주인과 유저가 다르면 에외가 발생한다.")
+    void updateTreeForbiddenTest() {
+        // given
+        User user = User.builder()
+                .id(2L)
+                .build();
+        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+
+        Long treeId = 1L;
+        given(folderRepository.findById(treeId)).willReturn(Optional.of(TEST_SAVE_APPLE_TREE));
+
+        assertThatThrownBy(() -> folderService.updateTree(user.getId(), treeId, null))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("잘못된 접근입니다.: 유저와 나무의 주인이 일치하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 나무 편집 - 수정하려는 나무가 Default 폴더이면 예외가 발생한다.(DEFAULT는 수정불가능)")
+    void updateTreeDefaultFolderTest() {
+        // given
+        Long userId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+
+        Long treeId = 1L;
+        given(folderRepository.findById(treeId)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
+
+        TreeRequestDto treeRequestDto = TreeRequestDto.builder().name("변경 이름").fruitType(FruitType.APPLE).build();
+        assertThatThrownBy(() -> folderService.updateTree(userId, treeId, treeRequestDto))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.");
     }
 }

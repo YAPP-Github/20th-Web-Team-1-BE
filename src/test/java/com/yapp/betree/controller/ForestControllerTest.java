@@ -6,6 +6,7 @@ import com.yapp.betree.domain.MessageTest;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
+import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.FolderService;
 import com.yapp.betree.service.JwtTokenTest;
@@ -27,6 +28,7 @@ import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -181,7 +183,7 @@ public class ForestControllerTest extends ControllerTest {
 
     @DisplayName("나무 편집")
     @Test
-    void updateTree() throws Exception {
+    void updateTreeTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
         input.put("name", "update folder");
@@ -190,8 +192,64 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(put("/api/forest/18")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("userId", String.valueOf(1L))
-                .content(objectMapper.writeValueAsString(input)))
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("나무 편집 - 변경하려는 나무가 DEFAULT타입인 경우 예외가 발생한다.")
+    @Test
+    void updateTreeDefaultTest() throws Exception {
+        // given
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "update folder");
+        input.put("fruitType", FruitType.DEFAULT);
+
+        willThrow(new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "변경할 타입을 기본 나무 이외의 다른 나무로 선택해주세요. treeId = " + 18 + ", FruitType = " + FruitType.DEFAULT))
+                .given(folderService).updateTree(anyLong(), anyLong(), any());
+
+        mockMvc.perform(put("/api/forest/18")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("userId", String.valueOf(1L))
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("T002"));
+    }
+
+    @DisplayName("나무 편집 - 나무 이름은 20자를 넘을 수 없다.")
+    @Test
+    void updateTreeNameTest() throws Exception {
+        // given
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "update folder over length limit");
+        input.put("fruitType", FruitType.DEFAULT);
+
+        mockMvc.perform(put("/api/forest/18")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("C001"))
+                .andDo(print());
+    }
+
+    @DisplayName("나무 편집 - 나무 이름은 빈값일 수 없다")
+    @Test
+    void updateTreeNameBlankTest() throws Exception {
+        // given
+        Map<String, Object> input = new HashMap<>();
+        input.put("name", "");
+        input.put("fruitType", FruitType.DEFAULT);
+
+        mockMvc.perform(put("/api/forest/18")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("C001"))
+                .andDo(print());
     }
 }

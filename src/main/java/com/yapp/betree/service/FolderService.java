@@ -55,7 +55,7 @@ public class FolderService {
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
         if (folder.getUser().getId() != userId) {
-            throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "잘못된 접근입니다. 유저와 나무의 주인이 일치하지 않습니다.");
+            throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
         }
 
         // 이전, 다음 폴더 없을때 0L으로 처리
@@ -106,9 +106,16 @@ public class FolderService {
      * @param treeRequestDto
      */
     @Transactional
-    public void updateTree(Long userId, Long treeId, TreeRequestDto treeRequestDto) throws Exception {
+    public void updateTree(Long userId, Long treeId, TreeRequestDto treeRequestDto) {
 
-        Folder folder = folderRepository.findById(treeId).orElseThrow(Exception::new);
+        userRepository.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
+
+        Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
+
+        if (folder.getUser().getId() != userId) {
+            throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
+        }
+
         folder.update(treeRequestDto.getName(), treeRequestDto.getFruitType());
     }
 }
