@@ -2,7 +2,7 @@ package com.yapp.betree.util;
 
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
-import com.yapp.betree.dto.response.MessageBoxResponseDto;
+import com.yapp.betree.dto.response.MessageResponseDto;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +29,7 @@ public class BetreeUtils {
         return "accessUrl";
     }
 
-    public static MessageBoxResponseDto getBetreeMessage(Long id) {
+    public static MessageResponseDto getBetreeMessage(Long id) {
         Long key = id * -1;
         String value = betreeMessages.get(key);
 
@@ -41,7 +41,8 @@ public class BetreeUtils {
                 .favorite(false)
                 .opening(false)
                 .build();
-        return MessageBoxResponseDto.builder()
+
+        return MessageResponseDto.builder()
                 .message(message)
                 .senderNickname("Betree")
                 .senderProfileImage("Betree 이미지")

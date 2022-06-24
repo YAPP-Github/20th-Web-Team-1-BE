@@ -5,7 +5,7 @@ import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.UserInfoFixture;
-import com.yapp.betree.dto.response.MessageBoxResponseDto;
+import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
@@ -125,10 +125,10 @@ public class AcceptanceTest {
         assertThat(unreadMessages).hasSize(1);
 
         // 안읽은 메시지 먼저 8개 리스트에 넣음
-        List<MessageBoxResponseDto> noticeTreeMessages = new ArrayList<>();
+        List<MessageResponseDto> noticeTreeMessages = new ArrayList<>();
         for (Message m : unreadMessages) {
             User sender = userRepository.findById(m.getSenderId()).get();
-            noticeTreeMessages.add(MessageBoxResponseDto.of(message, sender));
+            noticeTreeMessages.add(MessageResponseDto.of(m, sender));
         }
 
         // 즐겨찾기 메시지 (일단 생략)

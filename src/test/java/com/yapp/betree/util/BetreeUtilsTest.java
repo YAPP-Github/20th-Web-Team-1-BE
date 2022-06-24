@@ -1,6 +1,6 @@
 package com.yapp.betree.util;
 
-import com.yapp.betree.dto.response.MessageBoxResponseDto;
+import com.yapp.betree.dto.response.MessageResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,7 @@ public class BetreeUtilsTest {
     @Test
     @DisplayName("기본 칭찬메시지 테스트")
     void betreeMessageTest() {
-        MessageBoxResponseDto betreeMessage = BetreeUtils.getBetreeMessage(1L);
+        MessageResponseDto betreeMessage = BetreeUtils.getBetreeMessage(1L);
         System.out.println(betreeMessage);
     }
 }
