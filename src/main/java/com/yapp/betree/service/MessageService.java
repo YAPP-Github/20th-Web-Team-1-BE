@@ -22,10 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-import static com.yapp.betree.exception.ErrorCode.TREE_NOT_FOUND;
-import static com.yapp.betree.exception.ErrorCode.USER_NOT_FOUND;
+import static com.yapp.betree.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -144,8 +142,49 @@ public class MessageService {
         }
         // 지금 선택된 메세지만 true로 변경
         for (Long id : messageIdList) {
-            Optional<Message> message = messageRepository.findById(id);
-            message.ifPresent(Message::updateOpening);
+            Message message = messageRepository.findById(id).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + id));
+            message.updateOpening();
+        }
+    }
+
+    /**
+     * 메세지 삭제
+     *
+     * @param userId
+     * @param messageIds
+     */
+    @Transactional
+    public void deleteMessages(Long userId, List<Long> messageIds) {
+
+        for (Long id : messageIds) {
+            try {
+                Message message = messageRepository.findByIdAndUserId(id, userId);
+                messageRepository.delete(message);
+            } catch (Exception e) {
+                throw new BetreeException(MESSAGE_NOT_FOUND, "message Id = " + id);
+            }
+        }
+    }
+
+    /**
+     * 메세지 이동
+     *
+     * @param userId
+     * @param messageIds
+     * @param treeId
+     */
+    @Transactional
+    public void moveMessageFolder(Long userId, List<Long> messageIds, Long treeId) {
+
+        Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "treeId = " + treeId));
+
+        for (Long id : messageIds) {
+            try {
+                Message message = messageRepository.findByIdAndUserId(id, userId);
+                message.updateFolder(folder);
+            } catch (Exception e) {
+                throw new BetreeException(MESSAGE_NOT_FOUND, "message Id = " + id);
+            }
         }
     }
 }

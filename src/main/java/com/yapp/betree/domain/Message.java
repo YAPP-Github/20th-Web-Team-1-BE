@@ -71,4 +71,11 @@ public class Message extends BaseTimeEntity {
         this.opening = !this.opening;
     }
 
+    /**
+     * 폴더 변경 메서드
+     */
+    public void updateFolder(Folder folder) {
+        this.folder = folder;
+    }
+
 }

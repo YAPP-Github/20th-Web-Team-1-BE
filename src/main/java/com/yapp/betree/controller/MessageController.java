@@ -126,4 +126,64 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+
+    /**
+     * 메세지 삭제
+     *
+     * @param loginUser
+     * @param messageIds
+     * @return
+     */
+    @ApiOperation(value = "메세지 삭제", notes = "선택한 메세지 삭제")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/api/messages")
+    public ResponseEntity<Object> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                 @RequestBody List<Long> messageIds) {
+
+        if (loginUser.getId() == null) {
+            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
+        }
+
+        log.info("[messageIdList] : {}", messageIds + ", [loginUser Id] : {}" + loginUser.getId());
+
+        messageService.deleteMessages(loginUser.getId(), messageIds);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * 메세지 이동
+     *
+     * @param loginUser
+     * @param messageIds
+     * @param treeId
+     * @return
+     */
+    @ApiOperation(value = "메세지 이동", notes = "선택한 메세지 폴더 이동")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/api/messages/folder")
+    public ResponseEntity<Object> moveMessageFolder(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                    @RequestBody List<Long> messageIds,
+                                                    @RequestParam Long treeId) {
+
+        if (loginUser.getId() == null) {
+            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
+        }
+
+        log.info("[messageIdList] : {}", messageIds + ", [treeId] : {}" + treeId);
+
+        messageService.moveMessageFolder(loginUser.getId(), messageIds, treeId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

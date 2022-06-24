@@ -17,4 +17,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     Slice<Message> findByUserIdAndFolderId(Long userId, Long treeId, Pageable pageable);
 
     List<Message> findTop8ByFolderIdAndOpening(Long treeId, boolean opening);
+
+    Message findByIdAndUserId(Long id, Long userId);
 }

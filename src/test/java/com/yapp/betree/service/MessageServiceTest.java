@@ -140,10 +140,23 @@ public class MessageServiceTest {
     @DisplayName("열매 맺기 - 선택한 메세지 개수가 8개 초과면 예외 발생")
     void fruitCountError() {
 
-        List<Long> messageIdList = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
+        List<Long> messageIds = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
 
-        assertThatThrownBy(() -> messageService.updateMessageOpening(user1.getId(), messageIdList))
+        assertThatThrownBy(() -> messageService.updateMessageOpening(user1.getId(), messageIds))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("Invalid input value");
+    }
+
+    @Test
+    @DisplayName("메세지 삭제 - 존재하지 않는 messageId 입력시 예외 발생")
+    void messageNotFound() {
+
+        given(messageRepository.findByIdAndUserId(user1.getId(), 10L)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        List<Long> messageIds = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
+
+        assertThatThrownBy(() -> messageService.deleteMessages(user1.getId(), messageIds))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("메세지가 존재하지 않습니다.");
     }
 }
