@@ -41,7 +41,7 @@ public class OAuthUserInfoDto {
 
         User user = User.builder()
                 .oauthId(id)
-                .nickName(nickname)
+                .nickname(nickname)
                 .email(email)
                 .userImage("default image uri") // TODO uri 결정
                 .lastAccessTime(LocalDateTime.now())

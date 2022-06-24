@@ -2,12 +2,15 @@ package com.yapp.betree.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yapp.betree.domain.Message;
+import com.yapp.betree.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MessageBoxResponseDto {
@@ -31,5 +34,13 @@ public class MessageBoxResponseDto {
         this.opening = message.isOpening();
         this.senderNickname = senderNickname;
         this.senderProfileImage = senderProfileImage;
+    }
+
+    public static MessageBoxResponseDto of(Message message, User user) {
+        return MessageBoxResponseDto.builder()
+                .message(message)
+                .senderNickname(message.isAnonymous() ? "익명" : user.getNickname())
+                .senderProfileImage(message.isAnonymous() ? "기본 이미지" : user.getUserImage())
+                .build();
     }
 }
