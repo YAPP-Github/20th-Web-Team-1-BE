@@ -79,7 +79,7 @@ public class MessageService {
     }
 
     /**
-     * 메세지함 목록 조회
+     * 메세지 목록 조회
      * - treeId 입력시 폴더별 조회
      *
      * @param userId
@@ -116,7 +116,8 @@ public class MessageService {
                 //TODO 기본이미지 링크 넣기
                 message = new MessageBoxResponseDto(m, "익명", "기본이미지");
             } else {
-                message = new MessageBoxResponseDto(m, m.getUser().getNickname(), m.getUser().getUserImage());
+                User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND));
+                message = new MessageBoxResponseDto(m, sender.getNickname(), sender.getUserImage());
             }
             responseDtos.add(message);
         }
@@ -195,7 +196,7 @@ public class MessageService {
      * @param messageId
      */
     @Transactional
-    public void favoriteMessage(Long userId, Long messageId) {
+    public void updateFavoriteMessage(Long userId, Long messageId) {
 
         try {
             Message message = messageRepository.findByIdAndUserId(messageId, userId);
@@ -203,5 +204,29 @@ public class MessageService {
         } catch (Exception e) {
             throw new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId);
         }
+    }
+
+    /**
+     * 즐겨찾기한 메세지 목록 조회
+     *
+     * @param userId
+     * @param page
+     * @return
+     */
+    @Transactional
+    public MessagePageResponseDto getFavoriteMessage(Long userId, int page) {
+
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
+
+        //다음 페이지 존재 여부
+        Slice<Message> messages = messageRepository.findByUserIdAndFavorite(userId, true, pageRequest);
+
+        List<MessageBoxResponseDto> responseMessages = new ArrayList<>();
+        for (Message m : messages) {
+            User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND));
+            MessageBoxResponseDto dto = new MessageBoxResponseDto(m, sender.getNickname(), sender.getUserImage());
+            responseMessages.add(dto);
+        }
+        return new MessagePageResponseDto(responseMessages, messages.hasNext());
     }
 }

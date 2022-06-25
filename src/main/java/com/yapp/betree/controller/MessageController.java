@@ -72,7 +72,7 @@ public class MessageController {
     }
 
     /**
-     * 메세지함 목록 조회
+     * 메세지 목록 조회
      * - treeId 입력시 폴더별 조회
      *
      * @param loginUser
@@ -80,10 +80,11 @@ public class MessageController {
      * @param treeId
      * @return
      */
-    @ApiOperation(value = "메세지함 목록 조회", notes = "유저의 메세지함 목록 조회- treeId 입력시 폴더별 조회 / 없으면 전체 조회")
+    @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 전체 조회")
     @ApiResponses({
             @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
-            @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.")
+            @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
+                    "[U005]회원을 찾을 수 없습니다.")
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/messages")
@@ -201,8 +202,8 @@ public class MessageController {
     })
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/api/messages/favorite")
-    public ResponseEntity<Object> favoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                  @RequestParam Long messageId) {
+    public ResponseEntity<Object> updateFavoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                        @RequestParam Long messageId) {
 
         if (loginUser.getId() == null) {
             throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
@@ -210,9 +211,30 @@ public class MessageController {
 
         log.info("[messageIdList] : {}", messageId);
 
-        messageService.favoriteMessage(loginUser.getId(), messageId);
+        messageService.updateFavoriteMessage(loginUser.getId(), messageId);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    /**
+     * 즐겨찾기한 메세지 목록 조회
+     *
+     * @param loginUser
+     * @return
+     */
+    @ApiOperation(value = "즐겨찾기 메세지 목록", notes = "즐겨찾기한 메세지 목록 조회")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/api/messages/favorite")
+    public ResponseEntity<MessagePageResponseDto> favoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                                  @RequestParam int page) {
+
+        if (loginUser.getId() == null) {
+            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
+        }
+        return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), page));
+    }
 }
