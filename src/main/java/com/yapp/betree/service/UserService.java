@@ -61,4 +61,8 @@ public class UserService {
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_REFRESH_ERROR, "userId = " + userId));
         return refreshToken.isSame(token);
     }
+
+    public boolean isExist(Long userId){
+        return findById(userId).isPresent();
+    }
 }
