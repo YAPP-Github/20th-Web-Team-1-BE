@@ -26,7 +26,6 @@ public class MessageRequestDto {
     @Length(min = 10, max = 1000, message = "메시지는 최소 10자, 최대 1000자 입력해야합니다.")
     private String content;
 
-    @NotNull(message = "폴더 id를 입력해주세요.")
     @Positive(message = "올바른 id를 입력해주세요.")
     private Long folderId;
 

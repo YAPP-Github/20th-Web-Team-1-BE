@@ -1,6 +1,7 @@
 package com.yapp.betree.service;
 
 import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.request.MessageRequestDto;
@@ -21,10 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
-import static com.yapp.betree.exception.ErrorCode.TREE_NOT_FOUND;
-import static com.yapp.betree.exception.ErrorCode.USER_NOT_FOUND;
+import static com.yapp.betree.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +41,7 @@ public class MessageService {
      *
      * @param senderId   발신유저아이디
      * @param requestDto messageRequestDto
+     * @return
      */
     @Transactional
     public void createMessage(Long senderId, MessageRequestDto requestDto) {
@@ -49,7 +49,13 @@ public class MessageService {
         //수신자 유저 객체 조회
         User user = userRepository.findById(requestDto.getReceiverId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "receiverId = " + requestDto.getReceiverId()));
 
-        Folder folder = folderRepository.findById(requestDto.getFolderId()).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "tree = " + requestDto.getFolderId()));
+        Folder folder;
+        if (requestDto.getFolderId() == null) {
+            //상대방 디폴트 폴더로 지정
+            folder = folderRepository.findByUserIdAndFruit(requestDto.getReceiverId(), FruitType.DEFAULT);
+        } else {
+            folder = folderRepository.findById(requestDto.getFolderId()).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "tree = " + requestDto.getFolderId()));
+        }
 
         Message message = Message.builder()
                 .senderId(senderId)
@@ -60,9 +66,9 @@ public class MessageService {
                 .build();
 
         //로그인 안 한 상태에서 메세지 전송시 익명 여부 true 설정
-        if (senderId == 1L) {
-            message.updateAnonymous();
-        }
+//        if (senderId == 1L && !message.isAnonymous()) {
+//            message.updateAnonymous();
+//        }
 
         // 본인에게 보낸 메세지일 때 읽음 여부 true 설정
         if (Objects.equals(senderId, requestDto.getReceiverId())) {
@@ -73,27 +79,45 @@ public class MessageService {
     }
 
     /**
-     * 메세지함 목록 조회
+     * 메세지 목록 조회
+     * - treeId 입력시 폴더별 조회
      *
      * @param userId
+     * @param page
+     * @param treeId
+     * @return
      */
-    public MessagePageResponseDto getMessageList(Long userId, int page) {
+    public MessagePageResponseDto getMessageList(Long userId, int page, Long treeId) {
 
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
 
         //다음 페이지 존재 여부
         boolean hasNext = messageRepository.findByUserId(userId, pageRequest).hasNext();
 
-        Slice<Message> messages = messageRepository.findByUserId(userId, pageRequest);
+        Slice<Message> messages;
+        if (treeId == null) {
+            //전체 목록 조회
+            messages = messageRepository.findByUserId(userId, pageRequest);
+        } else {
+            if (folderRepository.findById(treeId).isPresent()) {
+                //해당 폴더 메세지 목록 조회
+                messages = messageRepository.findByUserIdAndFolderId(userId, treeId, pageRequest);
+            } else {
+                //존재하지 않는 treeId 입력시
+                throw new BetreeException(TREE_NOT_FOUND, "treeId = " + treeId);
+            }
+        }
 
         List<MessageBoxResponseDto> responseDtos = new ArrayList<>();
 
         for (Message m : messages) {
             MessageBoxResponseDto message;
             if (m.isAnonymous()) {
+                //TODO 기본이미지 링크 넣기
                 message = new MessageBoxResponseDto(m, "익명", "기본이미지");
             } else {
-                message = new MessageBoxResponseDto(m, m.getUser().getNickname(), m.getUser().getUserImage());
+                User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND));
+                message = new MessageBoxResponseDto(m, sender.getNickname(), sender.getUserImage());
             }
             responseDtos.add(message);
         }
@@ -103,7 +127,8 @@ public class MessageService {
     /**
      * 선택한 메세지 공개로 설정 (열매 맺기)
      *
-     * @param messageIdList 선택한 메세지 ID list
+     * @param userId
+     * @param messageIdList
      */
     @Transactional
     public void updateMessageOpening(Long userId, List<Long> messageIdList) {
@@ -118,8 +143,90 @@ public class MessageService {
         }
         // 지금 선택된 메세지만 true로 변경
         for (Long id : messageIdList) {
-            Optional<Message> message = messageRepository.findById(id);
-            message.ifPresent(Message::updateOpening);
+            Message message = messageRepository.findById(id).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + id));
+            message.updateOpening();
         }
+    }
+
+    /**
+     * 메세지 삭제
+     *
+     * @param userId
+     * @param messageIds
+     */
+    @Transactional
+    public void deleteMessages(Long userId, List<Long> messageIds) {
+
+        for (Long id : messageIds) {
+            try {
+                Message message = messageRepository.findByIdAndUserId(id, userId);
+                messageRepository.delete(message);
+            } catch (Exception e) {
+                throw new BetreeException(MESSAGE_NOT_FOUND, "message Id = " + id);
+            }
+        }
+    }
+
+    /**
+     * 메세지 이동
+     *
+     * @param userId
+     * @param messageIds
+     * @param treeId
+     */
+    @Transactional
+    public void moveMessageFolder(Long userId, List<Long> messageIds, Long treeId) {
+
+        Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "treeId = " + treeId));
+
+        for (Long id : messageIds) {
+            try {
+                Message message = messageRepository.findByIdAndUserId(id, userId);
+                message.updateFolder(folder);
+            } catch (Exception e) {
+                throw new BetreeException(MESSAGE_NOT_FOUND, "message Id = " + id);
+            }
+        }
+    }
+
+    /**
+     * 메세지 즐겨찾기 상태 변경
+     *
+     * @param userId
+     * @param messageId
+     */
+    @Transactional
+    public void updateFavoriteMessage(Long userId, Long messageId) {
+
+        try {
+            Message message = messageRepository.findByIdAndUserId(messageId, userId);
+            message.updateFavorite();
+        } catch (Exception e) {
+            throw new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId);
+        }
+    }
+
+    /**
+     * 즐겨찾기한 메세지 목록 조회
+     *
+     * @param userId
+     * @param page
+     * @return
+     */
+    @Transactional
+    public MessagePageResponseDto getFavoriteMessage(Long userId, int page) {
+
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdDate"));
+
+        //다음 페이지 존재 여부
+        Slice<Message> messages = messageRepository.findByUserIdAndFavorite(userId, true, pageRequest);
+
+        List<MessageBoxResponseDto> responseMessages = new ArrayList<>();
+        for (Message m : messages) {
+            User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND));
+            MessageBoxResponseDto dto = new MessageBoxResponseDto(m, sender.getNickname(), sender.getUserImage());
+            responseMessages.add(dto);
+        }
+        return new MessagePageResponseDto(responseMessages, messages.hasNext());
     }
 }
