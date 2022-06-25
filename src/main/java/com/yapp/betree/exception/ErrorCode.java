@@ -19,6 +19,7 @@ public enum ErrorCode {
 
     // Tree
     TREE_NOT_FOUND(404,"T001", "나무가 존재하지 않습니다."),
+    TREE_DEFAULT_ERROR(400,"T002","기본 나무를 생성,변경 할 수 없습니다."),
 
     //Message
     MESSAGE_NOT_FOUND(404,"M001", "메세지가 존재하지 않습니다."),
@@ -35,6 +36,7 @@ public enum ErrorCode {
     USER_REFRESH_ERROR(401,"U004", "유효하지 않은 JWT 리프레시 토큰입니다. 재로그인이 필요합니다."),
     USER_NOT_FOUND(404, "U005", "회원을 찾을 수 없습니다."),
     USER_REQUIRE_LOGIN(401, "U006", "로그인이 필요한 서비스입니다."),
+    USER_FORBIDDEN(403,"U006","잘못된 접근입니다.")
     ;
 
     private final int status;
