@@ -1,11 +1,23 @@
 package com.yapp.betree.domain;
 
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -50,6 +62,13 @@ public class Folder extends BaseTimeEntity {
      * 나무 편집 메서드
      */
     public void update(String name, FruitType fruit) {
+        // DEFAULT 나무일 경우 수정 불가능
+        if (this.fruit == FruitType.DEFAULT) {
+            throw new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "treeId = " + id);
+        }
+        if (fruit == FruitType.DEFAULT) {
+            throw new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "변경할 타입을 기본 나무 이외의 다른 나무로 선택해주세요. treeId = " + id + ", FruitType = " + fruit);
+        }
         this.name = name;
         this.fruit = fruit;
     }

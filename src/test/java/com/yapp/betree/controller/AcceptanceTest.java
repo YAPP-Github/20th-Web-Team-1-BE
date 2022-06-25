@@ -68,7 +68,7 @@ public class AcceptanceTest {
                 .andExpect(status().isCreated());
 
         List<User> users = userRepository.findAll();
-        assertThat(users.get(0).getNickname()).isEqualTo("user");
+        assertThat(users.get(0).getNickname()).isEqualTo("닉네임");
 
         List<Folder> folders = folderRepository.findAll();
         assertThat(folders.get(0).getFruit()).isEqualTo(FruitType.DEFAULT);

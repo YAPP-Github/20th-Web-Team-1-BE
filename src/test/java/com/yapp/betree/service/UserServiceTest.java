@@ -1,6 +1,7 @@
 package com.yapp.betree.service;
 
 import com.yapp.betree.domain.User;
+import com.yapp.betree.domain.UserTest;
 import com.yapp.betree.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,5 +52,33 @@ public class UserServiceTest {
 
         // then
         assertThat(byOauthId).isEmpty();
+    }
+
+    @Test
+    @DisplayName("isExist 테스트 - 존재하는 userId는 true를 반환한다.")
+    void isExistTrueTest() {
+        // given
+        Long userId = 1L;
+        given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+
+        // when
+        boolean exist = userService.isExist(userId);
+
+        // then
+        assertThat(exist).isTrue();
+    }
+
+    @Test
+    @DisplayName("isExist 테스트 - 존재하지 않는 userId는 false를 반환한다.")
+    void isExistFalseTest() {
+        // given
+        Long userId = 1L;
+        given(userService.findById(userId)).willReturn(Optional.empty());
+
+        // when
+        boolean exist = userService.isExist(userId);
+
+        // then
+        assertThat(exist).isFalse();
     }
 }

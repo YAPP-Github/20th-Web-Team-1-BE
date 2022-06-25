@@ -2,6 +2,7 @@ package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
@@ -61,12 +62,13 @@ class MessageControllerTest {
         Map<String, Object> input = new HashMap<>();
 
         input.put("receiverId", user.getId());
-        input.put("content", "컨트롤러 테스트");
-        input.put("folderId", 10L);
+        input.put("content", "컨트롤러 테스트하겠스비다 ^^;;");
+        input.put("folderId", 18L); //없으면 디폴트 폴더로 자동 지정
         input.put("anonymous", false);
 
         mockMvc.perform(post("/api/messages")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .param("isLogin", String.valueOf(true))
                         .content(objectMapper.writeValueAsString(input)))
                 .andDo(print())
                 .andExpect(status().isCreated());
@@ -77,8 +79,9 @@ class MessageControllerTest {
     void getMessageList() throws Exception {
 
         mockMvc.perform(get("/api/messages")
-                        .param("userId", String.valueOf(1L))
-                        .param("page", String.valueOf(1)))
+                        .param("userId", String.valueOf(12L))
+                        .param("page", String.valueOf(0))
+                        .param("treeId", String.valueOf(19L)))
                 .andDo(print())
                 .andExpect(status().isOk());
 
