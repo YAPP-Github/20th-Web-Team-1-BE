@@ -186,4 +186,33 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    /**
+     * 메세지 즐겨찾기 여부 변경
+     *
+     * @param loginUser
+     * @param messageId
+     * @return
+     */
+    @ApiOperation(value = "메세지 즐겨찾기", notes = "선택한 메세지 즐겨찾기 설정")
+    @ApiResponses({
+            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/api/messages/favorite")
+    public ResponseEntity<Object> favoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                  @RequestParam Long messageId) {
+
+        if (loginUser.getId() == null) {
+            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
+        }
+
+        log.info("[messageIdList] : {}", messageId);
+
+        messageService.favoriteMessage(loginUser.getId(), messageId);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }

@@ -187,4 +187,21 @@ public class MessageService {
             }
         }
     }
+
+    /**
+     * 메세지 즐겨찾기 상태 변경
+     *
+     * @param userId
+     * @param messageId
+     */
+    @Transactional
+    public void favoriteMessage(Long userId, Long messageId) {
+
+        try {
+            Message message = messageRepository.findByIdAndUserId(messageId, userId);
+            message.updateFavorite();
+        } catch (Exception e) {
+            throw new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId);
+        }
+    }
 }
