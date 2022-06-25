@@ -35,7 +35,6 @@ public enum ErrorCode {
     USER_REFRESH_TOKEN_EXPIRED(401,"U003", "JWT 리프레시 토큰이 만료되었습니다. 재로그인이 필요합니다."),
     USER_REFRESH_ERROR(401,"U004", "유효하지 않은 JWT 리프레시 토큰입니다. 재로그인이 필요합니다."),
     USER_NOT_FOUND(404, "U005", "회원을 찾을 수 없습니다."),
-    USER_REQUIRE_LOGIN(401, "U006", "로그인이 필요한 서비스입니다."),
     USER_FORBIDDEN(403,"U006","잘못된 접근입니다.")
     ;
 

@@ -33,42 +33,28 @@ public class MessageController {
     /**
      * 칭찬 메시지 생성 (물주기)
      *
-     * @param isLogin
      * @param loginUser
      * @param requestDto
      * @return
      */
     @ApiOperation(value = "물주기", notes = "칭찬 메시지 생성")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "[C001]Invalid input value(isLogin과 로그인 유저 값 불일치 ex.isLogin = false지만 loginUser는 존재)\n" +
-                    "[F002]해당 페이지에 나무가 존재하지 않습니다."),
+            @ApiResponse(code = 400, message = "[F002]해당 페이지에 나무가 존재하지 않습니다."),
             @ApiResponse(code = 404, message = "[U001]회원을 찾을 수 없습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/api/messages")
-    public ResponseEntity<Object> createMessage(@RequestParam boolean isLogin,
-                                                @ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                @Valid @RequestBody MessageRequestDto requestDto) {
+    public ResponseEntity<Long> createMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                              @Valid @RequestBody MessageRequestDto requestDto) {
 
         log.info("물주기 요청 내용 : {}", requestDto);
 
-        long userId;
-        if (isLogin && loginUser.getId() != null) {
-            userId = loginUser.getId();
-        } else if (!isLogin && loginUser.getId() == null) {
+        //TODO 비로그인 처리
 
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-            //TODO 비로그인 물 주기
+        Long messageId = messageService.createMessage(loginUser.getId(), requestDto);
 
-        } else {
-            //로그인 여부와 로그인 유저 값이 맞지 않음
-            throw new BetreeException(INVALID_INPUT_VALUE, "isLogin = " + isLogin + ", loginUser = " + loginUser);
-        }
-
-        messageService.createMessage(userId, requestDto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(messageId);
     }
 
     /**
@@ -82,7 +68,6 @@ public class MessageController {
      */
     @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 전체 조회")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
             @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
                     "[U005]회원을 찾을 수 없습니다.")
     })
@@ -91,9 +76,6 @@ public class MessageController {
     public ResponseEntity<MessagePageResponseDto> getMessageList(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                                  @RequestParam int page,
                                                                  @RequestParam(required = false) Long treeId) {
-        if (loginUser.getId() == null) {
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-        }
 
         log.info("[userId] : {}", loginUser.getId());
 
@@ -108,17 +90,12 @@ public class MessageController {
      */
     @ApiOperation(value = "열매 맺기", notes = "메세지 공개 여부 설정")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "[C001]Invalid input value (열매 선택 개수 오류- 8개 초과)"),
-            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다.")
+            @ApiResponse(code = 400, message = "[C001]Invalid input value (열매 선택 개수 오류- 8개 초과)")
     })
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/api/messages/opening")
     public ResponseEntity<Object> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                  @RequestParam List<Long> messageIdList) {
-
-        if (loginUser.getId() == null) {
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-        }
 
         log.info("[messageIdList] : {}", messageIdList);
 
@@ -137,17 +114,12 @@ public class MessageController {
      */
     @ApiOperation(value = "메세지 삭제", notes = "선택한 메세지 삭제")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.")
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/api/messages")
     public ResponseEntity<Object> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                  @RequestBody List<Long> messageIds) {
-
-        if (loginUser.getId() == null) {
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-        }
 
         log.info("[messageIdList] : {}", messageIds + ", [loginUser Id] : {}" + loginUser.getId());
 
@@ -166,7 +138,6 @@ public class MessageController {
      */
     @ApiOperation(value = "메세지 이동", notes = "선택한 메세지 폴더 이동")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")
     })
@@ -175,10 +146,6 @@ public class MessageController {
     public ResponseEntity<Object> moveMessageFolder(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                     @RequestBody List<Long> messageIds,
                                                     @RequestParam Long treeId) {
-
-        if (loginUser.getId() == null) {
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-        }
 
         log.info("[messageIdList] : {}", messageIds + ", [treeId] : {}" + treeId);
 
@@ -196,7 +163,6 @@ public class MessageController {
      */
     @ApiOperation(value = "메세지 즐겨찾기", notes = "선택한 메세지 즐겨찾기 설정")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")
     })
@@ -204,10 +170,6 @@ public class MessageController {
     @PutMapping("/api/messages/favorite")
     public ResponseEntity<Object> updateFavoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                         @RequestParam Long messageId) {
-
-        if (loginUser.getId() == null) {
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-        }
 
         log.info("[messageIdList] : {}", messageId);
 
@@ -224,7 +186,6 @@ public class MessageController {
      */
     @ApiOperation(value = "즐겨찾기 메세지 목록", notes = "즐겨찾기한 메세지 목록 조회")
     @ApiResponses({
-            @ApiResponse(code = 401, message = "[U006]로그인이 필요한 서비스입니다."),
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
     @ResponseStatus(HttpStatus.OK)
@@ -232,9 +193,6 @@ public class MessageController {
     public ResponseEntity<MessagePageResponseDto> favoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                                   @RequestParam int page) {
 
-        if (loginUser.getId() == null) {
-            throw new BetreeException(USER_REQUIRE_LOGIN, "loginUser Id = " + loginUser.getId());
-        }
         return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), page));
     }
 }

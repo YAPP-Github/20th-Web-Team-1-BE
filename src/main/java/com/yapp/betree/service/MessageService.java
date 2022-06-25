@@ -44,7 +44,7 @@ public class MessageService {
      * @return
      */
     @Transactional
-    public void createMessage(Long senderId, MessageRequestDto requestDto) {
+    public Long createMessage(Long senderId, MessageRequestDto requestDto) {
 
         //수신자 유저 객체 조회
         User user = userRepository.findById(requestDto.getReceiverId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "receiverId = " + requestDto.getReceiverId()));
@@ -75,7 +75,7 @@ public class MessageService {
             message.updateAlreadyRead();
         }
 
-        messageRepository.save(message);
+        return messageRepository.save(message).getId();
     }
 
     /**
