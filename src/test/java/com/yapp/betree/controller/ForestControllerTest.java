@@ -58,7 +58,6 @@ public class ForestControllerTest extends ControllerTest {
 
         mockMvc.perform(get("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("code").value(ErrorCode.USER_NOT_FOUND.getCode()))
@@ -66,7 +65,6 @@ public class ForestControllerTest extends ControllerTest {
 
         mockMvc.perform(get("/api/forest/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("code").value(ErrorCode.USER_NOT_FOUND.getCode()))
@@ -82,7 +80,6 @@ public class ForestControllerTest extends ControllerTest {
 
         mockMvc.perform(get("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(TEST_SAVE_DEFAULT_TREE.getId()))
@@ -104,7 +101,6 @@ public class ForestControllerTest extends ControllerTest {
         );
         mockMvc.perform(get("/api/forest/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andDo(print())
                 .andExpect(status().isOk());

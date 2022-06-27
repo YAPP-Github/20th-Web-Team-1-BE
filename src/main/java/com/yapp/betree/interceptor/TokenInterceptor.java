@@ -5,6 +5,7 @@ import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
+import io.swagger.models.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -16,6 +17,7 @@ import java.util.Optional;
 @Slf4j
 public class TokenInterceptor implements HandlerInterceptor {
 
+    private static final String AUTH_TYPE = "Bearer";
     public static final String USER_ATTR_KEY = "user";
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -24,13 +26,17 @@ public class TokenInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String authType = "Bearer";
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // 비로그인 유저 요청가능 API는 return true
+        if (isPassReqeust(request)) {
+            log.info("[비로그인 가능 요청] 토큰 검증 과정 생략");
+            return true;
+        }
         String authHeader = Optional.ofNullable(request.getHeader("Authorization"))
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
 
-        if (authHeader.startsWith(authType)) {
-            authHeader = authHeader.substring(authType.length()).trim();
+        if (authHeader.startsWith(AUTH_TYPE)) {
+            authHeader = authHeader.substring(AUTH_TYPE.length()).trim();
         }
 
         Claims claims = jwtTokenProvider.parseToken(authHeader);
@@ -48,5 +54,15 @@ public class TokenInterceptor implements HandlerInterceptor {
             );
         }
         return true;
+    }
+
+    private boolean isPassReqeust(HttpServletRequest request) {
+        // 나무숲 조회, 나무숲 상세조회
+        if (request.getRequestURI().startsWith("/api/forest") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
+            return true;
+        }
+        // 물주기
+
+        return false;
     }
 }

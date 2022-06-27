@@ -41,18 +41,17 @@ public class ForestController {
     private final UserService userService;
 
     /**
-     * 유저 나무숲 조회
+     * 유저 나무숲 조회 [비로그인 유저 요청 가능]
      *
-     * @param loginUser
+     * @param userId
      * @return ForestResponseDto
      */
-    @ApiOperation(value = "유저 나무숲 조회", notes = "유저 나무숲 조회")
+    @ApiOperation(value = "유저 나무숲 조회[비로그인 가능]", notes = "유저 나무숲 조회")
     @ApiResponses({
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
     @GetMapping("/api/forest")
-    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                            @RequestParam Long userId) {
+    public ResponseEntity<List<TreeResponseDto>> userForest(@RequestParam Long userId) {
         log.info("[나무숲] 유저 나무숲 조회 userId: {}", userId);
         if (!userService.isExist(userId)) {
             throw new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId);
@@ -61,13 +60,13 @@ public class ForestController {
     }
 
     /**
-     * 유저 상세 나무 조회
+     * 유저 상세 나무 조회 [비로그인 유저 요청 가능]
      *
      * @param userId
      * @param treeId
      * @return TreeFullResponseDto
      */
-    @ApiOperation(value = "유저 상세 나무 조회", notes = "유저 상세 나무 조회\n" +
+    @ApiOperation(value = "유저 상세 나무 조회[비로그인 가능]", notes = "유저 상세 나무 조회\n" +
             "해당하는 나무의 prevId, nextId가 존재하지 않을경우 id는 0입니다.")
     @ApiResponses({
             @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
