@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 public class TreeRequestDto {
 
     @NotBlank(message = "나무 이름은 빈값일 수 없습니다.")
-    @Length(max = 20, message = "나무 이름은 20자를 넘을 수 없습니다.")
+    @Length(max = 10, message = "나무 이름은 10자를 넘을 수 없습니다.")
     private String name;
 
     private FruitType fruitType;

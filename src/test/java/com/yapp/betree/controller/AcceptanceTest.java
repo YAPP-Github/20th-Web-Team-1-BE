@@ -5,6 +5,7 @@ import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.UserInfoFixture;
+import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
@@ -59,21 +60,24 @@ public class AcceptanceTest {
     @Test
     @DisplayName("회원가입 테스트 - 유저 생성, 폴더 생성")
     void signUpTest() throws Exception {
-        given(kakaoApiService.getOauthId("accessToken")).willReturn(1L);
-        given(kakaoApiService.getUserInfo("accessToken")).willReturn(UserInfoFixture.createOAuthUserInfo());
+        OAuthUserInfoDto oAuthUserInfo = UserInfoFixture.createOAuthUserInfo();
+        User save = userRepository.save(oAuthUserInfo.generateSignUpUser());
+
+        given(kakaoApiService.getOauthId("accessToken")).willReturn(save.getId());
+        given(kakaoApiService.getUserInfo("accessToken")).willReturn(oAuthUserInfo);
 
         mockMvc.perform(get("/api/signin")
                 .header("X-Kakao-Access-Token", "accessToken"))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        List<User> users = userRepository.findAll();
-        assertThat(users.get(0).getNickname()).isEqualTo("닉네임");
+        User user = userRepository.findById(save.getId()).get();
+        assertThat(user.getNickname()).isEqualTo("닉네임");
 
-        List<Folder> folders = folderRepository.findAll();
+        List<Folder> folders = folderRepository.findAllByUserId(save.getId());
         assertThat(folders.get(0).getFruit()).isEqualTo(FruitType.DEFAULT);
 
-        assertThat(users.get(0).getFolders().get(0).getId()).isEqualTo(folders.get(0).getId());
+        assertThat(user.getFolders().get(0).getId()).isEqualTo(folders.get(0).getId());
     }
 
     @Test
