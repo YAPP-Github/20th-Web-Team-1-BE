@@ -161,6 +161,7 @@ public class ForestControllerTest extends ControllerTest {
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
+                .andExpect(jsonPath("$.errors[0].message").value("나무 이름은 10자를 넘을 수 없습니다."))
                 .andDo(print());
     }
 
