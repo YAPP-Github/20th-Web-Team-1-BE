@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
@@ -20,7 +21,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     List<Message> findByUserIdAndAlreadyRead(Long userId, boolean alreadyRead);
 
-    Message findByIdAndUserId(Long id, Long userId);
+    Optional<Message> findByIdAndUserId(Long id, Long userId);
 
     Slice<Message> findByUserIdAndFavorite(Long userId, boolean favorite, Pageable pageable);
 }

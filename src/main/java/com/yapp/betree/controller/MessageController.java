@@ -4,7 +4,6 @@ import com.yapp.betree.annotation.LoginUser;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
-import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +11,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
-
-import static com.yapp.betree.exception.ErrorCode.*;
 
 @Api
 @Slf4j
@@ -62,24 +62,23 @@ public class MessageController {
      * - treeId 입력시 폴더별 조회
      *
      * @param loginUser
-     * @param page
+     * @param pageable  - default size = 10
      * @param treeId
      * @return
      */
     @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 전체 조회")
     @ApiResponses({
-            @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
-                    "[U005]회원을 찾을 수 없습니다.")
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/messages")
     public ResponseEntity<MessagePageResponseDto> getMessageList(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                                 @RequestParam int page,
+                                                                 @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
                                                                  @RequestParam(required = false) Long treeId) {
 
         log.info("[userId] : {}", loginUser.getId());
 
-        return ResponseEntity.ok(messageService.getMessageList(loginUser.getId(), page, treeId));
+        return ResponseEntity.ok(messageService.getMessageList(loginUser.getId(), pageable, treeId));
     }
 
     /**
@@ -95,7 +94,7 @@ public class MessageController {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/api/messages/opening")
     public ResponseEntity<Object> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                 @RequestParam List<Long> messageIdList) {
+                                                 @RequestBody List<Long> messageIdList) {
 
         log.info("[messageIdList] : {}", messageIdList);
 
@@ -121,7 +120,7 @@ public class MessageController {
     public ResponseEntity<Object> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                  @RequestBody List<Long> messageIds) {
 
-        log.info("[messageIdList] : {}", messageIds + ", [loginUser Id] : {}" + loginUser.getId());
+        log.info("[messageIdList] : {}", messageIds + ", [loginUser Id] : " + loginUser.getId());
 
         messageService.deleteMessages(loginUser.getId(), messageIds);
 
@@ -191,8 +190,8 @@ public class MessageController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/messages/favorite")
     public ResponseEntity<MessagePageResponseDto> favoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                                  @RequestParam int page) {
+                                                                  @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), page));
+        return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), pageable));
     }
 }
