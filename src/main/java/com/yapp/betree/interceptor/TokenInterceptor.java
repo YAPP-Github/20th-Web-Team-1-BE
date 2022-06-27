@@ -28,7 +28,7 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 비로그인 유저 요청가능 API는 return true
-        if (isPassReqeust(request)) {
+        if (isPassRequest(request)) {
             log.info("[비로그인 가능 요청] 토큰 검증 과정 생략");
             return true;
         }
@@ -56,13 +56,26 @@ public class TokenInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private boolean isPassReqeust(HttpServletRequest request) {
+    private boolean isPassRequest(HttpServletRequest request) {
         // 나무숲 조회, 나무숲 상세조회
         if (request.getRequestURI().startsWith("/api/forest") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
             return true;
         }
         // 물주기
+        if (request.getRequestURI().equals("/api/messages") && request.getMethod().equals(String.valueOf(HttpMethod.POST))) {
 
+            Optional<String> authHeader = Optional.ofNullable(request.getHeader("Authorization"));
+
+            if (!authHeader.isPresent()) { // 헤더에 토큰 없는, 비로그인 유저이면 처리 아니면 토큰파싱
+                request.setAttribute(USER_ATTR_KEY, LoginUserDto.builder()
+                        .id(Long.parseLong(String.valueOf(-1L))) // 비로그인 유저는 id -1로 설정하고 id == -1이면 뒤에서 처리 (userId임)
+                        .nickname(request.getRemoteAddr()) // IP로 지정
+                        .email(null)
+                        .build()
+                );
+                return true;
+            }
+        }
         return false;
     }
 }

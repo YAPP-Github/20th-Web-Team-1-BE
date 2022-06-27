@@ -3,6 +3,7 @@ package com.yapp.betree.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.MessageTest;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
@@ -94,7 +95,7 @@ public class ForestControllerTest extends ControllerTest {
         given(folderService.userDetailTree(userId, 1L)).willReturn(
                 TreeFullResponseDto.builder()
                         .folder(TEST_SAVE_DEFAULT_TREE)
-                        .messages(Lists.newArrayList(MessageResponseDto.of(MessageTest.TEST_SAVE_MESSAGE, TEST_SAVE_USER)))
+                        .messages(Lists.newArrayList(MessageResponseDto.of(MessageTest.TEST_SAVE_MESSAGE, SendUserDto.of(TEST_SAVE_USER))))
                         .prevId(0L)
                         .nextId(0L)
                         .build()
