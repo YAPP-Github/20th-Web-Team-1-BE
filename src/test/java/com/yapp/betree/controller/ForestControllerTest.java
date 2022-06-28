@@ -3,6 +3,7 @@ package com.yapp.betree.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.MessageTest;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
@@ -58,7 +59,6 @@ public class ForestControllerTest extends ControllerTest {
 
         mockMvc.perform(get("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("code").value(ErrorCode.USER_NOT_FOUND.getCode()))
@@ -66,7 +66,6 @@ public class ForestControllerTest extends ControllerTest {
 
         mockMvc.perform(get("/api/forest/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("code").value(ErrorCode.USER_NOT_FOUND.getCode()))
@@ -82,7 +81,6 @@ public class ForestControllerTest extends ControllerTest {
 
         mockMvc.perform(get("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(TEST_SAVE_DEFAULT_TREE.getId()))
@@ -97,14 +95,13 @@ public class ForestControllerTest extends ControllerTest {
         given(folderService.userDetailTree(userId, 1L)).willReturn(
                 TreeFullResponseDto.builder()
                         .folder(TEST_SAVE_DEFAULT_TREE)
-                        .messages(Lists.newArrayList(MessageResponseDto.of(MessageTest.TEST_SAVE_MESSAGE, TEST_SAVE_USER)))
+                        .messages(Lists.newArrayList(MessageResponseDto.of(MessageTest.TEST_SAVE_MESSAGE, SendUserDto.of(TEST_SAVE_USER))))
                         .prevId(0L)
                         .nextId(0L)
                         .build()
         );
         mockMvc.perform(get("/api/forest/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("userId", String.valueOf(userId)))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -115,7 +112,7 @@ public class ForestControllerTest extends ControllerTest {
     void createTreeTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
-        input.put("name", "update folder");
+        input.put("name", "추가폴더이름");
         input.put("fruitType", FruitType.APPLE);
 
         // when
@@ -135,7 +132,7 @@ public class ForestControllerTest extends ControllerTest {
     void createTreeEnumTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
-        input.put("name", "update folder");
+        input.put("name", "추가폴더이름");
         input.put("fruitType", FruitType.DEFAULT);
 
         mockMvc.perform(post("/api/forest")
@@ -147,12 +144,12 @@ public class ForestControllerTest extends ControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("나무 추가 - 나무 이름은 20자를 넘을 수 없다.")
+    @DisplayName("나무 추가 - 나무 이름은 10자를 넘을 수 없다.")
     @Test
     void createTreeNameTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
-        input.put("name", "update folder over length limit");
+        input.put("name", "10자 이상 폴더 이름");
         input.put("fruitType", FruitType.DEFAULT);
 
         mockMvc.perform(post("/api/forest")
@@ -161,6 +158,7 @@ public class ForestControllerTest extends ControllerTest {
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
+                .andExpect(jsonPath("$.errors[0].message").value("나무 이름은 10자를 넘을 수 없습니다."))
                 .andDo(print());
     }
 
@@ -186,7 +184,7 @@ public class ForestControllerTest extends ControllerTest {
     void updateTreeTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
-        input.put("name", "update folder");
+        input.put("name", "변경폴더10자이내");
         input.put("fruitType", FruitType.APPLE);
 
         mockMvc.perform(put("/api/forest/18")
@@ -203,7 +201,7 @@ public class ForestControllerTest extends ControllerTest {
     void updateTreeDefaultTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
-        input.put("name", "update folder");
+        input.put("name", "변경폴더이름");
         input.put("fruitType", FruitType.DEFAULT);
 
         willThrow(new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "변경할 타입을 기본 나무 이외의 다른 나무로 선택해주세요. treeId = " + 18 + ", FruitType = " + FruitType.DEFAULT))
@@ -219,12 +217,12 @@ public class ForestControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.code").value("T002"));
     }
 
-    @DisplayName("나무 편집 - 나무 이름은 20자를 넘을 수 없다.")
+    @DisplayName("나무 편집 - 나무 이름은 10자를 넘을 수 없다.")
     @Test
     void updateTreeNameTest() throws Exception {
         // given
         Map<String, Object> input = new HashMap<>();
-        input.put("name", "update folder over length limit");
+        input.put("name", "수정폴더이름10자이상ㅇㅇ");
         input.put("fruitType", FruitType.DEFAULT);
 
         mockMvc.perform(put("/api/forest/18")

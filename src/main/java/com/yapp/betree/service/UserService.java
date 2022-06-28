@@ -2,6 +2,7 @@ package com.yapp.betree.service;
 
 import com.yapp.betree.domain.RefreshToken;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.RefreshTokenRepository;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static com.yapp.betree.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +35,15 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
+    public SendUserDto findBySenderId(Long userId) {
+        log.info("senderId로 유저 조회 : userId = {}", userId);
+        if (userId == -1L) {
+            return SendUserDto.ofNoLogin();
+        }
+        User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "senderId = " + userId));
+        return SendUserDto.of(user);
+    }
+
     @Transactional
     User save(User user) {
         log.info("User 등록 : {}", user);
@@ -41,7 +53,7 @@ public class UserService {
     @Transactional
     void saveRefreshToken(String token, Long userId) {
         Optional<RefreshToken> byUserId = refreshTokenRepository.findByUserId(userId);
-        if(!byUserId.isPresent()) {
+        if (!byUserId.isPresent()) {
             log.info("refreshToken 생성 : token = {}, userId = {}", token, userId);
             RefreshToken refreshToken = RefreshToken.builder()
                     .token(token)
@@ -62,7 +74,7 @@ public class UserService {
         return refreshToken.isSame(token);
     }
 
-    public boolean isExist(Long userId){
+    public boolean isExist(Long userId) {
         return findById(userId).isPresent();
     }
 }

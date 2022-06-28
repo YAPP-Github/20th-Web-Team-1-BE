@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.NoticeTree;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.NoticeResponseDto;
 import com.yapp.betree.repository.MessageRepository;
@@ -27,8 +28,9 @@ import java.util.stream.Collectors;
 public class NoticeTreeService {
 
     private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
     private final NoticeTreeRepository noticeTreeRepository;
+    private final UserRepository userRepository;
+    private final UserService userService;
 
 
     public NoticeResponseDto getUnreadMessages(Long userId) {
@@ -50,7 +52,7 @@ public class NoticeTreeService {
                 continue;
             }
             Message message = messageRepository.findById(id).get();
-            User sender = userRepository.findById(message.getSenderId()).get();
+            SendUserDto sender = userService.findBySenderId(message.getSenderId());
             messages.add(MessageResponseDto.of(message, sender));
         }
         return new NoticeResponseDto(messageRepository.findByUserIdAndAlreadyRead(userId, false).size(), messages);
@@ -67,7 +69,7 @@ public class NoticeTreeService {
             // 안읽은 메시지 먼저 8개 리스트에 넣음
             List<MessageResponseDto> noticeTreeMessages = new ArrayList<>();
             for (Message m : unreadMessages) {
-                User sender = userRepository.findById(m.getSenderId()).get();
+                SendUserDto sender = userService.findBySenderId(m.getSenderId());
                 noticeTreeMessages.add(MessageResponseDto.of(m, sender));
             }
 

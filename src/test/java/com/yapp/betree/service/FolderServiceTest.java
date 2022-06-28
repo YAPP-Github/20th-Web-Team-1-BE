@@ -4,14 +4,15 @@ import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
 import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
-import com.yapp.betree.repository.UserRepository;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,7 @@ public class FolderServiceTest {
     private MessageRepository messageRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private FolderRepository folderRepository;
@@ -84,6 +85,29 @@ public class FolderServiceTest {
     }
 
     @Test
+    @DisplayName("유저 상세 나무 조회 - senderId가 -1이면 비로그인 유저,익명으로 표시된다.")
+    void userDetailTreeUserNoLoginTest() {
+        // given
+        List<Message> messages = Lists.newArrayList(TEST_SAVE_ANONYMOUS_MESSAGE);
+
+        given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
+        given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
+        given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.ofNoLogin());
+
+        // when
+
+        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID);
+        MessageResponseDto message = trees.getMessages().get(0);
+
+        // then
+        assertThat(message.isAnonymous()).isTrue();
+        assertThat(message.getSenderNickname()).isEqualTo("익명");
+        assertThat(message.getSenderProfileImage()).isEqualTo("기본 이미지");
+        assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
+        assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
+    }
+
+    @Test
     @DisplayName("유저 상세 나무 조회 - senderId를 찾을 수 없으면 예외가 발생한다.")
     void userDetailTreeUserNotFoundTest() {
         // given
@@ -91,7 +115,7 @@ public class FolderServiceTest {
 
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
         given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
-        given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
+        given(userService.findBySenderId(USER_ID)).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND, "senderId = " + USER_ID));
 
         // then
         assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID))
@@ -107,7 +131,7 @@ public class FolderServiceTest {
 
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
         given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
-        given(userRepository.findById(USER_ID)).willReturn(Optional.of(TEST_SAVE_USER));
+        given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         // when
         TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID);
@@ -131,7 +155,7 @@ public class FolderServiceTest {
         given(folderRepository.findTop1ByUserAndIdGreaterThan(TEST_SAVE_USER, TREE_ID)).willReturn(Optional.empty());
         given(folderRepository.findTop1ByUserAndIdGreaterThan(TEST_SAVE_USER, TREE_ID)).willReturn(Optional.empty());
         given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
-        given(userRepository.findById(USER_ID)).willReturn(Optional.of(TEST_SAVE_USER));
+        given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         // when
         TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID);
@@ -146,7 +170,7 @@ public class FolderServiceTest {
     void createTreeUserNotFoundTest() {
         // given
         Long userId = 1L;
-        given(userRepository.findById(userId)).willReturn(Optional.empty());
+        given(userService.findById(userId)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> folderService.createTree(userId, null))
                 .isInstanceOf(BetreeException.class)
@@ -158,7 +182,7 @@ public class FolderServiceTest {
     void createTreeTest() {
         // given
         Long userId = 1L;
-        given(userRepository.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+        given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
 
         TreeRequestDto treeRequestDto = TreeRequestDto.builder()
                 .name("나무")
@@ -180,7 +204,7 @@ public class FolderServiceTest {
     void updateTreeUserNotFoundTest() {
         // given
         Long userId = 1L;
-        given(userRepository.findById(userId)).willReturn(Optional.empty());
+        given(userService.findById(userId)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> folderService.updateTree(userId, null, null))
                 .isInstanceOf(BetreeException.class)
@@ -192,7 +216,7 @@ public class FolderServiceTest {
     void updateTreeNotFoundTest() {
         // given
         Long userId = 1L;
-        given(userRepository.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+        given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
 
         Long treeId = 1L;
         given(folderRepository.findById(treeId)).willReturn(Optional.empty());
@@ -208,7 +232,7 @@ public class FolderServiceTest {
         User user = User.builder()
                 .id(2L)
                 .build();
-        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+        given(userService.findById(user.getId())).willReturn(Optional.of(user));
 
         Long treeId = 1L;
         given(folderRepository.findById(treeId)).willReturn(Optional.of(TEST_SAVE_APPLE_TREE));
@@ -223,7 +247,7 @@ public class FolderServiceTest {
     void updateTreeDefaultFolderTest() {
         // given
         Long userId = 1L;
-        given(userRepository.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+        given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
 
         Long treeId = 1L;
         given(folderRepository.findById(treeId)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
