@@ -195,4 +195,17 @@ public class MessageService {
 
         return new MessagePageResponseDto(responseMessages, messages.hasNext());
     }
+
+    /**
+     * 메세지 읽음 여부 상태 변경
+     *
+     * @param userId
+     * @param messageId
+     */
+    @Transactional
+    public void updateReadMessage(Long userId, Long messageId) {
+
+        messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
+                .updateAlreadyRead();
+    }
 }

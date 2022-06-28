@@ -149,4 +149,15 @@ public class MessageServiceTest {
         assertThat(favoriteMessage.getResponseDto().get(0).isFavorite()).isTrue();
         assertThat(favoriteMessage.getResponseDto().get(0).getId()).isEqualTo(TEST_SAVE_MESSAGE.getId());
     }
+
+    @Test
+    @DisplayName("메세지 읽음 설정 - 존재하지 않는 messageId 입력시 예외 발생")
+    void readMessageNotFound() {
+
+        given(messageRepository.findByIdAndUserId(10L, TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        assertThatThrownBy(() -> messageService.updateReadMessage(TEST_SAVE_USER.getId(), 10L))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("메세지가 존재하지 않습니다.");
+    }
 }

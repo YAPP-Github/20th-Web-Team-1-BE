@@ -191,4 +191,15 @@ class MessageControllerTest extends ControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.responseDto[0].favorite").value(true));
     }
+
+    @DisplayName("메세지 읽음 상태 변경")
+    @Test
+    void updateMessageRead() throws Exception {
+
+        mockMvc.perform(put("/api/messages/alreadyRead")
+                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                        .param("messageId", String.valueOf(1L)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
 }

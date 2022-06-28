@@ -92,8 +92,8 @@ public class MessageController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/opening")
-    public ResponseEntity<Object> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                 @RequestBody List<Long> messageIds) {
+    public ResponseEntity<Void> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                               @RequestBody List<Long> messageIds) {
 
         log.info("[messageIds] : {}", messageIds);
 
@@ -116,8 +116,8 @@ public class MessageController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/api/messages")
-    public ResponseEntity<Object> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                 @RequestBody List<Long> messageIds) {
+    public ResponseEntity<Void> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                               @RequestBody List<Long> messageIds) {
 
         log.info("[messageIds] : {} , [loginUser Id] : {}", messageIds, loginUser.getId());
 
@@ -141,9 +141,9 @@ public class MessageController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/folder")
-    public ResponseEntity<Object> moveMessageFolder(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                    @RequestBody List<Long> messageIds,
-                                                    @RequestParam Long treeId) {
+    public ResponseEntity<Void> moveMessageFolder(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                  @RequestBody List<Long> messageIds,
+                                                  @RequestParam Long treeId) {
 
         log.info("[messageIds] : {},[treeId] : {}", messageIds, treeId);
 
@@ -166,10 +166,10 @@ public class MessageController {
     })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/favorite")
-    public ResponseEntity<Object> updateFavoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                        @RequestParam Long messageId) {
+    public ResponseEntity<Void> updateFavoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                      @RequestParam Long messageId) {
 
-        log.info("[messageIds] : {}", messageId);
+        log.info("[messageId] : {}", messageId);
 
         messageService.updateFavoriteMessage(loginUser.getId(), messageId);
 
@@ -192,4 +192,28 @@ public class MessageController {
 
         return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), pageable));
     }
+
+    /**
+     * 메세지 읽음 여부 상태 변경
+     *
+     * @param loginUser
+     * @param messageId
+     * @return
+     */
+    @ApiOperation(value = "메세지 읽음", notes = "메세지 읽음 여부 변경 (읽음으로 처리)")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("/api/messages/alreadyRead")
+    public ResponseEntity<Void> updateReadMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                  @RequestParam Long messageId) {
+
+        log.info("[messageId] : {}", messageId);
+
+        messageService.updateReadMessage(loginUser.getId(), messageId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }

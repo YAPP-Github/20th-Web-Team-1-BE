@@ -54,7 +54,7 @@ public class Message extends BaseTimeEntity {
      * 읽음 여부 상태 변경 메서드
      */
     public void updateAlreadyRead() {
-        this.alreadyRead = !this.alreadyRead;
+        this.alreadyRead = true; //false 될 수 없음
     }
 
     /**
