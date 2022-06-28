@@ -54,7 +54,6 @@ class MessageControllerTest extends ControllerTest {
         mockMvc.perform(post("/api/messages")
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("isLogin", String.valueOf(true))
                         .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
@@ -75,12 +74,12 @@ class MessageControllerTest extends ControllerTest {
         mockMvc.perform(post("/api/messages")
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("isLogin", String.valueOf(true))
                         .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
-                .andExpect(jsonPath("$.message").value("Invalid input value"));
+                .andExpect(jsonPath("$.message").value("Invalid input value"))
+                .andExpect(jsonPath("$.errors[0].message").value("메시지는 최소 10자, 최대 1000자 입력해야합니다."));
     }
 
     @DisplayName("메세지함 목록 조회")
@@ -117,7 +116,8 @@ class MessageControllerTest extends ControllerTest {
                         .param("treeId", String.valueOf(19L)))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("T001"));
+                .andExpect(jsonPath("$.code").value("T001"))
+                .andExpect(jsonPath("$.message").value("나무가 존재하지 않습니다."));
 
     }
 
@@ -132,7 +132,7 @@ class MessageControllerTest extends ControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(idList)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
 
@@ -147,7 +147,7 @@ class MessageControllerTest extends ControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(idList)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @DisplayName("메세지 이동")
@@ -162,7 +162,7 @@ class MessageControllerTest extends ControllerTest {
                         .content(objectMapper.writeValueAsString(idList))
                         .param("treeId", String.valueOf(1L)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @DisplayName("메세지 즐겨찾기 상태 변경")
@@ -173,7 +173,7 @@ class MessageControllerTest extends ControllerTest {
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("messageId", String.valueOf(1L)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @DisplayName("즐겨찾기한 메세지 목록 조회")

@@ -100,7 +100,7 @@ public class MessageService {
             if (message.isAnonymous()) {
                 responseDtos.add(new MessageBoxResponseDto(message, "익명", "기본이미지"));
             } else {
-                User sender = userRepository.findById(message.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND));
+                User sender = userRepository.findById(message.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "senderId = " + message.getSenderId()));
                 responseDtos.add(MessageBoxResponseDto.of(message, sender));
             }
         }
@@ -111,19 +111,19 @@ public class MessageService {
      * 선택한 메세지 공개로 설정 (열매 맺기)
      *
      * @param userId
-     * @param messageIdList
+     * @param messageIds
      */
     @Transactional
-    public void updateMessageOpening(Long userId, List<Long> messageIdList) {
+    public void updateMessageOpening(Long userId, List<Long> messageIds) {
         //선택한 개수 8개 초과면 오류
-        if (messageIdList.size() > 8) {
+        if (messageIds.size() > 8) {
             throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "열매로 맺을 수 있는 메세지 개수는 최대 8개입니다.");
         }
         //이미 선택된 메세지 가져와서 false로 변경
         messageRepository.findByUserIdAndOpening(userId, true).forEach(Message::updateOpening);
 
         // 지금 선택된 메세지만 true로 변경
-        for (Long id : messageIdList) {
+        for (Long id : messageIds) {
             messageRepository.findById(id).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + id)).updateOpening();
         }
     }
@@ -137,8 +137,8 @@ public class MessageService {
     @Transactional
     public void deleteMessages(Long userId, List<Long> messageIds) {
 
-        messageIds.forEach(id -> {
-            Message message = messageRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + id));
+        messageIds.forEach(messageId -> {
+            Message message = messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId + "userId = " + userId));
             messageRepository.delete(message);
         });
     }
@@ -155,7 +155,7 @@ public class MessageService {
 
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "treeId = " + treeId));
 
-        messageIds.forEach(id -> messageRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + id))
+        messageIds.forEach(messageId -> messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId + "userId = " + userId))
                 .updateFolder(folder));
     }
 
