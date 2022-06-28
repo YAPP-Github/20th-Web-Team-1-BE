@@ -3,6 +3,7 @@ package com.yapp.betree.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.SendUserDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class MessageResponseDto {
         this.senderProfileImage = senderProfileImage;
     }
 
-    public static MessageResponseDto of(Message message, User user) {
+    public static MessageResponseDto of(Message message, SendUserDto user) {
         return MessageResponseDto.builder()
                 .message(message)
                 .senderNickname(message.isAnonymous() ? "익명" : user.getNickname())

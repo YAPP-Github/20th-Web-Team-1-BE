@@ -1,15 +1,20 @@
 package com.yapp.betree.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FolderTest;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.domain.UserTest;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.UserInfoFixture;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
+import com.yapp.betree.service.UserService;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import com.yapp.betree.util.BetreeUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,18 +23,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,6 +57,12 @@ public class AcceptanceTest {
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private KakaoApiService kakaoApiService;
@@ -131,7 +147,7 @@ public class AcceptanceTest {
         // 안읽은 메시지 먼저 8개 리스트에 넣음
         List<MessageResponseDto> noticeTreeMessages = new ArrayList<>();
         for (Message m : unreadMessages) {
-            User sender = userRepository.findById(m.getSenderId()).get();
+            SendUserDto sender = userService.findBySenderId(message.getSenderId());
             noticeTreeMessages.add(MessageResponseDto.of(m, sender));
         }
 
@@ -145,5 +161,38 @@ public class AcceptanceTest {
 
         assertThat(noticeTreeMessages).hasSize(8);
         System.out.println(noticeTreeMessages);
+    }
+
+    @Test
+    @DisplayName("비로그인 유저 물주기 테스트")
+    void createMessagesNoLoginUserTest() throws Exception {
+        Folder folder = FolderTest.TEST_DEFAULT_TREE;
+        User user = UserTest.TEST_USER;
+        user.addFolder(folder);
+        userRepository.save(user);
+
+        Map<String, Object> input = new HashMap<>();
+
+        input.put("receiverId", user.getId());
+        input.put("content", "메시지10자이상~~~");
+        input.put("anonymous", false);
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/messages")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(input)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        Long messageId = Long.parseLong(mvcResult.getResponse().getContentAsString());
+
+        Message message = messageRepository.findByIdAndUserId(messageId, user.getId());
+        assertThat(message.getSenderId()).isEqualTo(-1L);
+        assertThat(message.isAnonymous()).isTrue();
+
+        SendUserDto sender = userService.findBySenderId(message.getSenderId());
+        assertThat(sender.getId()).isEqualTo(-1L);
+        assertThat(sender.getUserImage()).isEqualTo("기본이미지");
+        assertThat(sender.getNickname()).isEqualTo("익명");
     }
 }

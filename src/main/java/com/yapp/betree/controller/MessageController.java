@@ -31,13 +31,13 @@ public class MessageController {
     private final MessageService messageService;
 
     /**
-     * 칭찬 메시지 생성 (물주기)
+     * 칭찬 메시지 생성 (물주기) [비로그인 유저 요청 가능]
      *
      * @param loginUser
      * @param requestDto
      * @return
      */
-    @ApiOperation(value = "물주기", notes = "칭찬 메시지 생성")
+    @ApiOperation(value = "물주기[비로그인 가능]", notes = "칭찬 메시지 생성")
     @ApiResponses({
             @ApiResponse(code = 400, message = "[F002]해당 페이지에 나무가 존재하지 않습니다."),
             @ApiResponse(code = 404, message = "[U001]회원을 찾을 수 없습니다.\n" +
@@ -48,9 +48,7 @@ public class MessageController {
     public ResponseEntity<Long> createMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                               @Valid @RequestBody MessageRequestDto requestDto) {
 
-        log.info("물주기 요청 내용 : {}", requestDto);
-
-        //TODO 비로그인 처리
+        log.info("물주기 요청 유저 : {} , 내용 : {}", loginUser, requestDto);
 
         Long messageId = messageService.createMessage(loginUser.getId(), requestDto);
 
