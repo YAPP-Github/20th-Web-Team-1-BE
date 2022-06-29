@@ -4,6 +4,7 @@ import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
@@ -31,6 +32,7 @@ import static com.yapp.betree.exception.ErrorCode.*;
 public class MessageService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final FolderRepository folderRepository;
     private final MessageRepository messageRepository;
 
@@ -107,7 +109,7 @@ public class MessageService {
             if (message.isAnonymous()) {
                 responseDtos.add(new MessageBoxResponseDto(message, "익명", "기본이미지"));
             } else {
-                User sender = userRepository.findById(message.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "senderId = " + message.getSenderId()));
+                SendUserDto sender = userService.findBySenderId(message.getSenderId());
                 responseDtos.add(MessageBoxResponseDto.of(message, sender));
             }
         }
