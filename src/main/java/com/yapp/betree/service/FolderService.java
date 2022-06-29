@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 
 import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.User;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class FolderService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final FolderRepository folderRepository;
     private final MessageRepository messageRepository;
 
@@ -70,7 +71,7 @@ public class FolderService {
         List<MessageResponseDto> messageResponseDtos = messageRepository.findTop8ByFolderIdAndOpening(treeId, true)
                 .stream()
                 .map(m -> {
-                    User sender = userRepository.findById(m.getSenderId()).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + m.getSenderId()));
+                    SendUserDto sender = userService.findBySenderId(m.getSenderId());
                     return MessageResponseDto.of(m, sender);
                 })
                 .collect(Collectors.toList());
@@ -86,7 +87,7 @@ public class FolderService {
     @Transactional
     public Long createTree(Long userId, TreeRequestDto treeRequestDto) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + userId));
+        User user = userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + userId));
 
         Folder folder = Folder.builder()
                 .fruit(treeRequestDto.getFruitType())
@@ -108,7 +109,7 @@ public class FolderService {
     @Transactional
     public void updateTree(Long userId, Long treeId, TreeRequestDto treeRequestDto) {
 
-        userRepository.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
+        userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
 
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
