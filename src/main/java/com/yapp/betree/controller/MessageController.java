@@ -4,7 +4,6 @@ import com.yapp.betree.annotation.LoginUser;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
-import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.service.MessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +11,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
-
-import static com.yapp.betree.exception.ErrorCode.*;
 
 @Api
 @Slf4j
@@ -60,46 +60,44 @@ public class MessageController {
      * - treeId 입력시 폴더별 조회
      *
      * @param loginUser
-     * @param page
+     * @param pageable  - default size = 10
      * @param treeId
      * @return
      */
-    @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 전체 조회")
+    @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 기본 폴더 조회 (나에게온 메세지 폴더)")
     @ApiResponses({
-            @ApiResponse(code = 404, message = "[T001]나무가 존재하지 않습니다.\n" +
-                    "[U005]회원을 찾을 수 없습니다.")
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/messages")
     public ResponseEntity<MessagePageResponseDto> getMessageList(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                                 @RequestParam int page,
+                                                                 @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
                                                                  @RequestParam(required = false) Long treeId) {
 
         log.info("[userId] : {}", loginUser.getId());
 
-        return ResponseEntity.ok(messageService.getMessageList(loginUser.getId(), page, treeId));
+        return ResponseEntity.ok(messageService.getMessageList(loginUser.getId(), pageable, treeId));
     }
 
     /**
      * 메세지 공개 여부 설정 (열매 맺기)
      *
      * @param loginUser
-     * @param messageIdList 선택한 메세지 ID List
+     * @param messageIds 선택한 메세지 ID List
      */
     @ApiOperation(value = "열매 맺기", notes = "메세지 공개 여부 설정")
     @ApiResponses({
             @ApiResponse(code = 400, message = "[C001]Invalid input value (열매 선택 개수 오류- 8개 초과)")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/opening")
-    public ResponseEntity<Object> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                 @RequestParam List<Long> messageIdList) {
+    public ResponseEntity<Void> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                               @RequestBody List<Long> messageIds) {
 
-        log.info("[messageIdList] : {}", messageIdList);
+        log.info("[messageIds] : {}", messageIds);
 
-        messageService.updateMessageOpening(loginUser.getId(), messageIdList);
+        messageService.updateMessageOpening(loginUser.getId(), messageIds);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
@@ -114,16 +112,16 @@ public class MessageController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/api/messages")
-    public ResponseEntity<Object> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                 @RequestBody List<Long> messageIds) {
+    public ResponseEntity<Void> deleteMessages(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                               @RequestBody List<Long> messageIds) {
 
-        log.info("[messageIdList] : {}", messageIds + ", [loginUser Id] : {}" + loginUser.getId());
+        log.info("[messageIds] : {} , [loginUser Id] : {}", messageIds, loginUser.getId());
 
         messageService.deleteMessages(loginUser.getId(), messageIds);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
@@ -139,17 +137,17 @@ public class MessageController {
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/folder")
-    public ResponseEntity<Object> moveMessageFolder(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                    @RequestBody List<Long> messageIds,
-                                                    @RequestParam Long treeId) {
+    public ResponseEntity<Void> moveMessageFolder(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                  @RequestBody List<Long> messageIds,
+                                                  @RequestParam Long treeId) {
 
-        log.info("[messageIdList] : {}", messageIds + ", [treeId] : {}" + treeId);
+        log.info("[messageIds] : {},[treeId] : {}", messageIds, treeId);
 
         messageService.moveMessageFolder(loginUser.getId(), messageIds, treeId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
@@ -164,16 +162,16 @@ public class MessageController {
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")
     })
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/favorite")
-    public ResponseEntity<Object> updateFavoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                        @RequestParam Long messageId) {
+    public ResponseEntity<Void> updateFavoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                      @RequestParam Long messageId) {
 
-        log.info("[messageIdList] : {}", messageId);
+        log.info("[messageId] : {}", messageId);
 
         messageService.updateFavoriteMessage(loginUser.getId(), messageId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
@@ -186,11 +184,34 @@ public class MessageController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/api/messages/favorite")
     public ResponseEntity<MessagePageResponseDto> favoriteMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                                  @RequestParam int page) {
+                                                                  @PageableDefault(sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), page));
+        return ResponseEntity.ok(messageService.getFavoriteMessage(loginUser.getId(), pageable));
     }
+
+    /**
+     * 메세지 읽음 여부 상태 변경
+     *
+     * @param loginUser
+     * @param messageId
+     * @return
+     */
+    @ApiOperation(value = "메세지 읽음", notes = "메세지 읽음 여부 변경 (읽음으로 처리)")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("/api/messages/alreadyRead")
+    public ResponseEntity<Void> updateReadMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                  @RequestParam Long messageId) {
+
+        log.info("[messageId] : {}", messageId);
+
+        messageService.updateReadMessage(loginUser.getId(), messageId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
