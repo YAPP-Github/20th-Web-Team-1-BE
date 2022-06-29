@@ -87,8 +87,9 @@ public class MessageService {
 
         Slice<Message> messages;
         if (treeId == null) {
-            //전체 목록 조회
-            messages = messageRepository.findByUserId(userId, pageable);
+            //기본 폴더 목록 조회
+            Long defaultTreeId = folderRepository.findByUserIdAndFruit(userId, FruitType.DEFAULT).getId();
+            messages = messageRepository.findByUserIdAndFolderId(userId, defaultTreeId, pageable);
         } else {
             //해당 폴더 메세지 목록 조회
             messages = messageRepository.findByUserIdAndFolderId(userId, treeId, pageable);

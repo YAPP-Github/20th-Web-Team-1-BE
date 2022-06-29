@@ -1,5 +1,6 @@
 package com.yapp.betree.service;
 
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
@@ -20,7 +21,7 @@ import org.springframework.data.domain.*;
 
 import java.util.*;
 
-import static com.yapp.betree.domain.FolderTest.TEST_DEFAULT_TREE;
+import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
 import static com.yapp.betree.domain.MessageTest.TEST_SAVE_ANONYMOUS_MESSAGE;
 import static com.yapp.betree.domain.MessageTest.TEST_SAVE_MESSAGE;
 import static com.yapp.betree.domain.UserTest.*;
@@ -51,8 +52,11 @@ public class MessageServiceTest {
         void TotalMessageList() {
 
             SliceImpl<Message> messages = new SliceImpl<>(Arrays.asList(TEST_SAVE_MESSAGE, TEST_SAVE_ANONYMOUS_MESSAGE));
+
             given(messageRepository.findByUserId(TEST_SAVE_USER.getId(), pageable)).willReturn(messages);
+            given(messageRepository.findByUserIdAndFolderId(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), pageable)).willReturn(messages);
             given(userRepository.findById(TEST_SAVE_USER.getId())).willReturn(Optional.of(TEST_SAVE_USER));
+            given(folderRepository.findByUserIdAndFruit(TEST_SAVE_USER.getId(), FruitType.DEFAULT)).willReturn(TEST_SAVE_DEFAULT_TREE);
 
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, null);
 
@@ -66,9 +70,10 @@ public class MessageServiceTest {
 
             SliceImpl<Message> messages = new SliceImpl<>(Arrays.asList(TEST_SAVE_MESSAGE, TEST_SAVE_ANONYMOUS_MESSAGE));
             given(messageRepository.findByUserId(TEST_SAVE_USER.getId(), pageable)).willReturn(messages);
+            given(messageRepository.findByUserIdAndFolderId(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), pageable)).willReturn(messages);
             given(userRepository.findById(TEST_SAVE_USER.getId())).willReturn(Optional.of(TEST_SAVE_USER));
 
-            MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, TEST_DEFAULT_TREE.getId());
+            MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, TEST_SAVE_DEFAULT_TREE.getId());
 
             assertThat(messageList.getResponseDto().size()).isEqualTo(2);
             assertThat(messageList.getResponseDto().get(0).getId()).isEqualTo(1L);

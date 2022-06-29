@@ -66,7 +66,7 @@ public class MessageController {
      * @param treeId
      * @return
      */
-    @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 전체 조회")
+    @ApiOperation(value = "메세지 목록 조회", notes = "유저의 메세지 목록 조회- treeId 입력시 폴더별 조회 / 없으면 기본 폴더 조회 (나에게온 메세지 폴더)")
     @ApiResponses({
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
