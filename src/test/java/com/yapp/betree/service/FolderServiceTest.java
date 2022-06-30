@@ -178,6 +178,23 @@ public class FolderServiceTest {
     }
 
     @Test
+    @DisplayName("유저 나무 추가 - 나무를 4개보다 많이 추가하려고 하면 예외가 발생한다.")
+    void createTreeCountErrorTest() {
+        // given
+        Long userId = 1L;
+        TreeRequestDto apple_tree = TreeRequestDto.builder()
+                .name("apple tree")
+                .fruitType(FruitType.APPLE)
+                .build();
+
+        given(folderRepository.countByUserIdAndFruitIsNot(userId, FruitType.DEFAULT)).willReturn(4L);
+
+        assertThatThrownBy(() -> folderService.createTree(userId, apple_tree))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("나무는 최대 4개까지 추가 가능합니다.");
+    }
+
+    @Test
     @DisplayName("유저 나무 추가 - 나무 추가")
     void createTreeTest() {
         // given

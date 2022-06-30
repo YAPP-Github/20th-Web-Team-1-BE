@@ -2,6 +2,7 @@ package com.yapp.betree.service;
 
 
 import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
@@ -86,7 +87,7 @@ public class FolderService {
     @Transactional
     public Long createTree(Long userId, TreeRequestDto treeRequestDto) {
 
-        Long count = folderRepository.countByUserId(userId);
+        Long count = folderRepository.countByUserIdAndFruitIsNot(userId, FruitType.DEFAULT);
         if (count == 4L) {
             throw new BetreeException(ErrorCode.TREE_COUNT_ERROR, "나무를 추가할 수 없습니다.");
         }
