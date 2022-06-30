@@ -1,5 +1,6 @@
 package com.yapp.betree.domain;
 
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.util.BetreeUtils;
 import org.junit.jupiter.api.DisplayName;
 
@@ -25,5 +26,10 @@ public class UserTest {
             .userImage("default image uri")
             .lastAccessTime(LocalDateTime.now())
             .url(BetreeUtils.makeUserAccessUrl(1L))
+            .build();
+    public static final SendUserDto TEST_SAVE_USER_DTO = SendUserDto.builder()
+            .id(1L)
+            .nickname("닉네임")
+            .userImage("default image uri")
             .build();
 }

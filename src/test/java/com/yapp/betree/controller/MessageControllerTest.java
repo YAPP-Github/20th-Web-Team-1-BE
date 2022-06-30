@@ -19,7 +19,7 @@ import java.util.*;
 
 import static com.yapp.betree.domain.MessageTest.TEST_SAVE_ANONYMOUS_MESSAGE;
 import static com.yapp.betree.domain.MessageTest.TEST_SAVE_MESSAGE;
-import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
+import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER_DTO;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -86,8 +86,8 @@ class MessageControllerTest extends ControllerTest {
     @Test
     void getMessageList() throws Exception {
 
-        MessageBoxResponseDto dto1 = MessageBoxResponseDto.of(TEST_SAVE_MESSAGE, TEST_SAVE_USER);
-        MessageBoxResponseDto dto2 = MessageBoxResponseDto.of(TEST_SAVE_ANONYMOUS_MESSAGE, TEST_SAVE_USER);
+        MessageBoxResponseDto dto1 = MessageBoxResponseDto.of(TEST_SAVE_MESSAGE, TEST_SAVE_USER_DTO);
+        MessageBoxResponseDto dto2 = MessageBoxResponseDto.of(TEST_SAVE_ANONYMOUS_MESSAGE, TEST_SAVE_USER_DTO);
         List<MessageBoxResponseDto> messageDto = Arrays.asList(dto1, dto2);
 
         given(messageService.getMessageList(anyLong(), any(), anyLong())).willReturn(MessagePageResponseDto.of(messageDto, false));
@@ -180,7 +180,7 @@ class MessageControllerTest extends ControllerTest {
     @Test
     void getFavoriteMessageList() throws Exception {
 
-        List<MessageBoxResponseDto> messageDto = Collections.singletonList(MessageBoxResponseDto.of(TEST_SAVE_MESSAGE, TEST_SAVE_USER));
+        List<MessageBoxResponseDto> messageDto = Collections.singletonList(MessageBoxResponseDto.of(TEST_SAVE_MESSAGE, TEST_SAVE_USER_DTO));
 
         given(messageService.getFavoriteMessage(anyLong(), any())).willReturn(MessagePageResponseDto.of(messageDto, false));
 
