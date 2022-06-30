@@ -95,7 +95,9 @@ public class ForestController {
     @ApiResponses({
             @ApiResponse(code = 400, message = "[C004]잘못된 ENUM값 입니다.\n" +
                     "[C001]Invalid input value (나무 이름은 빈 값일 수 없습니다, 나무 이름은 20자를 넘을 수 없습니다.)\n" +
-                    "[T002]기본 나무를 생성,변경할 수 없습니다. - fruitType에 Default를 지정할경우"),
+                    "[T002]기본 나무를 생성,변경할 수 없습니다. - fruitType에 Default를 지정할경우\n" +
+                    "[T003]나무는 최대 4개까지 추가 가능합니다. - 현재 추가한 나무가 4개일때 더 생성하려고 할 경우"),
+
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다."),
     })
     @ResponseStatus(HttpStatus.CREATED)

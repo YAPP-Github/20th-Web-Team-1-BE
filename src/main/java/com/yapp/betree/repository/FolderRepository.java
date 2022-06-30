@@ -22,4 +22,6 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     //next
     Optional<Folder> findTop1ByUserAndIdGreaterThan(User user, Long id);
+
+    Long countByUserId(Long userId);
 }
