@@ -2,6 +2,7 @@ package com.yapp.betree.service;
 
 
 import com.yapp.betree.domain.Folder;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
@@ -12,7 +13,6 @@ import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
-import com.yapp.betree.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +86,11 @@ public class FolderService {
      */
     @Transactional
     public Long createTree(Long userId, TreeRequestDto treeRequestDto) {
+
+        Long count = folderRepository.countByUserIdAndFruitIsNot(userId, FruitType.DEFAULT);
+        if (count == 4L) {
+            throw new BetreeException(ErrorCode.TREE_COUNT_ERROR, "나무를 추가할 수 없습니다.");
+        }
 
         User user = userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userID = " + userId));
 
