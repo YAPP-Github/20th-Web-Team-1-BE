@@ -96,7 +96,7 @@ public class MessageAcceptanceTest {
 
         Long messageId = Long.parseLong(mvcResult.getResponse().getContentAsString());
 
-        Message message = messageRepository.findByIdAndUserId(messageId, user.getId());
+        Message message = messageRepository.findByIdAndUserId(messageId, user.getId()).get();
         assertThat(message.getSenderId()).isEqualTo(user.getId());
         assertThat(message.isAnonymous()).isFalse();
 

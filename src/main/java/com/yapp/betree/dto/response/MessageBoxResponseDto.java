@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +25,7 @@ public class MessageBoxResponseDto {
     private boolean opening;
     private String senderNickname;
     private String senderProfileImage;
+    private LocalDateTime createdDate;
 
     @Builder
     public MessageBoxResponseDto(Message message, String senderNickname, String senderProfileImage) {
@@ -34,6 +37,7 @@ public class MessageBoxResponseDto {
         this.opening = message.isOpening();
         this.senderNickname = senderNickname;
         this.senderProfileImage = senderProfileImage;
+        this.createdDate= message.getCreatedDate();
     }
 
     public static MessageBoxResponseDto of(Message message, SendUserDto user) {

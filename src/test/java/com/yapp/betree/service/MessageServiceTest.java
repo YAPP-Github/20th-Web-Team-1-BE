@@ -51,16 +51,16 @@ public class MessageServiceTest {
         @DisplayName("메세지함 목록 조회 - folderId 없을 경우 전체 목록 조회")
         void TotalMessageList() {
 
-            SliceImpl<Message> messages = new SliceImpl<>(Arrays.asList(TEST_SAVE_MESSAGE, TEST_SAVE_ANONYMOUS_MESSAGE));
+            SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_ANONYMOUS_MESSAGE));
 
             given(messageRepository.findByUserId(TEST_SAVE_USER.getId(), pageable)).willReturn(messages);
             given(messageRepository.findByUserIdAndFolderId(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), pageable)).willReturn(messages);
-            given(userRepository.findById(TEST_SAVE_USER.getId())).willReturn(Optional.of(TEST_SAVE_USER));
+
             given(folderRepository.findByUserIdAndFruit(TEST_SAVE_USER.getId(), FruitType.DEFAULT)).willReturn(TEST_SAVE_DEFAULT_TREE);
 
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, null);
 
-            assertThat(messageList.getResponseDto().size()).isEqualTo(2);
+            assertThat(messageList.getResponseDto().size()).isEqualTo(1);
             assertThat(messageList.getResponseDto().get(0).getId()).isEqualTo(1L);
         }
 
@@ -68,14 +68,13 @@ public class MessageServiceTest {
         @DisplayName("메세지함 목록 조회 - folderId 포함시 나무별 메세지 목록 조회")
         void treeMessageList() {
 
-            SliceImpl<Message> messages = new SliceImpl<>(Arrays.asList(TEST_SAVE_MESSAGE, TEST_SAVE_ANONYMOUS_MESSAGE));
+            SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_ANONYMOUS_MESSAGE));
             given(messageRepository.findByUserId(TEST_SAVE_USER.getId(), pageable)).willReturn(messages);
             given(messageRepository.findByUserIdAndFolderId(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), pageable)).willReturn(messages);
-            given(userRepository.findById(TEST_SAVE_USER.getId())).willReturn(Optional.of(TEST_SAVE_USER));
 
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, TEST_SAVE_DEFAULT_TREE.getId());
 
-            assertThat(messageList.getResponseDto().size()).isEqualTo(2);
+            assertThat(messageList.getResponseDto().size()).isEqualTo(1);
             assertThat(messageList.getResponseDto().get(0).getId()).isEqualTo(1L);
         }
     }
