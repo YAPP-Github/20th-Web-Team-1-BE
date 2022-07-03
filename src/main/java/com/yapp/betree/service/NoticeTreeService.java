@@ -17,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,13 +69,21 @@ public class NoticeTreeService {
             List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyRead(user.getId(), false);
 
             // 안읽은 메시지 먼저 8개 리스트에 넣음
-            List<MessageResponseDto> noticeTreeMessages = new ArrayList<>();
+            Set<MessageResponseDto> noticeTreeMessages = new HashSet<>();
             for (Message m : unreadMessages) {
                 SendUserDto sender = userService.findBySenderId(m.getSenderId());
                 noticeTreeMessages.add(MessageResponseDto.of(m, sender));
             }
 
-            // 즐겨찾기 메시지 (일단 생략)
+            // 즐겨찾기 메시지
+            List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavorite(user.getId(), true);
+            for (Message m : favoriteMessages) {
+                if (noticeTreeMessages.size() >= 8) {
+                    break; // 8개까지만 담음
+                }
+                SendUserDto sender = userService.findBySenderId(m.getSenderId());
+                noticeTreeMessages.add(MessageResponseDto.of(m, sender));
+            }
 
             // 비트리 제공 메시지로 8개까지 다시 채움
             long remainCount = 8 - noticeTreeMessages.size();
