@@ -193,7 +193,8 @@ public class ForestControllerTest extends ControllerTest {
                 .content(objectMapper.writeValueAsString(input))
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(18));
     }
 
     @DisplayName("나무 편집 - 변경하려는 나무가 DEFAULT타입인 경우 예외가 발생한다.")
