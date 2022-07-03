@@ -21,7 +21,11 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     List<Message> findByUserIdAndAlreadyRead(Long userId, boolean alreadyRead);
 
+    // 알림나무 즐겨찾기 메시지 조회용
+    List<Message> findAllByUserIdAndFavorite(Long userId, boolean favorite);
+
     Optional<Message> findByIdAndUserId(Long id, Long userId);
 
+    // 메시지함 즐겨찾기한 메시지 조회용
     Slice<Message> findByUserIdAndFavorite(Long userId, boolean favorite, Pageable pageable);
 }
