@@ -5,18 +5,20 @@ import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FolderTest;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
-import com.yapp.betree.domain.MessageTest;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.domain.UserTest;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.UserInfoFixture;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
+import com.yapp.betree.dto.response.NoticeResponseDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
 import com.yapp.betree.service.MessageService;
 import com.yapp.betree.service.UserService;
+import com.yapp.betree.service.oauth.JwtTokenProvider;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import com.yapp.betree.util.BetreeUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,21 +35,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
-import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static com.yapp.betree.domain.UserTest.TEST_USER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,6 +53,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AcceptanceTest {
 
     private MockMvc mockMvc;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     private UserRepository userRepository;
@@ -234,5 +234,116 @@ public class AcceptanceTest {
         assertThat(sender.getId()).isEqualTo(-1L);
         assertThat(sender.getUserImage()).isEqualTo("기본이미지");
         assertThat(sender.getNickname()).isEqualTo("익명");
+    }
+
+    @Test
+    @DisplayName("알림나무 읽음처리 테스트")
+    void noticeTreeTest() throws Exception {
+        // given
+        TEST_USER.addFolder(FolderTest.TEST_APPLE_TREE);
+        User user = userRepository.save(TEST_USER);
+
+        Message message = Message.builder()
+                .content("보낸메시지0-익명,안읽음")
+                .senderId(user.getId())
+                .anonymous(true)
+                .alreadyRead(false)
+                .favorite(false)
+                .opening(false)
+                .user(user)
+                .build();
+
+        messageRepository.save(message);
+
+        Message message1 = Message.builder()
+                .content("보낸메시지1-익명아님,읽을예정")
+                .senderId(user.getId())
+                .anonymous(false)
+                .alreadyRead(false)
+                .favorite(false)
+                .opening(false)
+                .user(user)
+                .build();
+        messageRepository.save(message1);
+
+        Message message2 = Message.builder()
+                .content("보낸메시지2-익명아님,읽을예정,즐겨찾기")
+                .senderId(user.getId())
+                .anonymous(false)
+                .alreadyRead(false)
+                .favorite(false)
+                .opening(false)
+                .user(user)
+                .build();
+        messageRepository.save(message2);
+        messageService.updateFavoriteMessage(user.getId(), message2.getId());
+
+        Message message3 = Message.builder()
+                .content("보낸메시지3-익명아님,안읽음,즐겨찾기")
+                .senderId(user.getId())
+                .anonymous(false)
+                .alreadyRead(false)
+                .favorite(false)
+                .opening(false)
+                .user(user)
+                .build();
+        messageRepository.save(message3);
+        messageService.updateFavoriteMessage(user.getId(), message3.getId());
+
+        // loginUserDto 임시로 만들어 Token도 생성해서 요청보냄
+        LoginUserDto loginUserDto = LoginUserDto.of(user);
+        String token = jwtTokenProvider.createAccessToken(loginUserDto);
+
+        // 알림나무 조회
+        MvcResult mvcResult = mockMvc.perform(get("/api/notice")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        NoticeResponseDto noticeResponseDto = (NoticeResponseDto) objectMapper.readValue(mvcResult.getResponse().getContentAsString(), NoticeResponseDto.class);
+        assertThat(noticeResponseDto.getMessages()).hasSize(8);
+        assertThat(noticeResponseDto.getTotalUnreadMessageCount()).isEqualTo(4);
+
+        // 메시지 읽을것
+        mockMvc.perform(put("/api/messages/alreadyRead")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("messageId", String.valueOf(message1.getId()))
+                .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andReturn();
+        mockMvc.perform(put("/api/messages/alreadyRead")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("messageId", String.valueOf(message2.getId()))
+                .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andReturn();
+
+        MvcResult mvcResult2 = mockMvc.perform(get("/api/notice")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // 읽고나서 조회 -> 읽은만큼 개수 줄어듦
+        NoticeResponseDto noticeResponseDto2 = (NoticeResponseDto) objectMapper.readValue(mvcResult2.getResponse().getContentAsString(), NoticeResponseDto.class);
+        assertThat(noticeResponseDto2.getMessages()).hasSize(6);
+        assertThat(noticeResponseDto2.getTotalUnreadMessageCount()).isEqualTo(2);
+
+        // 읽은메시지 볼 수 없음
+        assertThat(
+                noticeResponseDto2.getMessages().stream()
+                        .filter(messageResponseDto -> messageResponseDto.getId() == message1.getId())
+                        .count()
+        ).isEqualTo(0);
+        assertThat(
+                noticeResponseDto2.getMessages().stream()
+                        .filter(messageResponseDto -> messageResponseDto.getId() == message2.getId())
+                        .count()
+        ).isEqualTo(0);
     }
 }
