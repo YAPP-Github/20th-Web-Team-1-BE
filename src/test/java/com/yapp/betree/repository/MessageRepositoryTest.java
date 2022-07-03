@@ -4,6 +4,7 @@ import com.yapp.betree.domain.FolderTest;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.domain.UserTest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ public class MessageRepositoryTest {
     @Autowired
     private MessageRepository messageRepository;
 
+    @Disabled
     @DisplayName("즐겨찾기한 메시지 조회 테스트")
     @Test
     void findByFavoriteTest() {
