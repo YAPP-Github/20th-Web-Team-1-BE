@@ -295,7 +295,7 @@ public class AcceptanceTest {
         String token = jwtTokenProvider.createAccessToken(loginUserDto);
 
         // 알림나무 조회
-        MvcResult mvcResult = mockMvc.perform(get("/api/notice")
+        MvcResult mvcResult = mockMvc.perform(get("/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
@@ -322,7 +322,7 @@ public class AcceptanceTest {
                 .andExpect(status().isNoContent())
                 .andReturn();
 
-        MvcResult mvcResult2 = mockMvc.perform(get("/api/notice")
+        MvcResult mvcResult2 = mockMvc.perform(get("/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())

@@ -41,7 +41,7 @@ public class NoticeTreeController {
             @ApiResponse(code = 400, message = "[N001]회원의 알림나무 리스트를 불러오는데 실패했습니다."),
             @ApiResponse(code = 404, message = "[U001]회원을 찾을 수 없습니다.\n" )
     })
-    @GetMapping("/api/notice")
+    @GetMapping("/api/notices")
     public ResponseEntity<NoticeResponseDto> getUnreadMessageList(@ApiIgnore @LoginUser LoginUserDto loginUser) {
 
         log.info("[userId] : {}", loginUser.getId());
@@ -53,7 +53,7 @@ public class NoticeTreeController {
     @ApiResponses({
             @ApiResponse(code = 400, message = "[C001]관리자만 사용 가능한 API"),
     })
-    @GetMapping("/api/notice/batch")
+    @GetMapping("/api/notices/batch")
     public ResponseEntity<Void> batchNoticeTree(@ApiIgnore @LoginUser LoginUserDto loginUser) {
         List<String> adminEmails = new ArrayList<>();
         adminEmails.add("bi0425@naver.com");
