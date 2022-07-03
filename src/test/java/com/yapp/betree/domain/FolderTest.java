@@ -58,6 +58,7 @@ public class FolderTest {
         TreeResponseDto build = TreeResponseDto.builder()
                 .id(TEST_SAVE_APPLE_TREE.getId())
                 .name(TEST_SAVE_APPLE_TREE.getName())
+                .fruit(TEST_SAVE_APPLE_TREE.getFruit())
                 .build();
         assertThat(of).isEqualTo(build);
         assertThat(of.hashCode()).isEqualTo(build.hashCode());
