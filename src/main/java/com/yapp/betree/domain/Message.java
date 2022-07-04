@@ -28,6 +28,8 @@ public class Message extends BaseTimeEntity {
     private boolean alreadyRead;
     private boolean favorite;
     private boolean opening;
+    private boolean delBySender;
+    private boolean delByReceiver;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -37,8 +39,9 @@ public class Message extends BaseTimeEntity {
     @JoinColumn(name = "folder_id")
     private Folder folder;
 
+
     @Builder
-    public Message(Long id, String content, Long senderId, boolean anonymous, boolean alreadyRead, boolean favorite, boolean opening, User user, Folder folder) {
+    public Message(Long id, String content, Long senderId, boolean anonymous, boolean alreadyRead, boolean favorite, boolean opening, boolean delBySender, boolean delByReceiver, User user, Folder folder) {
         this.id = id;
         this.content = content;
         this.senderId = senderId;
@@ -46,6 +49,8 @@ public class Message extends BaseTimeEntity {
         this.alreadyRead = alreadyRead;
         this.favorite = favorite;
         this.opening = opening;
+        this.delBySender = delBySender;
+        this.delByReceiver = delByReceiver;
         this.user = user;
         this.folder = folder;
     }
@@ -83,6 +88,17 @@ public class Message extends BaseTimeEntity {
      */
     public void updateFavorite() {
         this.favorite = !this.favorite;
+    }
+
+    /**
+     * 메세지 삭제 여부 상태 변경 메서드
+     */
+    public void deleteBySender() {
+        this.delBySender = true;
+    }
+
+    public void deleteByReceiver() {
+        this.delByReceiver = true;
     }
 
 }
