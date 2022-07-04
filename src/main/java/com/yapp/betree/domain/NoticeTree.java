@@ -42,8 +42,12 @@ public class NoticeTree {
         this.userId = userId;
     }
 
-    public void updateMessages(String unreadMessages) {
+    public void resetMessages(String unreadMessages) {
         this.unreadMessages = unreadMessages;
         this.readMessages = "";
+    }
+    public void updateMessages(String unreadMessages, String readMessages) {
+        this.unreadMessages = unreadMessages;
+        this.readMessages = readMessages;
     }
 }

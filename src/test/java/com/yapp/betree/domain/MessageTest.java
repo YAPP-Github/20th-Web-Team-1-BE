@@ -1,9 +1,16 @@
 package com.yapp.betree.domain;
 
+import com.yapp.betree.dto.SendUserDto;
+import com.yapp.betree.dto.response.MessageResponseDto;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
+import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("메시지 도메인, DTO 테스트")
 public class MessageTest {
@@ -31,5 +38,20 @@ public class MessageTest {
             .favorite(true)
             .opening(false)
             .build();
+
+    @DisplayName("MessageResponseDto Set으로 중복 처리 되는지 테스트")
+    @Test
+    void messageResponseDtoSetTest() {
+        Set<MessageResponseDto> dtos = new HashSet<>();
+        SendUserDto sender = SendUserDto.builder()
+                .id(TEST_SAVE_USER.getId())
+                .nickname(TEST_SAVE_USER.getNickname())
+                .userImage(TEST_SAVE_USER.getUserImage())
+                .build();
+        dtos.add(MessageResponseDto.of(TEST_SAVE_MESSAGE, sender));
+        dtos.add(MessageResponseDto.of(TEST_SAVE_MESSAGE, sender));
+        dtos.add(MessageResponseDto.of(TEST_SAVE_ANONYMOUS_MESSAGE, sender));
+        assertThat(dtos).hasSize(2);
+    }
 
 }

@@ -35,6 +35,7 @@ public class MessageService {
     private final UserService userService;
     private final FolderRepository folderRepository;
     private final MessageRepository messageRepository;
+    private final NoticeTreeService noticeTreeService;
 
     /**
      * 칭찬 메세지 생성 (물 주기)
@@ -216,5 +217,6 @@ public class MessageService {
 
         messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
                 .updateAlreadyRead();
+        noticeTreeService.updateNoticeTree(userId, messageId);
     }
 }
