@@ -24,9 +24,9 @@ public class folderRepositoryTest {
     @DisplayName("countByUserIdAndFruitIsNot 테스트")
     void countByUserIdAndFruitIsNot() {
         // given
+        TEST_USER.addFolder(TEST_APPLE_TREE);
+        TEST_USER.addFolder(TEST_DEFAULT_TREE);
         userRepository.save(TEST_USER);
-        folderRepository.save(TEST_APPLE_TREE);
-        folderRepository.save(TEST_DEFAULT_TREE);
 
         //when
         Long count = folderRepository.countByUserIdAndFruitIsNot(TEST_SAVE_USER.getId(), FruitType.DEFAULT);

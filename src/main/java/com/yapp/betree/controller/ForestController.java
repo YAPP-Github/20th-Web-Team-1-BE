@@ -136,7 +136,7 @@ public class ForestController {
                     "[T001]나무가 존재하지 않습니다."),
     })
     @PutMapping("/api/forest/{treeId}")
-    public ResponseEntity<Void> updateTree(
+    public ResponseEntity<Long> updateTree(
             @ApiIgnore @LoginUser LoginUserDto loginUser,
             @PathVariable Long treeId,
             @Valid @RequestBody TreeRequestDto treeRequestDto) {
@@ -146,6 +146,8 @@ public class ForestController {
         folderService.updateTree(loginUser.getId(), treeId, treeRequestDto);
         log.info("[나무 편집 완료] treeId : {}, {}", treeId, treeRequestDto);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(treeId);
     }
 }
