@@ -39,19 +39,6 @@ public class MessageTest {
             .opening(false)
             .build();
 
-    public static Message TEST_SAVE_DELETE_MESSAGE = Message.builder()
-            .id(1L)
-            .content("메시지내용")
-            .senderId(TEST_SAVE_USER.getId())
-            .user(TEST_SAVE_USER) // 받은사람
-            .folder(TEST_SAVE_DEFAULT_TREE)
-            .anonymous(true)
-            .alreadyRead(false)
-            .favorite(true)
-            .opening(false)
-            .delByReceiver(true)
-            .build();
-
     @DisplayName("MessageResponseDto Set으로 중복 처리 되는지 테스트")
     @Test
     void messageResponseDtoSetTest() {
