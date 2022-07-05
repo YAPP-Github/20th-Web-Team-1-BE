@@ -96,7 +96,7 @@ public class NoticeTreeService {
         }
 
         // 즐겨찾기 메시지
-        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavorite(userId, true);
+        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(userId, true, false);
         for (Message m : favoriteMessages) {
             if (noticeTreeMessages.size() >= 8) {
                 break; // 8개까지만 담음
