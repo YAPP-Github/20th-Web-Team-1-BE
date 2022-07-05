@@ -174,7 +174,7 @@ public class AcceptanceTest {
         }
 
         // 즐겨찾기 메시지
-        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavorite(user.getId(), true);
+        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(user.getId(), true, false);
         for (Message m : favoriteMessages) {
             if (noticeTreeMessages.size() >= 8) break; // 8개까지만 담음
             SendUserDto sender = userService.findBySenderId(m.getSenderId());
@@ -226,7 +226,7 @@ public class AcceptanceTest {
 
         Long messageId = Long.parseLong(mvcResult.getResponse().getContentAsString());
 
-        Message message = messageRepository.findByIdAndUserId(messageId, user.getId()).get();
+        Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, user.getId(), false).get();
         assertThat(message.getSenderId()).isEqualTo(-1L);
         assertThat(message.isAnonymous()).isTrue();
 
