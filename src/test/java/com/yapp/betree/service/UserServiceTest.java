@@ -1,7 +1,8 @@
 package com.yapp.betree.service;
 
 import com.yapp.betree.domain.User;
-import com.yapp.betree.domain.UserTest;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static com.yapp.betree.domain.UserTest.TEST_USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,5 +82,17 @@ public class UserServiceTest {
 
         // then
         assertThat(exist).isFalse();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 userId로 조회시 예외처리")
+    void findByuserIdFailTest() {
+        // given
+        given(userRepository.findById(TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND));
+
+        // then
+        assertThatThrownBy(() -> userService.getUser(TEST_SAVE_USER.getId()))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("회원을 찾을 수 없습니다.");
     }
 }
