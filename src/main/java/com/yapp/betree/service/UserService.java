@@ -79,8 +79,25 @@ public class UserService {
         return findById(userId).isPresent();
     }
 
+    /**
+     * 유저 정보 조회
+     *
+     * @param userId
+     * @return
+     */
     public UserResponseDto getUser(Long userId) {
         User user = findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId));
         return UserResponseDto.of(user);
+    }
+
+    /**
+     * 유저 닉네임 변경
+     *
+     * @param userId
+     * @param nickname
+     */
+    public void updateUserNickname(Long userId, String nickname) {
+        findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId))
+                .updateNickname(nickname);
     }
 }

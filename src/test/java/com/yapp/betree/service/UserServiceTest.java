@@ -85,13 +85,25 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 userId로 조회시 예외처리")
-    void findByuserIdFailTest() {
+    @DisplayName("유저 정보 조회 테스트 - 존재하지 않는 userId로 조회시 예외처리")
+    void findByIdFailTest() {
         // given
-        given(userRepository.findById(TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND));
+        given(userService.findById(TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND));
 
         // then
         assertThatThrownBy(() -> userService.getUser(TEST_SAVE_USER.getId()))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("회원을 찾을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 닉네임 변경 테스트 - 존재하지 않는 userId로 조회시 예외처리")
+    void updateUserNicknameFailTest() {
+        // given
+        given(userService.findById(TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND));
+
+        // then
+        assertThatThrownBy(() -> userService.updateUserNickname(TEST_SAVE_USER.getId(), "nickname"))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("회원을 찾을 수 없습니다.");
     }
