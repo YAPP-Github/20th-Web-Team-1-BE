@@ -3,6 +3,7 @@ package com.yapp.betree.controller;
 import com.yapp.betree.annotation.LoginUser;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
+import com.yapp.betree.dto.response.MessageDetailResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.service.MessageService;
 import io.swagger.annotations.Api;
@@ -214,4 +215,24 @@ public class MessageController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * 메세지 상세 조회
+     *
+     * @param loginUser
+     * @param messageId
+     * @return
+     */
+    @ApiOperation(value = "메세지 상세 조회", notes = "메세지 상세 조회")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
+                    "[U005]회원을 찾을 수 없습니다. (보낸 유저가 존재하지 않음)")
+    })
+    @GetMapping("/api/messages/{messageId}")
+    public ResponseEntity<MessageDetailResponseDto> getMessageDetail(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                                     @PathVariable Long messageId) {
+
+        log.info("[메세지 상세 조회] userId: {}, messageId: {}", loginUser.getId(), messageId);
+
+        return ResponseEntity.ok(messageService.getMessageDetail(loginUser.getId(), messageId));
+    }
 }
