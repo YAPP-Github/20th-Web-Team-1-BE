@@ -1,5 +1,7 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.annotation.LoginUser;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -97,5 +100,26 @@ public class OAuthController {
         response.setHeader(SET_COOKIE_HEADER, cookie.toString());
         response.setHeader(AUTHORIZATION_HEADER, AUTH_TYPE + token.getAccessToken());
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
+    @ApiOperation(value = "로그아웃", notes = "로그아웃, refresh Token 만료")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "[U007]이미 로그아웃된 유저입니다.\n")
+    })
+    @PostMapping("/api/logout")
+    public ResponseEntity<Void> logout(@ApiIgnore @LoginUser LoginUserDto loginUser, HttpServletResponse response) {
+        log.info("[로그아웃 요청] user : {}", loginUser);
+        loginService.logout(loginUser.getId());
+
+        ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, null)
+                .maxAge(0)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        response.setHeader(SET_COOKIE_HEADER, cookie.toString());
+        return ResponseEntity.ok().build();
     }
 }

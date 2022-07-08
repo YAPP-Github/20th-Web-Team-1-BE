@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static com.yapp.betree.exception.ErrorCode.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -57,5 +59,12 @@ public class LoginService {
         }
         User user = userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
         return jwtTokenProvider.refreshToken(LoginUserDto.of(user), refreshToken);
+    }
+
+    @Transactional
+    public void
+    logout(Long userId) {
+        userService.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = "+userId));
+        userService.deleteRefreshToken(userId);
     }
 }

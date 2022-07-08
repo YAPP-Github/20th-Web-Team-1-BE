@@ -1,7 +1,8 @@
 package com.yapp.betree.service;
 
 import com.yapp.betree.domain.User;
-import com.yapp.betree.domain.UserTest;
+import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.repository.RefreshTokenRepository;
 import com.yapp.betree.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static com.yapp.betree.domain.UserTest.TEST_USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +28,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Test
     @DisplayName("oauthId를 통해 User를 얻어낼 수 있다.")
@@ -80,5 +85,16 @@ public class UserServiceTest {
 
         // then
         assertThat(exist).isFalse();
+    }
+
+    @Test
+    @DisplayName("로그아웃 테스트 - 이미 로그아웃된 유저 처리")
+    void logoutUserTest() {
+        Long userId = 1L;
+        given(refreshTokenRepository.findByUserId(userId)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.deleteRefreshToken(userId))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("이미 로그아웃된 유저입니다.");
     }
 }
