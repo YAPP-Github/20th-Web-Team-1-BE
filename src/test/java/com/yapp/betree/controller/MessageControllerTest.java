@@ -1,6 +1,7 @@
 package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
@@ -52,9 +53,10 @@ class MessageControllerTest extends ControllerTest {
         given(messageService.createMessage(anyLong(), any())).willReturn(1L);
 
         mockMvc.perform(post("/api/messages")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").value(1L));
@@ -72,9 +74,10 @@ class MessageControllerTest extends ControllerTest {
         given(messageService.createMessage(anyLong(), any())).willReturn(1L);
 
         mockMvc.perform(post("/api/messages")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
@@ -93,9 +96,10 @@ class MessageControllerTest extends ControllerTest {
         given(messageService.getMessageList(anyLong(), any(), anyLong())).willReturn(MessagePageResponseDto.of(messageDto, false));
 
         mockMvc.perform(get("/api/messages")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .param("page", String.valueOf(0))
-                        .param("treeId", String.valueOf(19L)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("page", String.valueOf(0))
+                .param("treeId", String.valueOf(19L)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.responseDto.length()").value(2))
@@ -111,9 +115,10 @@ class MessageControllerTest extends ControllerTest {
         given(messageService.getMessageList(anyLong(), any(), eq(19L))).willThrow(new BetreeException(ErrorCode.TREE_NOT_FOUND));
 
         mockMvc.perform(get("/api/messages")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .param("page", String.valueOf(0))
-                        .param("treeId", String.valueOf(19L)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("page", String.valueOf(0))
+                .param("treeId", String.valueOf(19L)))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("T001"))
@@ -128,9 +133,10 @@ class MessageControllerTest extends ControllerTest {
         List<String> idList = Arrays.asList(String.valueOf(9L), String.valueOf(10L));
 
         mockMvc.perform(put("/api/messages/opening")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(idList)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(idList)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -143,9 +149,10 @@ class MessageControllerTest extends ControllerTest {
         List<String> idList = Arrays.asList(String.valueOf(9L), String.valueOf(10L));
 
         mockMvc.perform(delete("/api/messages")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(idList)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(idList)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -157,10 +164,11 @@ class MessageControllerTest extends ControllerTest {
         List<String> idList = Arrays.asList(String.valueOf(9L), String.valueOf(10L));
 
         mockMvc.perform(put("/api/messages/folder")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(idList))
-                        .param("treeId", String.valueOf(1L)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(idList))
+                .param("treeId", String.valueOf(1L)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -170,8 +178,9 @@ class MessageControllerTest extends ControllerTest {
     void updateMessageFavorite() throws Exception {
 
         mockMvc.perform(put("/api/messages/favorite")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .param("messageId", String.valueOf(1L)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("messageId", String.valueOf(1L)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -185,8 +194,9 @@ class MessageControllerTest extends ControllerTest {
         given(messageService.getFavoriteMessage(anyLong(), any())).willReturn(MessagePageResponseDto.of(messageDto, false));
 
         mockMvc.perform(get("/api/messages/favorite")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .param("page", String.valueOf(0)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("page", String.valueOf(0)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.responseDto[0].favorite").value(true));
@@ -197,8 +207,9 @@ class MessageControllerTest extends ControllerTest {
     void updateMessageRead() throws Exception {
 
         mockMvc.perform(put("/api/messages/alreadyRead")
-                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
-                        .param("messageId", String.valueOf(1L)))
+                .cookie(TestConfig.COOKIE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                .param("messageId", String.valueOf(1L)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

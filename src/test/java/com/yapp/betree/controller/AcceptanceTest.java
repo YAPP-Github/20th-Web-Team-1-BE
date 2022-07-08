@@ -1,6 +1,7 @@
 package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FolderTest;
 import com.yapp.betree.domain.FruitType;
@@ -35,6 +36,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.http.Cookie;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -297,6 +300,7 @@ public class AcceptanceTest {
         // 알림나무 조회
         MvcResult mvcResult = mockMvc.perform(get("/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -310,6 +314,7 @@ public class AcceptanceTest {
         mockMvc.perform(put("/api/messages/alreadyRead")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("messageId", String.valueOf(message1.getId()))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isNoContent())
@@ -317,6 +322,7 @@ public class AcceptanceTest {
         mockMvc.perform(put("/api/messages/alreadyRead")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("messageId", String.valueOf(message2.getId()))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isNoContent())
@@ -324,6 +330,7 @@ public class AcceptanceTest {
 
         MvcResult mvcResult2 = mockMvc.perform(get("/api/notices")
                 .contentType(MediaType.APPLICATION_JSON)
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isOk())

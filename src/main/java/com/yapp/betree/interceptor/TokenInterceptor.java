@@ -9,8 +9,11 @@ import io.swagger.models.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -19,6 +22,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     private static final String AUTH_TYPE = "Bearer";
     public static final String USER_ATTR_KEY = "user";
+    public static final int ZERO = 0;
     private final JwtTokenProvider jwtTokenProvider;
 
     public TokenInterceptor(JwtTokenProvider jwtTokenProvider) {
@@ -26,7 +30,7 @@ public class TokenInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         // 비로그인 유저 요청가능 API는 return true
         if (isPassRequest(request)) {
             log.info("[비로그인 가능 요청] 토큰 검증 과정 생략");
@@ -34,6 +38,14 @@ public class TokenInterceptor implements HandlerInterceptor {
         }
         String authHeader = Optional.ofNullable(request.getHeader("Authorization"))
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
+
+        if (isInvalidRefreshToken(request.getCookies())) {
+            if (request.getRequestURI().equals("/api/logout")) {
+                throw new BetreeException(ErrorCode.USER_ALREADY_LOGOUT_TOKEN);
+            }
+            response.sendError(ErrorCode.USER_REFRESH_ERROR.getStatus(), ErrorCode.USER_REFRESH_ERROR.getMessage());
+            return false;
+        }
 
         if (authHeader.startsWith(AUTH_TYPE)) {
             authHeader = authHeader.substring(AUTH_TYPE.length()).trim();
@@ -54,6 +66,17 @@ public class TokenInterceptor implements HandlerInterceptor {
             );
         }
         return true;
+    }
+
+    private boolean isInvalidRefreshToken(Cookie[] cookies) {
+        if (Objects.isNull(cookies)) {
+            return true;
+        }
+        Cookie refreshToken = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("refreshToken"))
+                .findAny()
+                .get();
+        return Objects.isNull(refreshToken) || Objects.isNull(refreshToken.getValue()) || refreshToken.getValue().equals("") || refreshToken.getValue().isEmpty() || refreshToken.getMaxAge() == ZERO;
     }
 
     private boolean isPassRequest(HttpServletRequest request) {

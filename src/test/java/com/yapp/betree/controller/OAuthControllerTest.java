@@ -1,5 +1,6 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
@@ -92,6 +93,7 @@ public class OAuthControllerTest extends ControllerTest {
     @DisplayName("로그아웃 - 성공하면 쿠키에 토큰이 지워진다.")
     void logoutTest() throws Exception {
         MvcResult mvcResult = mockMvc.perform(post("/api/logout")
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -107,6 +109,7 @@ public class OAuthControllerTest extends ControllerTest {
     void alreadyLogoutTest() throws Exception {
         willThrow(new BetreeException(ErrorCode.USER_ALREADY_LOGOUT_TOKEN)).given(loginService).logout(1L);
         MvcResult mvcResult = mockMvc.perform(post("/api/logout")
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("U007"))
@@ -115,5 +118,30 @@ public class OAuthControllerTest extends ControllerTest {
 
         assertThat(mvcResult.getResponse().getCookie("refreshToken")).isNull();
         assertThat(mvcResult.getResponse().getHeader("Authorization")).isNull();
+    }
+
+    @Test
+    @DisplayName("로그아웃 - 이미 로그아웃된 유저는 예외메시지를 반환한다.")
+    void deleteRefreshTokenTest() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(post("/api/logout")
+                .cookie(TestConfig.COOKIE_DELETE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("U007"))
+                .andDo(print())
+                .andReturn();
+
+        assertThat(mvcResult.getResponse().getCookie("refreshToken")).isNull();
+        assertThat(mvcResult.getResponse().getHeader("Authorization")).isNull();
+    }
+
+    @Test
+    @DisplayName("이미 로그아웃되어 헤더(쿠키)에 리프레시 토큰이 존재하지 않을경우 예외가 발생한다.")
+    void refreshTokenCookieNullTest() throws Exception {
+        mockMvc.perform(get("/api/messages")
+                .cookie(TestConfig.COOKIE_DELETE_TOKEN)
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
     }
 }

@@ -1,6 +1,7 @@
 package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.MessageTest;
 import com.yapp.betree.dto.SendUserDto;
@@ -121,6 +122,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(post("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$").value(1L))
@@ -138,6 +140,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(post("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("T002"))
@@ -155,6 +158,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(post("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
@@ -173,6 +177,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(post("/api/forest")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
@@ -191,6 +196,7 @@ public class ForestControllerTest extends ControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("userId", String.valueOf(1L))
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -212,6 +218,7 @@ public class ForestControllerTest extends ControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("userId", String.valueOf(1L))
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -229,6 +236,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(put("/api/forest/18")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
@@ -246,6 +254,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(put("/api/forest/18")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(input))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
