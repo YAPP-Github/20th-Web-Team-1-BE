@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +38,7 @@ public class OAuthControllerTest extends ControllerTest {
     @Test
     @DisplayName("회원가입,로그인 - 헤더에 AccessToken이 없으면 예외가 발생한다.")
     void headerAccessTokenNullTest() throws Exception {
-        mockMvc.perform(get("/api/signin"))
+        mockMvc.perform(post("/api/signin"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value("C001"))
                 .andDo(print());
@@ -49,7 +50,7 @@ public class OAuthControllerTest extends ControllerTest {
         String accessToken = "accessToken";
         given(loginService.createToken(accessToken)).willThrow(new KakaoWebClientException("401"));
 
-        mockMvc.perform(get("/api/signin")
+        mockMvc.perform(post("/api/signin")
                 .header("X-Kakao-Access-Token", accessToken))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("code").value("O000"))
@@ -71,7 +72,7 @@ public class OAuthControllerTest extends ControllerTest {
                 .refreshToken("betreeRefreshToken")
                 .build());
 
-        MvcResult mvcResult = mockMvc.perform(get("/api/signin")
+        MvcResult mvcResult = mockMvc.perform(post("/api/signin")
                 .header("X-Kakao-Access-Token", accessToken))
                 .andExpect(status().isCreated())
                 .andDo(print())

@@ -93,7 +93,7 @@ public class AcceptanceTest {
         given(kakaoApiService.getOauthId("accessToken")).willReturn(save.getId());
         given(kakaoApiService.getUserInfo("accessToken")).willReturn(oAuthUserInfo);
 
-        mockMvc.perform(get("/api/signin")
+        mockMvc.perform(post("/api/signin")
                 .header("X-Kakao-Access-Token", "accessToken"))
                 .andDo(print())
                 .andExpect(status().isCreated());

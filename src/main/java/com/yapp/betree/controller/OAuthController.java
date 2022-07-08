@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,7 +50,7 @@ public class OAuthController {
                     "[O001]OAuth로 받아온 유저정보가 올바르지 않습니다. - 이메일 누락 등 \n" +
                     "[O002]OAuth로 받아온 액세스 토큰이 만료되었습니다.\n"),
     })
-    @GetMapping("/api/signin")
+    @PostMapping("/api/signin")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken, HttpServletResponse response) {
         log.info("회원 로그인 요청 accessToken: {}", accessToken);
@@ -66,7 +66,7 @@ public class OAuthController {
                     "[U004]유효하지 않은 JWT 리프레시 토큰입니다. 재로그인이 필요합니다.\n"),
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
-    @GetMapping("/api/refresh-token")
+    @PostMapping("/api/refresh-token")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         if (Objects.isNull(request.getCookies())) {
