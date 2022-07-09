@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +37,7 @@ public class UserControllerTest extends ControllerTest {
 
         given(userService.getUser(TEST_SAVE_USER.getId())).willReturn(UserResponseDto.of(TEST_SAVE_USER));
 
-        mockMvc.perform(get("/api/user")
+        mockMvc.perform(get("/api/users/info")
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -49,7 +48,7 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void updateUserNickname() throws Exception {
 
-        mockMvc.perform(patch("/api/user")
+        mockMvc.perform(put("/api/users/nickname")
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("nickname", "변경 닉네임"))
                 .andDo(print())
@@ -61,7 +60,7 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void updateUserNicknameBlank() throws Exception {
 
-        mockMvc.perform(patch("/api/user")
+        mockMvc.perform(put("/api/users/nickname")
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("nickname", ""))
                 .andDo(print())
@@ -73,7 +72,7 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void updateUserNicknameCount() throws Exception {
 
-        mockMvc.perform(patch("/api/user")
+        mockMvc.perform(put("/api/users/nickname")
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("nickname", "일이삼사오육칠팔구십일이삼사오육칠팔구십일"))
                 .andDo(print())

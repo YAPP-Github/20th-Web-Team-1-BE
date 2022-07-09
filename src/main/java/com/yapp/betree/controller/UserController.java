@@ -14,10 +14,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.constraints.NotBlank;
@@ -41,7 +38,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
-    @GetMapping("/api/user")
+    @GetMapping("/api/users/info")
     public ResponseEntity<UserResponseDto> getUserInfo(@ApiIgnore @LoginUser LoginUserDto loginUser) {
 
         log.info("[유저] 유저 정보 조회 userId: {}", loginUser.getId());
@@ -60,7 +57,7 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
-    @PatchMapping("/api/user")
+    @PutMapping("/api/users/nickname")
     public ResponseEntity<Long> updateUserNickname(@ApiIgnore @LoginUser LoginUserDto loginUser,
                                                    @RequestParam @NotBlank(message = "닉네임은 빈값일 수 없습니다.")
                                                    @Length(max = 20, message = "닉네임은 20자를 넘을 수 없습니다.") String nickname) {
