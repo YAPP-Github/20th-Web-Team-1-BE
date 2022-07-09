@@ -91,7 +91,7 @@ public class FolderServiceTest {
         List<Message> messages = Lists.newArrayList(TEST_SAVE_ANONYMOUS_MESSAGE);
 
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
-        given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
+        given(messageRepository.findTop8ByFolderIdAndOpeningAndDelByReceiver(TREE_ID, true, false)).willReturn(messages);
         given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.ofNoLogin());
 
         // when
@@ -114,7 +114,7 @@ public class FolderServiceTest {
         List<Message> messages = Lists.newArrayList(TEST_SAVE_MESSAGE);
 
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
-        given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
+        given(messageRepository.findTop8ByFolderIdAndOpeningAndDelByReceiver(TREE_ID, true, false)).willReturn(messages);
         given(userService.findBySenderId(USER_ID)).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND, "senderId = " + USER_ID));
 
         // then
@@ -130,7 +130,7 @@ public class FolderServiceTest {
         List<Message> messages = Lists.newArrayList(TEST_SAVE_ANONYMOUS_MESSAGE);
 
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
-        given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
+        given(messageRepository.findTop8ByFolderIdAndOpeningAndDelByReceiver(TREE_ID, true, false)).willReturn(messages);
         given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         // when
@@ -154,7 +154,7 @@ public class FolderServiceTest {
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
         given(folderRepository.findTop1ByUserAndIdGreaterThan(TEST_SAVE_USER, TREE_ID)).willReturn(Optional.empty());
         given(folderRepository.findTop1ByUserAndIdGreaterThan(TEST_SAVE_USER, TREE_ID)).willReturn(Optional.empty());
-        given(messageRepository.findTop8ByFolderIdAndOpening(TREE_ID, true)).willReturn(messages);
+        given(messageRepository.findTop8ByFolderIdAndOpeningAndDelByReceiver(TREE_ID, true, false)).willReturn(messages);
         given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         // when

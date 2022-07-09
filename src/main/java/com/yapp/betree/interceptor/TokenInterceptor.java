@@ -27,6 +27,11 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if ("OPTIONS".equals(request.getMethod())) {
+            log.info("CORS preflight 요청시 true 반환");
+            return true;
+        }
+
         // 비로그인 유저 요청가능 API는 return true
         if (isPassRequest(request)) {
             log.info("[비로그인 가능 요청] 토큰 검증 과정 생략");
