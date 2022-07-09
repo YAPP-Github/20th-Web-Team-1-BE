@@ -84,4 +84,11 @@ public class User extends BaseTimeEntity {
         this.folders.add(folder);
         folder.updateUser(this); // 원래 이거만 해도 추가됨
     }
+
+    /**
+     * 유저 닉네임 변경 메소드
+     */
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
