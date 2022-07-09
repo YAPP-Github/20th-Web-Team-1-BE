@@ -26,8 +26,7 @@ import java.util.Map;
 
 import static com.yapp.betree.domain.FolderTest.TEST_SAVE_DEFAULT_TREE;
 import static com.yapp.betree.domain.UserTest.TEST_SAVE_USER;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -250,5 +249,20 @@ public class ForestControllerTest extends ControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("C001"))
                 .andDo(print());
+    }
+
+    @DisplayName("나무 삭제 - 기본폴더는 삭제할 수 없다")
+    @Test
+    void deleteTreeTest() throws Exception {
+        willThrow(new BetreeException(ErrorCode.TREE_DEFAULT_DELETE_ERROR))
+                .given(folderService).deleteTree(eq(1L),eq(18L));
+
+        mockMvc.perform(delete("/api/forest/18")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("userId", String.valueOf(1L))
+                .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("T004"));
     }
 }

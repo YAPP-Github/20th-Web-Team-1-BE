@@ -1,6 +1,7 @@
 package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FolderTest;
 import com.yapp.betree.domain.Message;
@@ -12,7 +13,6 @@ import com.yapp.betree.repository.UserRepository;
 import com.yapp.betree.service.JwtTokenTest;
 import com.yapp.betree.service.UserService;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +29,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.*;
 
+import static com.yapp.betree.config.TestConfig.getClaims;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -74,7 +75,7 @@ public class MessageAcceptanceTest {
         userRepository.save(user);
 
         String token = JwtTokenTest.JWT_TOKEN_TEST;
-        given(jwtTokenProvider.parseToken(token)).willReturn(claims(user.getId()));
+        given(jwtTokenProvider.parseToken(token)).willReturn(getClaims(user.getId()));
 
         Map<String, Object> input = new HashMap<>();
 
@@ -116,7 +117,7 @@ public class MessageAcceptanceTest {
         messageRepository.save(message);
 
         String token = JwtTokenTest.JWT_TOKEN_TEST;
-        given(jwtTokenProvider.parseToken(token)).willReturn(claims(user.getId()));
+        given(jwtTokenProvider.parseToken(token)).willReturn(getClaims(user.getId()));
 
         //받은 메세지 삭제
         List<Long> messageIds = new ArrayList<>(Collections.singletonList(message.getId()));
@@ -131,154 +132,5 @@ public class MessageAcceptanceTest {
         List<Message> all = messageRepository.findAll();
         assertThat(all.get(all.size() - 1).isDelBySender()).isFalse();
         assertThat(all.get(all.size() - 1).isDelByReceiver()).isTrue();
-    }
-
-    private Claims claims(Long userId) {
-        return new Claims() {
-            @Override
-            public String getIssuer() {
-                return null;
-            }
-
-            @Override
-            public Claims setIssuer(String iss) {
-                return null;
-            }
-
-            @Override
-            public String getSubject() {
-                return null;
-            }
-
-            @Override
-            public Claims setSubject(String sub) {
-                return null;
-            }
-
-            @Override
-            public String getAudience() {
-                return null;
-            }
-
-            @Override
-            public Claims setAudience(String aud) {
-                return null;
-            }
-
-            @Override
-            public Date getExpiration() {
-                return null;
-            }
-
-            @Override
-            public Claims setExpiration(Date exp) {
-                return null;
-            }
-
-            @Override
-            public Date getNotBefore() {
-                return null;
-            }
-
-            @Override
-            public Claims setNotBefore(Date nbf) {
-                return null;
-            }
-
-            @Override
-            public Date getIssuedAt() {
-                return null;
-            }
-
-            @Override
-            public Claims setIssuedAt(Date iat) {
-                return null;
-            }
-
-            @Override
-            public String getId() {
-                return null;
-            }
-
-            @Override
-            public Claims setId(String jti) {
-                return null;
-            }
-
-            @Override
-            public <T> T get(String claimName, Class<T> requiredType) {
-                return null;
-            }
-
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean containsKey(Object key) {
-                return true;
-            }
-
-            @Override
-            public boolean containsValue(Object value) {
-                return false;
-            }
-
-            @Override
-            public Object get(Object key) {
-                String keyStr = (String) key;
-                if (keyStr.equals("id")) {
-                    return userId;
-                }
-                if (keyStr.equals("nickname")) {
-                    return "닉네임";
-                }
-                if (keyStr.equals("email")) {
-                    return "이메일";
-                }
-                return null;
-            }
-
-            @Override
-            public Object put(String key, Object value) {
-                return null;
-            }
-
-            @Override
-            public Object remove(Object key) {
-                return null;
-            }
-
-            @Override
-            public void putAll(Map<? extends String, ?> m) {
-
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public Set<String> keySet() {
-                return null;
-            }
-
-            @Override
-            public Collection<Object> values() {
-                return null;
-            }
-
-            @Override
-            public Set<Entry<String, Object>> entrySet() {
-                return null;
-            }
-        };
     }
 }
