@@ -7,6 +7,7 @@ import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
+import com.yapp.betree.dto.response.MessageDetailResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
@@ -222,5 +223,28 @@ public class MessageService {
         messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
                 .updateAlreadyRead();
         noticeTreeService.updateNoticeTree(userId, messageId);
+    }
+
+    /**
+     * 메세지 상세 조회
+     *
+     * @param userId
+     * @param messageId
+     * @return
+     */
+    public MessageDetailResponseDto getMessageDetail(Long userId, Long messageId) {
+
+        Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
+
+        MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
+
+        Long prevId = messageRepository.findTop1ByUserIdAndIdLessThanOrderByIdDesc(userId, messageId)
+                .map(Message::getId)
+                .orElse(0L);
+        Long nextId = messageRepository.findTop1ByUserIdAndIdGreaterThan(userId, messageId)
+                .map(Message::getId)
+                .orElse(0L);
+
+        return MessageDetailResponseDto.of(boxResponseDto, prevId, nextId);
     }
 }

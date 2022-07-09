@@ -29,4 +29,10 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     // 특정 Folder, user에 해당하는 전체 메시지 조회
     List<Message> findAllByUserIdAndFolderIdAndDelByReceiver(Long userId, Long folderId, boolean delByReceiver);
+
+    //prev
+    Optional<Message> findTop1ByUserIdAndIdLessThanOrderByIdDesc(Long userId, Long messageId);
+
+    //next
+    Optional<Message> findTop1ByUserIdAndIdGreaterThan(Long userId, Long messageId);
 }
