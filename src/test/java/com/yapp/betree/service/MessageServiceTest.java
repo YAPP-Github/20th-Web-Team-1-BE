@@ -160,4 +160,15 @@ public class MessageServiceTest {
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("메세지가 존재하지 않습니다.");
     }
+
+    @Test
+    @DisplayName("메세지 상세 조회 - 존재하지 않는 messageId 입력시 예외 발생")
+    void detailMessageNotFound() {
+
+        given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        assertThatThrownBy(() -> messageService.getMessageDetail(TEST_SAVE_USER.getId(), 10L))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("메세지가 존재하지 않습니다.");
+    }
 }
