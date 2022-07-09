@@ -51,6 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 public class AcceptanceTest {
+    @Autowired
+    WebApplicationContext wac;
 
     private MockMvc mockMvc;
 
@@ -109,7 +111,7 @@ public class AcceptanceTest {
 
     @Test
     @DisplayName("안읽은 메시지 조회 테스트")
-    void findByUserIdAndAlreadyReadTest() {
+    void findByUserIdAndAlreadyReadAndDelByReceiverTest() {
 
         TEST_USER.addFolder(FolderTest.TEST_APPLE_TREE);
 
@@ -163,7 +165,7 @@ public class AcceptanceTest {
         messageService.updateFavoriteMessage(user.getId(), message3.getId());
 
         // 안읽은 메시지
-        List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyRead(user.getId(), false);
+        List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(user.getId(), false, false);
         assertThat(unreadMessages).hasSize(2);
 
         // 안읽은 메시지 먼저 8개 리스트에 넣음
@@ -174,7 +176,7 @@ public class AcceptanceTest {
         }
 
         // 즐겨찾기 메시지
-        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavorite(user.getId(), true);
+        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(user.getId(), true, false);
         for (Message m : favoriteMessages) {
             if (noticeTreeMessages.size() >= 8) break; // 8개까지만 담음
             SendUserDto sender = userService.findBySenderId(m.getSenderId());
@@ -226,7 +228,7 @@ public class AcceptanceTest {
 
         Long messageId = Long.parseLong(mvcResult.getResponse().getContentAsString());
 
-        Message message = messageRepository.findByIdAndUserId(messageId, user.getId()).get();
+        Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, user.getId(), false).get();
         assertThat(message.getSenderId()).isEqualTo(-1L);
         assertThat(message.isAnonymous()).isTrue();
 
@@ -345,5 +347,14 @@ public class AcceptanceTest {
                         .filter(messageResponseDto -> messageResponseDto.getId() == message2.getId())
                         .count()
         ).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("CORS 테스트 - preflight options 일경우 토큰 검증 제외")
+    void corsTest() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc.perform(options("/api/forest"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
