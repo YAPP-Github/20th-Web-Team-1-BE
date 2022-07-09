@@ -269,6 +269,7 @@ public class ForestControllerTest extends ControllerTest {
         mockMvc.perform(delete("/api/forest/18")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("userId", String.valueOf(1L))
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isBadRequest())

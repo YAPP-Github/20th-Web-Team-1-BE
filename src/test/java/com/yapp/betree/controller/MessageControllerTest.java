@@ -221,6 +221,7 @@ class MessageControllerTest extends ControllerTest {
         given(messageService.getMessageDetail(anyLong(),eq(1L))).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         mockMvc.perform(get("/api/messages/1")
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isNotFound())

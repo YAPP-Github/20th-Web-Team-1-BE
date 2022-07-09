@@ -124,6 +124,7 @@ public class MessageAcceptanceTest {
 
         mockMvc.perform(delete("/api/messages")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(messageIds)))
                 .andDo(print())
