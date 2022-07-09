@@ -17,10 +17,12 @@ import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
 import com.yapp.betree.service.MessageService;
+import com.yapp.betree.service.JwtTokenTest;
 import com.yapp.betree.service.UserService;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import com.yapp.betree.util.BetreeUtils;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -40,12 +42,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static com.yapp.betree.domain.UserTest.TEST_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
