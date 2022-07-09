@@ -1,5 +1,7 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.annotation.LoginUser;
+import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
@@ -13,10 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,7 +53,7 @@ public class OAuthController {
                     "[O001]OAuth로 받아온 유저정보가 올바르지 않습니다. - 이메일 누락 등 \n" +
                     "[O002]OAuth로 받아온 액세스 토큰이 만료되었습니다.\n"),
     })
-    @GetMapping("/api/signin")
+    @PostMapping("/api/signin")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> signIn(@RequestHeader("X-Kakao-Access-Token") String accessToken, HttpServletResponse response) {
         log.info("회원 로그인 요청 accessToken: {}", accessToken);
@@ -66,7 +69,7 @@ public class OAuthController {
                     "[U004]유효하지 않은 JWT 리프레시 토큰입니다. 재로그인이 필요합니다.\n"),
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
-    @GetMapping("/api/refresh-token")
+    @PostMapping("/api/refresh-token")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         if (Objects.isNull(request.getCookies())) {
@@ -97,5 +100,26 @@ public class OAuthController {
         response.setHeader(SET_COOKIE_HEADER, cookie.toString());
         response.setHeader(AUTHORIZATION_HEADER, AUTH_TYPE + token.getAccessToken());
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
+    @ApiOperation(value = "로그아웃", notes = "로그아웃, refresh Token 만료")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "[U007]이미 로그아웃된 유저입니다.\n")
+    })
+    @PostMapping("/api/logout")
+    public ResponseEntity<Void> logout(@ApiIgnore @LoginUser LoginUserDto loginUser, HttpServletResponse response) {
+        log.info("[로그아웃 요청] user : {}", loginUser);
+        loginService.logout(loginUser.getId());
+
+        ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, null)
+                .maxAge(0)
+                .path("/")
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .build();
+        response.setHeader(SET_COOKIE_HEADER, cookie.toString());
+        return ResponseEntity.ok().build();
     }
 }

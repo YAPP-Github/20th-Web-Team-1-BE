@@ -2,6 +2,7 @@ package com.yapp.betree.service;
 
 import com.yapp.betree.domain.User;
 import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.repository.RefreshTokenRepository;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +29,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Test
     @DisplayName("oauthId를 통해 User를 얻어낼 수 있다.")
@@ -84,6 +88,17 @@ public class UserServiceTest {
         assertThat(exist).isFalse();
     }
 
+    @Test
+    @DisplayName("로그아웃 테스트 - 이미 로그아웃된 유저 처리")
+    void logoutUserTest() {
+        Long userId = 1L;
+        given(refreshTokenRepository.findByUserId(userId)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.deleteRefreshToken(userId))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("이미 로그아웃된 유저입니다.");
+                
+    }
     @Test
     @DisplayName("유저 정보 조회 테스트 - 존재하지 않는 userId로 조회시 예외처리")
     void findByIdFailTest() {

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static com.yapp.betree.exception.ErrorCode.USER_ALREADY_LOGOUT_TOKEN;
 import static com.yapp.betree.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service
@@ -79,6 +80,16 @@ public class UserService {
         return findById(userId).isPresent();
     }
 
+    @Transactional
+    void deleteRefreshToken(Long userId) {
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(userId);
+
+        if (!refreshToken.isPresent()) {
+            throw new BetreeException(USER_ALREADY_LOGOUT_TOKEN, "userId = " + userId);
+        }
+        log.info("[로그아웃] 리프레시 토큰 삭제 userId : {}, refreshToken : {}", userId, refreshToken.get().getToken());
+        refreshTokenRepository.delete(refreshToken.get());
+
     /**
      * 유저 정보 조회
      *
@@ -99,5 +110,6 @@ public class UserService {
     public void updateUserNickname(Long userId, String nickname) {
         findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId))
                 .updateNickname(nickname);
+
     }
 }

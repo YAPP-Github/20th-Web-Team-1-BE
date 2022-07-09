@@ -38,6 +38,7 @@ public enum ErrorCode {
     USER_REFRESH_ERROR(401,"U004", "유효하지 않은 JWT 리프레시 토큰입니다. 재로그인이 필요합니다."),
     USER_NOT_FOUND(404, "U005", "회원을 찾을 수 없습니다."),
     USER_FORBIDDEN(403,"U006","잘못된 접근입니다."),
+    USER_ALREADY_LOGOUT_TOKEN(200, "U007", "이미 로그아웃된 유저입니다."),
 
     // NoticeTree
     NOTICE_TREE_ERROR(400,"N001","회원의 알림나무 리스트를 불러오는데 실패했습니다."),

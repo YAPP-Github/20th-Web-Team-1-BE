@@ -1,5 +1,6 @@
 package com.yapp.betree.interceptor;
 
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.UserTest;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.oauth.JwtTokenDto;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import javax.servlet.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -63,6 +66,7 @@ public class TokenInterceptorTest {
     private MockHttpServletRequest jwtAuthHttpRequest(String token) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        request.setCookies(TestConfig.COOKIE_TOKEN);
         return request;
     }
 }
