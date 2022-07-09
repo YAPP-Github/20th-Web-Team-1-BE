@@ -51,6 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 public class AcceptanceTest {
+    @Autowired
+    WebApplicationContext wac;
 
     private MockMvc mockMvc;
 
@@ -345,5 +347,14 @@ public class AcceptanceTest {
                         .filter(messageResponseDto -> messageResponseDto.getId() == message2.getId())
                         .count()
         ).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("CORS 테스트 - preflight options 일경우 토큰 검증 제외")
+    void corsTest() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc.perform(options("/api/forest"))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
