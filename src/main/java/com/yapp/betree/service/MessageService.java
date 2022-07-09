@@ -233,15 +233,9 @@ public class MessageService {
      */
     public MessageDetailResponseDto getMessageDetail(Long userId, Long messageId) {
 
-        Message message = messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
+        Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
 
-        MessageBoxResponseDto boxResponseDto;
-        if (message.isAnonymous()) {
-            boxResponseDto = new MessageBoxResponseDto(message, "익명", "기본이미지");
-        } else {
-            SendUserDto sender = userService.findBySenderId(message.getSenderId());
-            boxResponseDto = MessageBoxResponseDto.of(message, sender);
-        }
+        MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
 
         Long prevId = messageRepository.findTop1ByUserIdAndIdLessThanOrderByIdDesc(userId, messageId)
                 .map(Message::getId)
