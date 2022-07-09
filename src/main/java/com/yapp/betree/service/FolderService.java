@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 
 import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FruitType;
+import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
@@ -14,6 +15,7 @@ import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -113,15 +116,43 @@ public class FolderService {
      */
     @Transactional
     public void updateTree(Long userId, Long treeId, TreeRequestDto treeRequestDto) {
-
-        userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
-
-        Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
-
-        if (folder.getUser().getId() != userId) {
-            throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
-        }
+        Folder folder = validateAndGetFolder(userId, treeId);
 
         folder.update(treeRequestDto.getName(), treeRequestDto.getFruitType());
+    }
+
+    @Transactional
+    public void deleteTree(Long userId, Long treeId) {
+        Folder folder = validateAndGetFolder(userId, treeId);
+
+        // 기본 폴더는 삭제할 수 없음
+        if(folder.getFruit() == FruitType.DEFAULT) {
+            throw new BetreeException(ErrorCode.TREE_DEFAULT_DELETE_ERROR, "treeId = " + treeId);
+        }
+
+        Folder defaultFolder = folderRepository.findByUserIdAndFruit(userId, FruitType.DEFAULT);
+        List<Message> messages = messageRepository.findAllByUserIdAndFolderIdAndDelByReceiver(userId, folder.getId(), false);
+        log.info("[폴더 삭제] 폴더에 포함된 메시지 전부 삭제처리 및 폴더 기본폴더로 지정 messages = {}", messages);
+        messages.stream()
+                .forEach(message -> message.updateDeleteStatus(userId, defaultFolder));
+
+        log.info("[폴더 삭제] folderId = {}", folder.getId());
+        folderRepository.delete(folder);
+    }
+
+    /**
+     * 나무(폴더) 처리시에 userId, treeId 검증 및 tree 주인과 user 일치여부 파악
+     * @param userId
+     * @param treeId
+     * @return Folder
+     */
+    private Folder validateAndGetFolder(Long userId, Long treeId) {
+        userService.findById(userId).orElseThrow(() -> new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId));
+        Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
+
+        if (!folder.getUser().getId().equals(userId)) {
+            throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
+        }
+        return folder;
     }
 }
