@@ -1,6 +1,7 @@
 package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.dto.response.UserResponseDto;
 import com.yapp.betree.service.JwtTokenTest;
 import com.yapp.betree.service.UserService;
@@ -38,6 +39,7 @@ public class UserControllerTest extends ControllerTest {
         given(userService.getUser(TEST_SAVE_USER.getId())).willReturn(UserResponseDto.of(TEST_SAVE_USER));
 
         mockMvc.perform(get("/api/users/info")
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -49,6 +51,7 @@ public class UserControllerTest extends ControllerTest {
     void updateUserNickname() throws Exception {
 
         mockMvc.perform(put("/api/users/nickname")
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("nickname", "변경 닉네임"))
                 .andDo(print())
@@ -61,6 +64,7 @@ public class UserControllerTest extends ControllerTest {
     void updateUserNicknameBlank() throws Exception {
 
         mockMvc.perform(put("/api/users/nickname")
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("nickname", ""))
                 .andDo(print())
@@ -73,6 +77,7 @@ public class UserControllerTest extends ControllerTest {
     void updateUserNicknameCount() throws Exception {
 
         mockMvc.perform(put("/api/users/nickname")
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("nickname", "일이삼사오육칠팔구십일이삼사오육칠팔구십일"))
                 .andDo(print())

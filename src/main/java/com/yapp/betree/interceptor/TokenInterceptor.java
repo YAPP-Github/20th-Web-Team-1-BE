@@ -30,7 +30,7 @@ public class TokenInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         if ("OPTIONS".equals(request.getMethod())) {
             log.info("CORS preflight 요청시 true 반환");
             return true;

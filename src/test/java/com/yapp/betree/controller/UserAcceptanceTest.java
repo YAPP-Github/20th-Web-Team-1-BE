@@ -1,5 +1,6 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.domain.UserTest;
 import com.yapp.betree.repository.UserRepository;
@@ -58,6 +59,7 @@ public class UserAcceptanceTest {
 
 
         mockMvc.perform(put("/api/users/nickname")
+                        .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + token)
                         .param("nickname", "닉네임 변경"))
                 .andDo(print())

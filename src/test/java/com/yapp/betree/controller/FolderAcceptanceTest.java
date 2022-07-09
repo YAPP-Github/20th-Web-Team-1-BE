@@ -1,5 +1,6 @@
 package com.yapp.betree.controller;
 
+import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FolderTest;
 import com.yapp.betree.domain.FruitType;
@@ -79,6 +80,7 @@ public class FolderAcceptanceTest {
         // 폴더 삭제
         mockMvc.perform(delete("/api/forest/" + apple.getId())
                 .contentType(MediaType.APPLICATION_JSON)
+                .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(status().isNoContent());

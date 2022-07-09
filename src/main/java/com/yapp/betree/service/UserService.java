@@ -89,6 +89,7 @@ public class UserService {
         }
         log.info("[로그아웃] 리프레시 토큰 삭제 userId : {}, refreshToken : {}", userId, refreshToken.get().getToken());
         refreshTokenRepository.delete(refreshToken.get());
+    }
 
     /**
      * 유저 정보 조회
