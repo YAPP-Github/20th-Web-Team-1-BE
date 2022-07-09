@@ -68,7 +68,7 @@ public class FolderService {
                 .orElse(0L);
 
         // opening == true 인 메세지 8개 가져오기
-        List<MessageResponseDto> messageResponseDtos = messageRepository.findTop8ByFolderIdAndOpening(treeId, true)
+        List<MessageResponseDto> messageResponseDtos = messageRepository.findTop8ByFolderIdAndOpeningAndDelByReceiver(treeId, true, false)
                 .stream()
                 .map(m -> {
                     SendUserDto sender = userService.findBySenderId(m.getSenderId());

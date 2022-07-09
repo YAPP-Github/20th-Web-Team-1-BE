@@ -57,7 +57,7 @@ public class MessageRepositoryTest {
                 .build();
         messageRepository.save(message1);
 
-        List<Message> messages = messageRepository.findAllByUserIdAndFavorite(user.getId(), true);
+        List<Message> messages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(user.getId(), true, false);
         assertThat(messages).hasSize(1);
     }
 }

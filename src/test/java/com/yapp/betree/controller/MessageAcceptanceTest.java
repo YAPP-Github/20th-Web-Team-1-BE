@@ -27,14 +27,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -96,13 +93,44 @@ public class MessageAcceptanceTest {
 
         Long messageId = Long.parseLong(mvcResult.getResponse().getContentAsString());
 
-        Message message = messageRepository.findByIdAndUserId(messageId, user.getId()).get();
+        Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, user.getId(), false).get();
         assertThat(message.getSenderId()).isEqualTo(user.getId());
         assertThat(message.isAnonymous()).isFalse();
 
         SendUserDto sender = userService.findBySenderId(message.getSenderId());
         assertThat(sender.getId()).isEqualTo(user.getId());
         assertThat(sender.getUserImage()).isEqualTo(UserTest.TEST_USER.getUserImage());
+    }
+
+    @Test
+    @DisplayName("메세지 삭제 필드 변경 확인 테스트")
+    public void deleteMessage() throws Exception {
+        User user = userRepository.save(UserTest.TEST_USER);
+
+        Message message = Message.builder()
+                .content("삭제 예정")
+                .senderId(UserTest.TEST_SAVE_USER.getId())
+                .user(user)
+                .build();
+
+        messageRepository.save(message);
+
+        String token = JwtTokenTest.JWT_TOKEN_TEST;
+        given(jwtTokenProvider.parseToken(token)).willReturn(claims(user.getId()));
+
+        //받은 메세지 삭제
+        List<Long> messageIds = new ArrayList<>(Collections.singletonList(message.getId()));
+
+        mockMvc.perform(delete("/api/messages")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(messageIds)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        List<Message> all = messageRepository.findAll();
+        assertThat(all.get(all.size() - 1).isDelBySender()).isFalse();
+        assertThat(all.get(all.size() - 1).isDelByReceiver()).isTrue();
     }
 
     private Claims claims(Long userId) {

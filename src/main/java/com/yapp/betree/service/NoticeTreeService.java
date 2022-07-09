@@ -60,7 +60,7 @@ public class NoticeTreeService {
             SendUserDto sender = userService.findBySenderId(message.getSenderId());
             messages.add(MessageResponseDto.of(message, sender));
         }
-        return new NoticeResponseDto(messageRepository.findByUserIdAndAlreadyRead(userId, false).size(), messages);
+        return new NoticeResponseDto(messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(userId, false, false).size(), messages);
     }
 
     @Transactional
@@ -86,7 +86,7 @@ public class NoticeTreeService {
      */
     private void noticeTree(Long userId) {
         // 안읽은 메시지
-        List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyRead(userId, false);
+        List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(userId, false, false);
 
         // 안읽은 메시지 먼저 8개 리스트에 넣음
         Set<MessageResponseDto> noticeTreeMessages = new HashSet<>();
@@ -96,7 +96,7 @@ public class NoticeTreeService {
         }
 
         // 즐겨찾기 메시지
-        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavorite(userId, true);
+        List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(userId, true, false);
         for (Message m : favoriteMessages) {
             if (noticeTreeMessages.size() >= 8) {
                 break; // 8개까지만 담음

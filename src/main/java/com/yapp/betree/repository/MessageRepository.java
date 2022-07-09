@@ -11,21 +11,19 @@ import java.util.Optional;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
-    List<Message> findByUserIdAndOpening(Long userId, boolean opening);
+    List<Message> findByUserIdAndOpeningAndDelByReceiver(Long userId, boolean opening, boolean delByReceiver);
 
-    Slice<Message> findByUserId(Long userId, Pageable pageable);
+    Slice<Message> findByUserIdAndFolderIdAndDelByReceiver(Long userId, Long treeId, boolean delByReceiver, Pageable pageable);
 
-    Slice<Message> findByUserIdAndFolderId(Long userId, Long treeId, Pageable pageable);
+    List<Message> findTop8ByFolderIdAndOpeningAndDelByReceiver(Long treeId, boolean opening, boolean delByReceiver);
 
-    List<Message> findTop8ByFolderIdAndOpening(Long treeId, boolean opening);
-
-    List<Message> findByUserIdAndAlreadyRead(Long userId, boolean alreadyRead);
+    List<Message> findByUserIdAndAlreadyReadAndDelByReceiver(Long userId, boolean alreadyRead, boolean delByReceiver);
 
     // 알림나무 즐겨찾기 메시지 조회용
-    List<Message> findAllByUserIdAndFavorite(Long userId, boolean favorite);
+    List<Message> findAllByUserIdAndFavoriteAndDelByReceiver(Long userId, boolean favorite, boolean delByReceiver);
 
-    Optional<Message> findByIdAndUserId(Long id, Long userId);
+    Optional<Message> findByIdAndUserIdAndDelByReceiver(Long id, Long userId, boolean delByReceiver);
 
     // 메시지함 즐겨찾기한 메시지 조회용
-    Slice<Message> findByUserIdAndFavorite(Long userId, boolean favorite, Pageable pageable);
+    Slice<Message> findByUserIdAndFavoriteAndDelByReceiver(Long userId, boolean favorite, boolean delByReceiver, Pageable pageable);
 }
