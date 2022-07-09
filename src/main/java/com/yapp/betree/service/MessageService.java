@@ -7,6 +7,7 @@ import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
+import com.yapp.betree.dto.response.MessageDetailResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
@@ -91,17 +92,14 @@ public class MessageService {
      */
     public MessagePageResponseDto getMessageList(Long userId, Pageable pageable, Long treeId) {
 
-        //다음 페이지 존재 여부
-        boolean hasNext = messageRepository.findByUserId(userId, pageable).hasNext();
-
         Slice<Message> messages;
         if (treeId == null) {
             //기본 폴더 목록 조회
             Long defaultTreeId = folderRepository.findByUserIdAndFruit(userId, FruitType.DEFAULT).getId();
-            messages = messageRepository.findByUserIdAndFolderId(userId, defaultTreeId, pageable);
+            messages = messageRepository.findByUserIdAndFolderIdAndDelByReceiver(userId, defaultTreeId, false, pageable);
         } else {
             //해당 폴더 메세지 목록 조회
-            messages = messageRepository.findByUserIdAndFolderId(userId, treeId, pageable);
+            messages = messageRepository.findByUserIdAndFolderIdAndDelByReceiver(userId, treeId, false, pageable);
         }
 
         List<MessageBoxResponseDto> responseDtos = new ArrayList<>();
@@ -114,7 +112,7 @@ public class MessageService {
                 responseDtos.add(MessageBoxResponseDto.of(message, sender));
             }
         }
-        return new MessagePageResponseDto(responseDtos, hasNext);
+        return new MessagePageResponseDto(responseDtos, messages.hasNext());
     }
 
     /**
@@ -130,7 +128,7 @@ public class MessageService {
             throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "열매로 맺을 수 있는 메세지 개수는 최대 8개입니다.");
         }
         //이미 선택된 메세지 가져와서 false로 변경
-        messageRepository.findByUserIdAndOpening(userId, true).forEach(Message::updateOpening);
+        messageRepository.findByUserIdAndOpeningAndDelByReceiver(userId, true, false).forEach(Message::updateOpening);
 
         // 지금 선택된 메세지만 true로 변경
         for (Long id : messageIds) {
@@ -147,9 +145,15 @@ public class MessageService {
     @Transactional
     public void deleteMessages(Long userId, List<Long> messageIds) {
 
+        // 메세지의 발신자, 수신자 확인 후 알맞는 삭제 여부 필드 변경
         messageIds.forEach(messageId -> {
-            Message message = messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId + "userId = " + userId));
-            messageRepository.delete(message);
+            Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId + "userId = " + userId));
+            message.updateDeleteStatus(userId);
+
+            // 수신자, 발신자 모두 삭제 true 이면 db 삭제
+            if (message.isDelByReceiver() && message.isDelBySender()) {
+                messageRepository.delete(message);
+            }
         });
     }
 
@@ -165,7 +169,7 @@ public class MessageService {
 
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(TREE_NOT_FOUND, "treeId = " + treeId));
 
-        messageIds.forEach(messageId -> messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId + "userId = " + userId))
+        messageIds.forEach(messageId -> messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId + "userId = " + userId))
                 .updateFolder(folder));
     }
 
@@ -178,7 +182,7 @@ public class MessageService {
     @Transactional
     public void updateFavoriteMessage(Long userId, Long messageId) {
 
-        messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
+        messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
                 .updateFavorite();
     }
 
@@ -193,7 +197,7 @@ public class MessageService {
     public MessagePageResponseDto getFavoriteMessage(Long userId, Pageable pageable) {
 
         //다음 페이지 존재 여부
-        Slice<Message> messages = messageRepository.findByUserIdAndFavorite(userId, true, pageable);
+        Slice<Message> messages = messageRepository.findByUserIdAndFavoriteAndDelByReceiver(userId, true, false, pageable);
 
         List<MessageBoxResponseDto> responseMessages = messages
                 .stream()
@@ -215,8 +219,31 @@ public class MessageService {
     @Transactional
     public void updateReadMessage(Long userId, Long messageId) {
 
-        messageRepository.findByIdAndUserId(messageId, userId).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
+        messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
                 .updateAlreadyRead();
         noticeTreeService.updateNoticeTree(userId, messageId);
+    }
+
+    /**
+     * 메세지 상세 조회
+     *
+     * @param userId
+     * @param messageId
+     * @return
+     */
+    public MessageDetailResponseDto getMessageDetail(Long userId, Long messageId) {
+
+        Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
+
+        MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
+
+        Long prevId = messageRepository.findTop1ByUserIdAndIdLessThanOrderByIdDesc(userId, messageId)
+                .map(Message::getId)
+                .orElse(0L);
+        Long nextId = messageRepository.findTop1ByUserIdAndIdGreaterThan(userId, messageId)
+                .map(Message::getId)
+                .orElse(0L);
+
+        return MessageDetailResponseDto.of(boxResponseDto, prevId, nextId);
     }
 }

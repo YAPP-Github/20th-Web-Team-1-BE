@@ -213,4 +213,18 @@ class MessageControllerTest extends ControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
+
+    @DisplayName("메세지 상세 조회 - 존재하지 않는 messageId 예외처리")
+    @Test
+    void getMessageDetail() throws Exception {
+
+        given(messageService.getMessageDetail(anyLong(),eq(1L))).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        mockMvc.perform(get("/api/messages/1")
+                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("M001"))
+                .andExpect(jsonPath("$.message").value("메세지가 존재하지 않습니다."));
+    }
 }

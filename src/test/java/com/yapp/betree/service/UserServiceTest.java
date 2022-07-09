@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.repository.RefreshTokenRepository;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -96,5 +97,29 @@ public class UserServiceTest {
         assertThatThrownBy(() -> userService.deleteRefreshToken(userId))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("이미 로그아웃된 유저입니다.");
+                
+    }
+    @Test
+    @DisplayName("유저 정보 조회 테스트 - 존재하지 않는 userId로 조회시 예외처리")
+    void findByIdFailTest() {
+        // given
+        given(userService.findById(TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND));
+
+        // then
+        assertThatThrownBy(() -> userService.getUser(TEST_SAVE_USER.getId()))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("회원을 찾을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 닉네임 변경 테스트 - 존재하지 않는 userId로 조회시 예외처리")
+    void updateUserNicknameFailTest() {
+        // given
+        given(userService.findById(TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND));
+
+        // then
+        assertThatThrownBy(() -> userService.updateUserNickname(TEST_SAVE_USER.getId(), "nickname"))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("회원을 찾을 수 없습니다.");
     }
 }

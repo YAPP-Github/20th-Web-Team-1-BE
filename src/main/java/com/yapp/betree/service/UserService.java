@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 import com.yapp.betree.domain.RefreshToken;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
+import com.yapp.betree.dto.response.UserResponseDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.RefreshTokenRepository;
@@ -88,5 +89,27 @@ public class UserService {
         }
         log.info("[로그아웃] 리프레시 토큰 삭제 userId : {}, refreshToken : {}", userId, refreshToken.get().getToken());
         refreshTokenRepository.delete(refreshToken.get());
+
+    /**
+     * 유저 정보 조회
+     *
+     * @param userId
+     * @return
+     */
+    public UserResponseDto getUser(Long userId) {
+        User user = findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId));
+        return UserResponseDto.of(user);
+    }
+
+    /**
+     * 유저 닉네임 변경
+     *
+     * @param userId
+     * @param nickname
+     */
+    public void updateUserNickname(Long userId, String nickname) {
+        findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId))
+                .updateNickname(nickname);
+
     }
 }

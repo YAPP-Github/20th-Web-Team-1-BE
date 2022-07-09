@@ -48,14 +48,11 @@ public class MessageServiceTest {
     class getMessageList {
 
         @Test
-        @DisplayName("메세지함 목록 조회 - folderId 없을 경우 전체 목록 조회")
+        @DisplayName("메세지함 목록 조회 - folderId 없을 경우 기본 폴더 목록 조회")
         void TotalMessageList() {
 
             SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_ANONYMOUS_MESSAGE));
-
-            given(messageRepository.findByUserId(TEST_SAVE_USER.getId(), pageable)).willReturn(messages);
-            given(messageRepository.findByUserIdAndFolderId(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), pageable)).willReturn(messages);
-
+            given(messageRepository.findByUserIdAndFolderIdAndDelByReceiver(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), false, pageable)).willReturn(messages);
             given(folderRepository.findByUserIdAndFruit(TEST_SAVE_USER.getId(), FruitType.DEFAULT)).willReturn(TEST_SAVE_DEFAULT_TREE);
 
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, null);
@@ -69,8 +66,7 @@ public class MessageServiceTest {
         void treeMessageList() {
 
             SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_ANONYMOUS_MESSAGE));
-            given(messageRepository.findByUserId(TEST_SAVE_USER.getId(), pageable)).willReturn(messages);
-            given(messageRepository.findByUserIdAndFolderId(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), pageable)).willReturn(messages);
+            given(messageRepository.findByUserIdAndFolderIdAndDelByReceiver(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), false, pageable)).willReturn(messages);
 
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, TEST_SAVE_DEFAULT_TREE.getId());
 
@@ -107,7 +103,7 @@ public class MessageServiceTest {
     @DisplayName("메세지 삭제 - 존재하지 않는 messageId 입력시 예외 발생")
     void messageNotFound() {
 
-        given(messageRepository.findByIdAndUserId(1L, TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+        given(messageRepository.findByIdAndUserIdAndDelByReceiver(1L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         List<Long> messageIds = Arrays.asList(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
 
@@ -132,7 +128,7 @@ public class MessageServiceTest {
     @DisplayName("메세지 즐겨찾기 설정 - 존재하지 않는 messageId 입력시 예외 발생")
     void favoriteMessageNotFound() {
 
-        given(messageRepository.findByIdAndUserId(10L, TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+        given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         assertThatThrownBy(() -> messageService.updateFavoriteMessage(TEST_SAVE_USER.getId(), 10L))
                 .isInstanceOf(BetreeException.class)
@@ -144,7 +140,7 @@ public class MessageServiceTest {
     void getFavoriteMessages() {
 
         SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_MESSAGE));
-        given(messageRepository.findByUserIdAndFavorite(TEST_SAVE_USER.getId(), true, pageable)).willReturn(messages);
+        given(messageRepository.findByUserIdAndFavoriteAndDelByReceiver(TEST_SAVE_USER.getId(), true, false, pageable)).willReturn(messages);
         given(userRepository.findById(TEST_SAVE_MESSAGE.getSenderId())).willReturn(Optional.of(TEST_SAVE_USER));
 
         MessagePageResponseDto favoriteMessage = messageService.getFavoriteMessage(TEST_SAVE_USER.getId(), pageable);
@@ -158,9 +154,20 @@ public class MessageServiceTest {
     @DisplayName("메세지 읽음 설정 - 존재하지 않는 messageId 입력시 예외 발생")
     void readMessageNotFound() {
 
-        given(messageRepository.findByIdAndUserId(10L, TEST_SAVE_USER.getId())).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+        given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         assertThatThrownBy(() -> messageService.updateReadMessage(TEST_SAVE_USER.getId(), 10L))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("메세지가 존재하지 않습니다.");
+    }
+
+    @Test
+    @DisplayName("메세지 상세 조회 - 존재하지 않는 messageId 입력시 예외 발생")
+    void detailMessageNotFound() {
+
+        given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        assertThatThrownBy(() -> messageService.getMessageDetail(TEST_SAVE_USER.getId(), 10L))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("메세지가 존재하지 않습니다.");
     }
