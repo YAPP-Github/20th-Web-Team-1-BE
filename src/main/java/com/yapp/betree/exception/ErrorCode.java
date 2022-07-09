@@ -21,6 +21,7 @@ public enum ErrorCode {
     TREE_NOT_FOUND(404,"T001", "나무가 존재하지 않습니다."),
     TREE_DEFAULT_ERROR(400,"T002","기본 나무를 생성,변경 할 수 없습니다."),
     TREE_COUNT_ERROR(400,"T003","나무는 최대 4개까지 추가 가능합니다."),
+    TREE_DEFAULT_DELETE_ERROR(400, "T004", "기본 나무를 삭제할 수 없습니다."),
 
     //Message
     MESSAGE_NOT_FOUND(404,"M001", "메세지가 존재하지 않습니다."),

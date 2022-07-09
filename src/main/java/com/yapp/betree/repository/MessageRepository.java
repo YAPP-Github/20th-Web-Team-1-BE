@@ -27,6 +27,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     // 메시지함 즐겨찾기한 메시지 조회용
     Slice<Message> findByUserIdAndFavoriteAndDelByReceiver(Long userId, boolean favorite, boolean delByReceiver, Pageable pageable);
 
+    // 특정 Folder, user에 해당하는 전체 메시지 조회
+    List<Message> findAllByUserIdAndFolderIdAndDelByReceiver(Long userId, Long folderId, boolean delByReceiver);
+
     //prev
     Optional<Message> findTop1ByUserIdAndIdLessThanOrderByIdDesc(Long userId, Long messageId);
 

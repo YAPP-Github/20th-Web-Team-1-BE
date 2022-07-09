@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -149,5 +150,29 @@ public class ForestController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(treeId);
+    }
+
+    /**
+     * 유저 나무 삭제
+     *
+     * @param loginUser
+     * @param treeId
+     * @return
+     */
+    @ApiOperation(value = "유저 나무 삭제", notes = "유저 나무 삭제 - 나무에 포함된 메시지도 모두 삭제")
+    @ApiResponses({
+            @ApiResponse(code = 400, message = "[T004]기본 나무를 삭제할 수 없습니다."),
+            @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무 주인이 일치하지 않습니다."),
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/api/forest/{treeId}")
+    public ResponseEntity<Void> deleteTree(
+            @ApiIgnore @LoginUser LoginUserDto loginUser,
+            @PathVariable Long treeId) {
+        log.info("[나무 삭제] userId :{}, treeId :{}", loginUser.getId(), treeId);
+        folderService.deleteTree(loginUser.getId(), treeId);
+        return ResponseEntity.noContent().build();
     }
 }

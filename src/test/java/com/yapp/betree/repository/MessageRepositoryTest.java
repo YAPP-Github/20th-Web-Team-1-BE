@@ -1,6 +1,8 @@
 package com.yapp.betree.repository;
 
+import com.yapp.betree.domain.Folder;
 import com.yapp.betree.domain.FolderTest;
+import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.domain.UserTest;
@@ -61,6 +63,44 @@ public class MessageRepositoryTest {
 
         List<Message> messages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(user.getId(), true, false);
         assertThat(messages).hasSize(1);
+    }
+
+    @Disabled
+    @DisplayName("메시지 삭제시 기본폴더로 변경 테스트")
+    @Test
+    void deleteMessageTest() {
+        User user = UserTest.TEST_SAVE_USER;
+        user.addFolder(FolderTest.TEST_DEFAULT_TREE);
+        user.addFolder(FolderTest.TEST_APPLE_TREE);
+        User save = userRepository.save(user);
+
+        Folder folder = folderRepository.findByUserIdAndFruit(save.getId(), FruitType.APPLE);
+        Folder defaultFolder = folderRepository.findByUserIdAndFruit(save.getId(), FruitType.DEFAULT);
+        Message message = Message.builder()
+                .content("안녕")
+                .senderId(user.getId())
+                .anonymous(false)
+                .alreadyRead(true)
+                .favorite(true)
+                .opening(false)
+                .user(user)
+                .folder(folder)
+                .build();
+        messageRepository.save(message);
+
+        List<Message> messages = messageRepository.findAllByUserIdAndFolderIdAndDelByReceiver(save.getId(), folder.getId(), false);
+        Message delMessage = messages.get(0);
+        //삭제하기 전
+        assertThat(delMessage.isDelByReceiver()).isFalse();
+        assertThat(delMessage.getFolder().getFruit()).isEqualTo(FruitType.APPLE);
+
+        messages.stream()
+                .forEach(m -> m.updateDeleteStatus(save.getId(), defaultFolder));
+
+        // 삭제한 후
+        Message byId = messageRepository.findById(delMessage.getId()).get();
+        assertThat(byId.isDelByReceiver()).isTrue();
+        assertThat(byId.getFolder().getFruit()).isEqualTo(FruitType.DEFAULT);
     }
 
     @DisplayName("이전 , 다음 메세지 조회 테스트")

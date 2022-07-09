@@ -217,8 +217,8 @@ public class FolderServiceTest {
 
 
     @Test
-    @DisplayName("유저 나무 편집 - 수정하려는 회원의 userId가 존재하지 않으면 에외가 발생한다.")
-    void updateTreeUserNotFoundTest() {
+    @DisplayName("유저 나무 - 수정하려는 회원의 userId가 존재하지 않으면 에외가 발생한다.")
+    void validateTreeUserNotFoundTest() {
         // given
         Long userId = 1L;
         given(userService.findById(userId)).willReturn(Optional.empty());
@@ -229,8 +229,8 @@ public class FolderServiceTest {
     }
 
     @Test
-    @DisplayName("유저 나무 편집 - 수정하려는 나무가 존재하지 않으면 에외가 발생한다.")
-    void updateTreeNotFoundTest() {
+    @DisplayName("유저 나무 - 수정하려는 나무가 존재하지 않으면 에외가 발생한다.")
+    void validateTreeNotFoundTest() {
         // given
         Long userId = 1L;
         given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
@@ -243,8 +243,8 @@ public class FolderServiceTest {
     }
 
     @Test
-    @DisplayName("유저 나무 편집 - 수정하려는 나무의 주인과 유저가 다르면 에외가 발생한다.")
-    void updateTreeForbiddenTest() {
+    @DisplayName("유저 나무  - 수정하려는 나무의 주인과 유저가 다르면 에외가 발생한다.")
+    void validateTreeForbiddenTest() {
         // given
         User user = User.builder()
                 .id(2L)
@@ -273,5 +273,20 @@ public class FolderServiceTest {
         assertThatThrownBy(() -> folderService.updateTree(userId, treeId, treeRequestDto))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("유저 나무 삭제 - 삭제하려는 나무가 기본 폴더이면 예외가 발생한다.")
+    void deleteTreeTest() {
+        // given
+        Long userId = 1L;
+        given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
+
+        Long treeId = 1L;
+        given(folderRepository.findById(treeId)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
+
+        assertThatThrownBy(() -> folderService.deleteTree(userId, treeId))
+                .isInstanceOf(BetreeException.class)
+                .hasMessageContaining("기본 나무를 삭제할 수 없습니다.");
     }
 }

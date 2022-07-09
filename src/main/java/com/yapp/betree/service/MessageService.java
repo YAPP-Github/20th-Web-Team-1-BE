@@ -145,10 +145,11 @@ public class MessageService {
     @Transactional
     public void deleteMessages(Long userId, List<Long> messageIds) {
 
+        Folder defaultFolder = folderRepository.findByUserIdAndFruit(userId, FruitType.DEFAULT);
         // 메세지의 발신자, 수신자 확인 후 알맞는 삭제 여부 필드 변경
         messageIds.forEach(messageId -> {
             Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + messageId + "userId = " + userId));
-            message.updateDeleteStatus(userId);
+            message.updateDeleteStatus(userId, defaultFolder);
 
             // 수신자, 발신자 모두 삭제 true 이면 db 삭제
             if (message.isDelByReceiver() && message.isDelBySender()) {

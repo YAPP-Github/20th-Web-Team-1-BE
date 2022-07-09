@@ -93,7 +93,7 @@ public class Message extends BaseTimeEntity {
     /**
      * 메세지 삭제 여부 상태 변경 메서드
      */
-    public void updateDeleteStatus(Long userId) {
+    public void updateDeleteStatus(Long userId, Folder defaultFolder) {
         if (userId.equals(this.senderId)) {
             this.delBySender = true;
         }
@@ -101,5 +101,6 @@ public class Message extends BaseTimeEntity {
             this.delByReceiver = true;
             updateAlreadyRead(); // 안 읽고 삭제할 때
         }
+        this.folder = defaultFolder;
     }
 }
