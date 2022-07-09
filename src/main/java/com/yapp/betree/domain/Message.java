@@ -93,11 +93,11 @@ public class Message extends BaseTimeEntity {
     /**
      * 메세지 삭제 여부 상태 변경 메서드
      */
-    public void updateDeleteStatus(Long userId, Message message) {
-        if (userId.equals(message.getSenderId())) {
+    public void updateDeleteStatus(Long userId) {
+        if (userId.equals(this.senderId)) {
             this.delBySender = true;
         }
-        if (userId.equals(message.getUser().getId())) {
+        if (userId.equals(this.user.getId())) {
             this.delByReceiver = true;
             updateAlreadyRead(); // 안 읽고 삭제할 때
         }

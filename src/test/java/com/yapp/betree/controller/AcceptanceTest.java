@@ -109,7 +109,7 @@ public class AcceptanceTest {
 
     @Test
     @DisplayName("안읽은 메시지 조회 테스트")
-    void findByUserIdAndAlreadyReadTest() {
+    void findByUserIdAndAlreadyReadAndDelByReceiverTest() {
 
         TEST_USER.addFolder(FolderTest.TEST_APPLE_TREE);
 
@@ -163,7 +163,7 @@ public class AcceptanceTest {
         messageService.updateFavoriteMessage(user.getId(), message3.getId());
 
         // 안읽은 메시지
-        List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyRead(user.getId(), false);
+        List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(user.getId(), false, false);
         assertThat(unreadMessages).hasSize(2);
 
         // 안읽은 메시지 먼저 8개 리스트에 넣음

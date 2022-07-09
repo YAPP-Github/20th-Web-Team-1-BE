@@ -17,7 +17,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     List<Message> findTop8ByFolderIdAndOpeningAndDelByReceiver(Long treeId, boolean opening, boolean delByReceiver);
 
-    List<Message> findByUserIdAndAlreadyRead(Long userId, boolean alreadyRead);
+    List<Message> findByUserIdAndAlreadyReadAndDelByReceiver(Long userId, boolean alreadyRead, boolean delByReceiver);
 
     // 알림나무 즐겨찾기 메시지 조회용
     List<Message> findAllByUserIdAndFavoriteAndDelByReceiver(Long userId, boolean favorite, boolean delByReceiver);

@@ -105,10 +105,7 @@ public class MessageAcceptanceTest {
     @Test
     @DisplayName("메세지 삭제 필드 변경 확인 테스트")
     public void deleteMessage() throws Exception {
-        Folder folder = FolderTest.TEST_DEFAULT_TREE;
-        User user = UserTest.TEST_USER;
-        user.addFolder(folder);
-        userRepository.save(user);
+        User user = userRepository.save(UserTest.TEST_USER);
 
         Message message = Message.builder()
                 .content("삭제 예정")
