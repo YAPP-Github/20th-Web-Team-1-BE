@@ -71,16 +71,18 @@ public class OAuthController {
     })
     @PostMapping("/api/refresh-token")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Void> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        if (Objects.isNull(request.getCookies())) {
-            throw new BetreeException(ErrorCode.USER_REFRESH_ERROR, "쿠키에 토큰이 존재하지 않습니다.");
-        }
+    public ResponseEntity<Void> refreshToken(
+            @RequestHeader("X-refresh-Token") String refreshToken,
+            HttpServletRequest request, HttpServletResponse response) {
+//        if (Objects.isNull(request.getCookies())) {
+//            throw new BetreeException(ErrorCode.USER_REFRESH_ERROR, "쿠키에 토큰이 존재하지 않습니다.");
+//        }
 
-        String refreshToken = Arrays.stream(request.getCookies())
-                .filter(cookie -> COOKIE_REFRESH_TOKEN.equals(cookie.getName()))
-                .findAny()
-                .orElseThrow(() -> new BetreeException(ErrorCode.USER_REFRESH_ERROR, "쿠키에 토큰이 존재하지 않습니다."))
-                .getValue();
+//        String refreshToken = Arrays.stream(request.getCookies())
+//                .filter(cookie -> COOKIE_REFRESH_TOKEN.equals(cookie.getName()))
+//                .findAny()
+//                .orElseThrow(() -> new BetreeException(ErrorCode.USER_REFRESH_ERROR, "쿠키에 토큰이 존재하지 않습니다."))
+//                .getValue();
 
         log.info("회원 토큰 재발급 요청 refreshToken: {}", refreshToken);
         JwtTokenDto token = loginService.refreshToken(refreshToken);
@@ -93,8 +95,8 @@ public class OAuthController {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, token.getRefreshToken())
                 .maxAge(24 * 60 * 60 * 7)
                 .path("/")
-//                .secure(true)
-//                .sameSite("None")
+                .secure(true)
+                .sameSite("None")
 //                .httpOnly(true)
                 .build();
         response.setHeader(SET_COOKIE_HEADER, cookie.toString());
@@ -115,8 +117,8 @@ public class OAuthController {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, null)
                 .maxAge(0)
                 .path("/")
-//                .secure(true)
-//                .sameSite("None")
+                .secure(true)
+                .sameSite("None")
 //                .httpOnly(true)
                 .build();
         response.setHeader(SET_COOKIE_HEADER, cookie.toString());
