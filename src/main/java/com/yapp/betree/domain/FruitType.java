@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public enum FruitType {
     DEFAULT,
     APPLE,
-    PEACH,
+    STRAWBERRY,
     ORANGE,
     LEMON,
     BLUEBERRY,
