@@ -37,6 +37,7 @@ public class NoticeTreeService {
     private final UserService userService;
 
 
+    @Transactional
     public NoticeResponseDto getUnreadMessages(Long userId) {
         NoticeTree noticeTree = noticeTreeRepository.findByUserId(userId).orElseGet(
                 () -> {
