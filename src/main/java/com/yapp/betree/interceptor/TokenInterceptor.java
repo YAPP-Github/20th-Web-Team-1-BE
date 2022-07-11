@@ -44,12 +44,14 @@ public class TokenInterceptor implements HandlerInterceptor {
         String authHeader = Optional.ofNullable(request.getHeader("Authorization"))
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
 
+
         if (isInvalidRefreshToken(request.getCookies())) {
+            log.info("[리프레시토큰 검증] 비어있어도 테스트기간 동안은 통과"); // TODO 주석 제거
             if (request.getRequestURI().equals("/api/logout")) {
                 throw new BetreeException(ErrorCode.USER_ALREADY_LOGOUT_TOKEN);
             }
-            response.sendError(ErrorCode.USER_REFRESH_ERROR.getStatus(), ErrorCode.USER_REFRESH_ERROR.getMessage());
-            return false;
+//            response.sendError(ErrorCode.USER_REFRESH_ERROR.getStatus(), ErrorCode.USER_REFRESH_ERROR.getMessage());
+//            return false;
         }
 
         if (authHeader.startsWith(AUTH_TYPE)) {

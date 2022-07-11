@@ -32,7 +32,7 @@ public class JwtTokenProvider {
                             @Value("${secrets.jwt.token.expiration-time}") Long tokenValidMilliseconds,
                             @Value("${secrets.jwt.token.refresh-expiration-time}") Long refreshTokenValidMilliseconds) {
         this.secretKey = secretKey;
-        this.tokenValidMilliseconds = tokenValidMilliseconds; // 1시간
+        this.tokenValidMilliseconds = tokenValidMilliseconds; // 1시간 -> 임시로 하루
         this.refreshTokenValidMilliseconds = refreshTokenValidMilliseconds * DAYS; // 하루 * days
     }
 
