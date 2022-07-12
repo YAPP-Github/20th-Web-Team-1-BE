@@ -175,4 +175,27 @@ public class ForestController {
         folderService.deleteTree(loginUser.getId(), treeId);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * 유저 나무 공개 설정
+     *
+     * @param loginUser
+     * @param treeId
+     * @return
+     */
+    @ApiOperation(value = "유저 나무 공개 설정", notes = "유저 나무 공개 설정 - 공개/비공개")
+    @ApiResponses({
+            @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무 주인이 일치하지 않습니다."),
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("/api/forest/opening")
+    public ResponseEntity<Void> openTree(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                         @RequestParam Long treeId) {
+
+        log.info("[나무 공개 설정] userId :{}, treeId :{}", loginUser.getId(), treeId);
+        folderService.updateTreeOpening(loginUser.getId(), treeId);
+        return ResponseEntity.noContent().build();
+    }
 }
