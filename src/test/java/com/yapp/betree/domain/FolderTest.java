@@ -19,12 +19,14 @@ public class FolderTest {
             .fruit(FruitType.APPLE)
             .name("사과나무")
             .level(0L)
+            .opening(false)
             .user(TEST_SAVE_USER)
             .build();
     public static Folder TEST_DEFAULT_TREE = Folder.builder()
             .fruit(FruitType.DEFAULT)
             .name("기본")
             .level(0L)
+            .opening(false)
             .user(TEST_SAVE_USER)
             .build();
     public static Folder TEST_SAVE_APPLE_TREE = Folder.builder()
@@ -32,6 +34,7 @@ public class FolderTest {
             .fruit(FruitType.APPLE)
             .name("사과나무")
             .level(0L)
+            .opening(true)
             .user(TEST_SAVE_USER)
             .build();
     public static Folder TEST_SAVE_DEFAULT_TREE = Folder.builder()
@@ -39,6 +42,7 @@ public class FolderTest {
             .fruit(FruitType.DEFAULT)
             .name("기본")
             .level(0L)
+            .opening(false)
             .user(TEST_SAVE_USER)
             .build();
 

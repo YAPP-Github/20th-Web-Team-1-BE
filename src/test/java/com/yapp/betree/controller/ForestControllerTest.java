@@ -72,18 +72,37 @@ public class ForestControllerTest extends ControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("유저 나무숲 조회 - userId에 해당하는 유저가 가진 나무숲이 전체 조회된다.")
+    @DisplayName("유저 나무숲 조회 - 본인 나무숲은 전체 조회된다.")
     @Test
     void userForestTest() throws Exception {
         Long userId = 1L;
         given(userService.isExist(userId)).willReturn(true);
-        given(folderService.userForest(userId)).willReturn(Lists.newArrayList(TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE)));
+        given(folderService.userForest(userId, userId)).willReturn(Lists.newArrayList(TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE)));
 
         mockMvc.perform(get("/api/forest")
-                .contentType(MediaType.APPLICATION_JSON)
-                .param("userId", String.valueOf(userId)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(TestConfig.COOKIE_TOKEN)
+                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                        .param("userId", String.valueOf(userId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(TEST_SAVE_DEFAULT_TREE.getId()))
+                .andDo(print());
+    }
+
+    @DisplayName("유저 나무숲 조회 - 본인이 아닌 유저의 나무숲은 공개 나무만 조회된다.")
+    @Test
+    void otherUserForestTest() throws Exception {
+        Long userId = 2L;
+        given(userService.isExist(userId)).willReturn(true);
+        given(folderService.userForest(userId, userId)).willReturn(Lists.emptyList());
+
+        mockMvc.perform(get("/api/forest")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(TestConfig.COOKIE_TOKEN)
+                        .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
+                        .param("userId", String.valueOf(userId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").doesNotExist())
                 .andDo(print());
     }
 
@@ -264,7 +283,7 @@ public class ForestControllerTest extends ControllerTest {
     @Test
     void deleteTreeTest() throws Exception {
         willThrow(new BetreeException(ErrorCode.TREE_DEFAULT_DELETE_ERROR))
-                .given(folderService).deleteTree(eq(1L),eq(18L));
+                .given(folderService).deleteTree(eq(1L), eq(18L));
 
         mockMvc.perform(delete("/api/forest/18")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -52,12 +52,13 @@ public class ForestController {
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
     @GetMapping("/api/forest")
-    public ResponseEntity<List<TreeResponseDto>> userForest(@RequestParam Long userId) {
-        log.info("[나무숲] 유저 나무숲 조회 userId: {}", userId);
+    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                            @RequestParam Long userId) {
+        log.info("[나무숲] 유저 나무숲 조회 userId: {}, loginUserId: {}", userId, loginUser.getId());
         if (!userService.isExist(userId)) {
             throw new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId);
         }
-        return ResponseEntity.ok(folderService.userForest(userId));
+        return ResponseEntity.ok(folderService.userForest(loginUser.getId(), userId));
     }
 
     /**

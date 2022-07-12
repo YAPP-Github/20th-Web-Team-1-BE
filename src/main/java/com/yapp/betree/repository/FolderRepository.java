@@ -15,6 +15,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     List<Folder> findAllByUserId(Long userId);
 
+    List<Folder> findAllByUserIdAndOpening(Long userId, boolean opening);
+
     Folder findByUserIdAndFruit(Long userId, FruitType fruitType);
 
     //prev
