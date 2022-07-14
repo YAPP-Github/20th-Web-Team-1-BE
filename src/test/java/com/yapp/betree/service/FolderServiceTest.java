@@ -302,35 +302,4 @@ public class FolderServiceTest {
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("기본 나무를 삭제할 수 없습니다.");
     }
-
-    @Test
-    @DisplayName("유저 나무 공개 - 공개 설정하려는 나무가 존재하지 않으면 에외가 발생한다.")
-    void openingTreeTest() {
-        // given
-        Long userId = 1L;
-        given(userService.findById(userId)).willReturn(Optional.of(TEST_SAVE_USER));
-
-        Long treeId = 1L;
-        given(folderRepository.findById(treeId)).willReturn(Optional.empty());
-        assertThatThrownBy(() -> folderService.updateTreeOpening(userId, treeId))
-                .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("나무가 존재하지 않습니다.");
-    }
-
-    @Test
-    @DisplayName("유저 나무 공개  - 공개 설정하려는 나무의 주인과 유저가 다르면 에외가 발생한다.")
-    void openingTreeUserTest() {
-        // given
-        User user = User.builder()
-                .id(2L)
-                .build();
-        given(userService.findById(user.getId())).willReturn(Optional.of(user));
-
-        Long treeId = 1L;
-        given(folderRepository.findById(treeId)).willReturn(Optional.of(TEST_SAVE_APPLE_TREE));
-
-        assertThatThrownBy(() -> folderService.updateTreeOpening(user.getId(), treeId))
-                .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("잘못된 접근입니다.: 유저와 나무의 주인이 일치하지 않습니다.");
-    }
 }
