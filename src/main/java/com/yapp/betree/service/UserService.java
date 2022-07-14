@@ -108,6 +108,7 @@ public class UserService {
      * @param userId
      * @param nickname
      */
+    @Transactional
     public void updateUserNickname(Long userId, String nickname) {
         findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId))
                 .updateNickname(nickname);
