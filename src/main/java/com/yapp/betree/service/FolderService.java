@@ -50,8 +50,9 @@ public class FolderService {
                     .collect(Collectors.toList());
         }
 
-        return folderRepository.findAllByUserIdAndOpening(userId, true)
+        return folderRepository.findAllByUserId(userId)
                 .stream()
+                .filter(Folder::isOpening)
                 .map(TreeResponseDto::of)
                 .collect(Collectors.toList());
     }

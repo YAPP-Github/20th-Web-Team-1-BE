@@ -68,7 +68,7 @@ public class FolderServiceTest {
     @DisplayName("유저 나무숲 조회 - 본인이 아닌 유저의 나무숲은 공개 나무만 조회된다.")
     void otherUserForestTest() {
         // given
-        given(folderRepository.findAllByUserIdAndOpening(USER_ID, true)).willReturn(Lists.newArrayList(TEST_SAVE_APPLE_TREE));
+        given(folderRepository.findAllByUserId(USER_ID)).willReturn(Lists.newArrayList(TEST_SAVE_APPLE_TREE));
 
         // when
         List<TreeResponseDto> treeResponseDtos = folderService.userForest(-1L, USER_ID);
