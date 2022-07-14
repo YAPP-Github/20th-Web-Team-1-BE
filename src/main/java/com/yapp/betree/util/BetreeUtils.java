@@ -30,7 +30,7 @@ public class BetreeUtils {
     }
 
     public static MessageResponseDto getBetreeMessage(Long id) {
-        Long key = id * -1;
+        Long key = id > 0 ? (id * -1) : id;
         String value = betreeMessages.get(key);
 
         Message message = Message.builder()
