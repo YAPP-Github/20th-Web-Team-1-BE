@@ -65,12 +65,16 @@ public class FolderService {
      * @param treeId
      * @return TreeFullResponseDto
      */
-    public TreeFullResponseDto userDetailTree(Long userId, Long treeId) {
+    public TreeFullResponseDto userDetailTree(Long userId, Long treeId, Long loginUserId) {
 
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
         if (folder.getUser().getId() != userId) {
             throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
+        }
+
+        if (!folder.isOpening() && userId != loginUserId) {
+            throw new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId);
         }
 
         // 이전, 다음 폴더 없을때 0L으로 처리

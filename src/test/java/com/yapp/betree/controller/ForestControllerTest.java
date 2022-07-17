@@ -111,7 +111,7 @@ public class ForestControllerTest extends ControllerTest {
     void userDetailTreeTest() throws Exception {
         Long userId = 1L;
         given(userService.isExist(userId)).willReturn(true);
-        given(folderService.userDetailTree(userId, 1L)).willReturn(
+        given(folderService.userDetailTree(userId, 1L, userId)).willReturn(
                 TreeFullResponseDto.builder()
                         .folder(TEST_SAVE_DEFAULT_TREE)
                         .messages(Lists.newArrayList(MessageResponseDto.of(MessageTest.TEST_SAVE_MESSAGE, SendUserDto.of(TEST_SAVE_USER))))
