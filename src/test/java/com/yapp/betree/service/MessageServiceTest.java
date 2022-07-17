@@ -159,6 +159,7 @@ public class MessageServiceTest {
     @DisplayName("메세지 읽음 설정 - 존재하지 않는 messageId 입력시 예외 발생")
     void readMessageNotFound() {
 
+        given(userRepository.findById(TEST_SAVE_USER.getId())).willReturn(Optional.of(TEST_SAVE_USER));
         given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         assertThatThrownBy(() -> messageService.updateReadMessage(TEST_SAVE_USER.getId(), 10L))
