@@ -103,6 +103,7 @@ public class MessageRepositoryTest {
         assertThat(byId.getFolder().getFruit()).isEqualTo(FruitType.DEFAULT);
     }
 
+    @Disabled
     @DisplayName("이전 , 다음 메세지 조회 테스트")
     @Test
     void findPrevNextMessageTest() {

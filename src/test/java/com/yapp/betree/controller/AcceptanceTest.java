@@ -117,7 +117,7 @@ public class AcceptanceTest {
         assertThat(user.getFolders().get(0).getId()).isEqualTo(folders.get(0).getId());
 
         List<Message> all = messageRepository.findAll();
-        Message messages = all.get(0);
+        Message messages = all.get(all.size()-1);
         assertThat(messages.getSenderId()).isEqualTo(-999L);
         assertThat(messages.getContent()).contains("STEP");
     }
