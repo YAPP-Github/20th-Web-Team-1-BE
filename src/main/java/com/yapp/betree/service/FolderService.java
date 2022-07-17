@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -69,11 +70,11 @@ public class FolderService {
 
         Folder folder = folderRepository.findById(treeId).orElseThrow(() -> new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId));
 
-        if (folder.getUser().getId() != userId) {
+        if (!Objects.equals(folder.getUser().getId(), userId)) {
             throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
         }
 
-        if (!folder.isOpening() && userId != loginUserId) {
+        if (!folder.isOpening() && !Objects.equals(userId, loginUserId)) {
             throw new BetreeException(ErrorCode.TREE_NOT_FOUND, "treeId = " + treeId);
         }
 
