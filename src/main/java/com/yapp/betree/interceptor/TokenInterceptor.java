@@ -88,14 +88,9 @@ public class TokenInterceptor implements HandlerInterceptor {
 
     private boolean isPassRequest(HttpServletRequest request) {
 
-        // 나무숲 상세조회
-        if (request.getRequestURI().startsWith("/api/forest/") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
-            return true;
-        }
-
-        // 물주기 & 나무 숲 조회
+        // 나무숲 상세조회 & 물주기 & 나무 숲 조회
         if (request.getRequestURI().equals("/api/messages") && request.getMethod().equals(String.valueOf(HttpMethod.POST)) ||
-                request.getRequestURI().equals("/api/forest") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
+                request.getRequestURI().startsWith("/api/forest") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
 
             Optional<String> authHeader = Optional.ofNullable(request.getHeader("Authorization"));
 

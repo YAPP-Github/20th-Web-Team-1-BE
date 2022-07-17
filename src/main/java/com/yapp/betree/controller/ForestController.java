@@ -77,14 +77,15 @@ public class ForestController {
     })
     @GetMapping("/api/forest/{treeId}")
     public ResponseEntity<TreeFullResponseDto> userDetailTree(
+            @ApiIgnore @LoginUser LoginUserDto loginUser,
             @RequestParam Long userId,
             @PathVariable Long treeId) {
-        log.info("[나무숲] 유저 상세 나무 조회 userId: {}, treeId: {}", userId, treeId);
+        log.info("[나무숲] 유저 상세 나무 조회 userId: {}, treeId: {}, 로그인 유저 정보 : {}", userId, treeId, loginUser);
 
         if (!userService.isExist(userId)) {
             throw new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId);
         }
-        return ResponseEntity.ok(folderService.userDetailTree(userId, treeId));
+        return ResponseEntity.ok(folderService.userDetailTree(userId, treeId, loginUser.getId()));
     }
 
     /**

@@ -83,7 +83,7 @@ public class FolderServiceTest {
     void userDetailTreeNotFoundTest() {
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID))
+        assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID, USER_ID))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("나무가 존재하지 않습니다.")
                 .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
@@ -94,7 +94,7 @@ public class FolderServiceTest {
     void userDetailTreeInvalidTest() {
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
 
-        assertThatThrownBy(() -> folderService.userDetailTree(2L, TREE_ID))
+        assertThatThrownBy(() -> folderService.userDetailTree(2L, TREE_ID, USER_ID))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("잘못된 접근입니다.")
                 .extracting("code").isEqualTo(ErrorCode.USER_FORBIDDEN);
@@ -112,7 +112,7 @@ public class FolderServiceTest {
 
         // when
 
-        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID);
+        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID, USER_ID);
         MessageResponseDto message = trees.getMessages().get(0);
 
         // then
@@ -134,7 +134,7 @@ public class FolderServiceTest {
         given(userService.findBySenderId(USER_ID)).willThrow(new BetreeException(ErrorCode.USER_NOT_FOUND, "senderId = " + USER_ID));
 
         // then
-        assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID))
+        assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID, USER_ID))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("회원을 찾을 수 없습니다.")
                 .extracting("code").isEqualTo(ErrorCode.USER_NOT_FOUND);
@@ -151,7 +151,7 @@ public class FolderServiceTest {
         given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         // when
-        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID);
+        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID, USER_ID);
         MessageResponseDto message = trees.getMessages().get(0);
 
         // then
@@ -175,11 +175,24 @@ public class FolderServiceTest {
         given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         // when
-        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID);
+        TreeFullResponseDto trees = folderService.userDetailTree(USER_ID, TREE_ID, USER_ID);
 
         // then
         assertThat(trees.getPrevId()).isEqualTo(0L);
         assertThat(trees.getNextId()).isEqualTo(0L);
+    }
+    @Test
+    @DisplayName("유저 상세 나무 조회 - 비공개나무 조회시 예외 반환한다.")
+    void userDetailTreeOpeningFalseTest() {
+        // given
+        List<Message> messages = Lists.newArrayList(TEST_SAVE_MESSAGE);
+
+        given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
+
+        // when
+        assertThatThrownBy(()->folderService.userDetailTree(USER_ID, TREE_ID, -1L))
+                .isInstanceOf(BetreeException.class)
+                .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
     }
 
     @Test
