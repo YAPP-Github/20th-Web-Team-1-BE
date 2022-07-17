@@ -115,7 +115,7 @@ public class FolderServiceTest {
         // then
         assertThat(message.isAnonymous()).isTrue();
         assertThat(message.getSenderNickname()).isEqualTo("익명");
-        assertThat(message.getSenderProfileImage()).isEqualTo("기본 이미지");
+        assertThat(message.getSenderProfileImage()).isEqualTo("");
         assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
         assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
     }
@@ -153,7 +153,7 @@ public class FolderServiceTest {
         // then
         assertThat(message.isAnonymous()).isTrue();
         assertThat(message.getSenderNickname()).isEqualTo("익명");
-        assertThat(message.getSenderProfileImage()).isEqualTo("기본 이미지");
+        assertThat(message.getSenderProfileImage()).isEqualTo("");
         assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
         assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
     }

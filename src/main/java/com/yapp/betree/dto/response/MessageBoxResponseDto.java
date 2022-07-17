@@ -44,7 +44,7 @@ public class MessageBoxResponseDto {
         return MessageBoxResponseDto.builder()
                 .message(message)
                 .senderNickname(message.isAnonymous() ? "익명" : user.getNickname())
-                .senderProfileImage(message.isAnonymous() ? "기본 이미지" : user.getUserImage())
+                .senderProfileImage(message.isAnonymous() ? "" : user.getUserImage())
                 .build();
     }
 }

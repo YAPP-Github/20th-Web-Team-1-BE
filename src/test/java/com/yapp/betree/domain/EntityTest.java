@@ -28,7 +28,7 @@ public class EntityTest {
         User user = User.builder()
                 .nickname("user")
                 .email("user@user.com")
-                .url("testUrl")
+                .url("")
                 .lastAccessTime(LocalDateTime.now())
                 .userImage("123")
                 .build();

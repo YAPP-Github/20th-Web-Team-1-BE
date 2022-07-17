@@ -207,7 +207,7 @@ public class AcceptanceTest {
         , MessageResponseDto(id=-2, content=칭찬메시지2, anonymous=false, senderNickname=Betree, senderProfileImage=Betree 이미지)
         , MessageResponseDto(id=-1, content=칭찬메시지1, anonymous=false, senderNickname=Betree, senderProfileImage=Betree 이미지)
         , MessageResponseDto(id=123, content=보낸메시지3-익명아님,안읽음,즐겨찾기, anonymous=false, senderNickname=닉네임, senderProfileImage=default image uri)
-        , MessageResponseDto(id=120, content=보낸메시지0-익명,안읽음, anonymous=true, senderNickname=익명, senderProfileImage=기본 이미지)
+        , MessageResponseDto(id=120, content=보낸메시지0-익명,안읽음, anonymous=true, senderNickname=익명, senderProfileImage="")
         , MessageResponseDto(id=122, content=보낸메시지2-익명아님,읽음,즐겨찾기, anonymous=false, senderNickname=닉네임, senderProfileImage=default image uri)]
          */
     }
@@ -242,7 +242,7 @@ public class AcceptanceTest {
 
         SendUserDto sender = userService.findBySenderId(message.getSenderId());
         assertThat(sender.getId()).isEqualTo(-1L);
-        assertThat(sender.getUserImage()).isEqualTo("기본이미지");
+        assertThat(sender.getUserImage()).isEqualTo("");
         assertThat(sender.getNickname()).isEqualTo("익명");
     }
 

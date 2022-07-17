@@ -106,7 +106,7 @@ public class MessageService {
         //익명인 메세지 저장 구분
         for (Message message : messages) {
             if (message.isAnonymous()) {
-                responseDtos.add(new MessageBoxResponseDto(message, "익명", "기본이미지"));
+                responseDtos.add(new MessageBoxResponseDto(message, "익명", ""));
             } else {
                 SendUserDto sender = userService.findBySenderId(message.getSenderId());
                 responseDtos.add(MessageBoxResponseDto.of(message, sender));

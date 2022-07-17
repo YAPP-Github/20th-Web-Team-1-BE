@@ -35,7 +35,7 @@ public class SendUserDto {
         return SendUserDto.builder()
                 .id(-1L)
                 .nickname("익명")
-                .userImage("기본이미지")
+                .userImage("")
                 .build();
     }
 }
