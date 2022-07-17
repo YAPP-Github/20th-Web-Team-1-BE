@@ -85,7 +85,8 @@ public class MessageServiceTest {
 
         assertThatThrownBy(() -> messageService.createMessage(1L, requestDto))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("나무가 존재하지 않습니다.");
+                .hasMessageContaining("나무가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
     }
 
     @Test
@@ -96,7 +97,8 @@ public class MessageServiceTest {
 
         assertThatThrownBy(() -> messageService.updateMessageOpening(TEST_SAVE_USER.getId(), messageIds))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("Invalid input value");
+                .hasMessageContaining("Invalid input value")
+                .extracting("code").isEqualTo(ErrorCode.INVALID_INPUT_VALUE);
     }
 
     @Test
@@ -109,7 +111,8 @@ public class MessageServiceTest {
 
         assertThatThrownBy(() -> messageService.deleteMessages(TEST_SAVE_USER.getId(), messageIds))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("메세지가 존재하지 않습니다.");
+                .hasMessageContaining("메세지가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.MESSAGE_NOT_FOUND);
     }
 
     @Test
@@ -121,7 +124,8 @@ public class MessageServiceTest {
 
         assertThatThrownBy(() -> messageService.moveMessageFolder(TEST_SAVE_USER.getId(), messageIds, 10L))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("나무가 존재하지 않습니다.");
+                .hasMessageContaining("나무가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
     }
 
     @Test
@@ -132,7 +136,8 @@ public class MessageServiceTest {
 
         assertThatThrownBy(() -> messageService.updateFavoriteMessage(TEST_SAVE_USER.getId(), 10L))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("메세지가 존재하지 않습니다.");
+                .hasMessageContaining("메세지가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.MESSAGE_NOT_FOUND);
     }
 
     @Test
@@ -154,11 +159,13 @@ public class MessageServiceTest {
     @DisplayName("메세지 읽음 설정 - 존재하지 않는 messageId 입력시 예외 발생")
     void readMessageNotFound() {
 
+        given(userRepository.findById(TEST_SAVE_USER.getId())).willReturn(Optional.of(TEST_SAVE_USER));
         given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         assertThatThrownBy(() -> messageService.updateReadMessage(TEST_SAVE_USER.getId(), 10L))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("메세지가 존재하지 않습니다.");
+                .hasMessageContaining("메세지가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.MESSAGE_NOT_FOUND);
     }
 
     @Test
@@ -169,6 +176,7 @@ public class MessageServiceTest {
 
         assertThatThrownBy(() -> messageService.getMessageDetail(TEST_SAVE_USER.getId(), 10L))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("메세지가 존재하지 않습니다.");
+                .hasMessageContaining("메세지가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.MESSAGE_NOT_FOUND);
     }
 }

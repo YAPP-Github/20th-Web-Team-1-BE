@@ -106,10 +106,13 @@ public class MessageRepositoryTest {
     @DisplayName("이전 , 다음 메세지 조회 테스트")
     @Test
     void findPrevNextMessageTest() {
-        User user = UserTest.TEST_SAVE_USER;
+        User user = UserTest.TEST_USER;
         user.addFolder(FolderTest.TEST_DEFAULT_TREE);
+        user.addFolder(FolderTest.TEST_APPLE_TREE);
         userRepository.save(user);
 
+        Folder folder = folderRepository.findByUserIdAndFruit(user.getId(), FruitType.DEFAULT);
+        Folder appleFolder = folderRepository.findByUserIdAndFruit(user.getId(), FruitType.APPLE);
         Message message1 = Message.builder()
                 .content("안녕1")
                 .senderId(user.getId())
@@ -118,8 +121,20 @@ public class MessageRepositoryTest {
                 .favorite(true)
                 .opening(false)
                 .user(user)
+                .folder(folder)
                 .build();
         messageRepository.save(message1);
+        Message messageApple1 = Message.builder()
+                .content("안녕1")
+                .senderId(user.getId())
+                .anonymous(false)
+                .alreadyRead(true)
+                .favorite(true)
+                .opening(false)
+                .user(user)
+                .folder(appleFolder)
+                .build();
+        messageRepository.save(messageApple1);
 
         Message message2 = Message.builder()
                 .content("안녕2")
@@ -129,11 +144,25 @@ public class MessageRepositoryTest {
                 .favorite(false)
                 .opening(false)
                 .user(user)
+                .folder(folder)
                 .build();
         messageRepository.save(message2);
+        Message messageApple2 = Message.builder()
+                .content("안녕1")
+                .senderId(user.getId())
+                .anonymous(false)
+                .alreadyRead(true)
+                .favorite(true)
+                .opening(false)
+                .user(user)
+                .folder(appleFolder)
+                .build();
+        messageRepository.save(messageApple2);
 
-        Optional<Message> prevMessage = messageRepository.findTop1ByUserIdAndIdLessThanOrderByIdDesc(user.getId(), message1.getId());
-        Optional<Message> nextMessage = messageRepository.findTop1ByUserIdAndIdGreaterThan(user.getId(), message1.getId());
+        List<Message> all = messageRepository.findAll();
+        assertThat(all).hasSize(4);
+        Optional<Message> prevMessage = messageRepository.findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(user.getId(), message1.getId(), folder.getId());
+        Optional<Message> nextMessage = messageRepository.findTop1ByUserIdAndFolderIdAndIdGreaterThan(user.getId(), message1.getId(), folder.getId());
 
         assertThatThrownBy(prevMessage::get).isInstanceOf(NoSuchElementException.class);
         assertThat(nextMessage.get().getId()).isEqualTo(message2.getId());

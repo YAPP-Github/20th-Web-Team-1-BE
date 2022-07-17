@@ -42,10 +42,11 @@ public class FolderService {
      */
     public List<TreeResponseDto> userForest(Long longinUserId, Long userId) {
 
-        //로그인유저 == userId라면 전체 다 보여주기
+        //로그인유저 == userId라면 전체 다 보여주기, 기본나무는 제외
         if (longinUserId.equals(userId)) {
             return folderRepository.findAllByUserId(userId)
                     .stream()
+                    .filter(folder -> !folder.isDefault())
                     .map(TreeResponseDto::of)
                     .collect(Collectors.toList());
         }
@@ -135,11 +136,6 @@ public class FolderService {
     public void deleteTree(Long userId, Long treeId) {
         Folder folder = validateAndGetFolder(userId, treeId);
 
-        // 기본 폴더는 삭제할 수 없음
-        if (folder.getFruit() == FruitType.DEFAULT) {
-            throw new BetreeException(ErrorCode.TREE_DEFAULT_DELETE_ERROR, "treeId = " + treeId);
-        }
-
         Folder defaultFolder = folderRepository.findByUserIdAndFruit(userId, FruitType.DEFAULT);
         List<Message> messages = messageRepository.findAllByUserIdAndFolderIdAndDelByReceiver(userId, folder.getId(), false);
         log.info("[폴더 삭제] 폴더에 포함된 메시지 전부 삭제처리 및 폴더 기본폴더로 지정 messages = {}", messages);
@@ -164,6 +160,7 @@ public class FolderService {
 
     /**
      * 나무(폴더) 처리시에 userId, treeId 검증 및 tree 주인과 user 일치여부 파악
+     * 기본나무는 수정,삭제 불가능하므로 검증
      *
      * @param userId
      * @param treeId
@@ -175,6 +172,10 @@ public class FolderService {
 
         if (!folder.getUser().getId().equals(userId)) {
             throw new BetreeException(ErrorCode.USER_FORBIDDEN, "유저와 나무의 주인이 일치하지 않습니다.");
+        }
+
+        if (folder.isDefault()) {
+            throw new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "treeId = " + treeId);
         }
         return folder;
     }

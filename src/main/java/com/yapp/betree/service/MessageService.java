@@ -106,7 +106,7 @@ public class MessageService {
         //익명인 메세지 저장 구분
         for (Message message : messages) {
             if (message.isAnonymous()) {
-                responseDtos.add(new MessageBoxResponseDto(message, "익명", "기본이미지"));
+                responseDtos.add(new MessageBoxResponseDto(message, "익명", "1"));
             } else {
                 SendUserDto sender = userService.findBySenderId(message.getSenderId());
                 responseDtos.add(MessageBoxResponseDto.of(message, sender));
@@ -220,8 +220,12 @@ public class MessageService {
     @Transactional
     public void updateReadMessage(Long userId, Long messageId) {
 
-        messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
-                .updateAlreadyRead();
+        User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId));
+
+        if (messageId > 0L) { // 비트리에서 보내준 메시지(id가 음수)일 경우는 읽음처리 제외
+            messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
+                    .updateAlreadyRead();
+        }
         noticeTreeService.updateNoticeTree(userId, messageId);
     }
 
@@ -238,10 +242,11 @@ public class MessageService {
 
         MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
 
-        Long prevId = messageRepository.findTop1ByUserIdAndIdLessThanOrderByIdDesc(userId, messageId)
+        Long folderId = message.getFolder().getId();
+        Long prevId = messageRepository.findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(userId, folderId, messageId)
                 .map(Message::getId)
                 .orElse(0L);
-        Long nextId = messageRepository.findTop1ByUserIdAndIdGreaterThan(userId, messageId)
+        Long nextId = messageRepository.findTop1ByUserIdAndFolderIdAndIdGreaterThan(userId, folderId, messageId)
                 .map(Message::getId)
                 .orElse(0L);
 

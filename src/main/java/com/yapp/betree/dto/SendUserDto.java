@@ -1,6 +1,7 @@
 package com.yapp.betree.dto;
 
 import com.yapp.betree.domain.User;
+import com.yapp.betree.util.BetreeUtils;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class SendUserDto {
         return SendUserDto.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
-                .userImage(user.getUserImage())
+                .userImage(BetreeUtils.getImageUrl(user.getUserImage()))
                 .build();
     }
 
@@ -35,7 +36,7 @@ public class SendUserDto {
         return SendUserDto.builder()
                 .id(-1L)
                 .nickname("익명")
-                .userImage("기본이미지")
+                .userImage(BetreeUtils.getImageUrl("-1"))
                 .build();
     }
 }

@@ -13,6 +13,7 @@ import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
+import com.yapp.betree.util.BetreeUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ public class FolderServiceTest {
     private FolderService folderService;
 
     @Test
-    @DisplayName("유저 나무숲 조회 - 유저 id로 나무숲을 전체 조회한다.")
+    @DisplayName("유저 나무숲 조회 - 유저 id로 나무숲을 전체 조회한다. 기본나무는 포함되지 않는다.")
     void userForestTest() {
         // given
         given(folderRepository.findAllByUserId(USER_ID)).willReturn(Lists.newArrayList(TEST_SAVE_APPLE_TREE, TEST_SAVE_DEFAULT_TREE));
@@ -61,7 +62,7 @@ public class FolderServiceTest {
         List<TreeResponseDto> treeResponseDtos = folderService.userForest(USER_ID, USER_ID);
 
         // then
-        assertThat(treeResponseDtos).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE), TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE));
+        assertThat(treeResponseDtos).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE));
     }
 
     @Test
@@ -84,7 +85,8 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("나무가 존재하지 않습니다.");
+                .hasMessageContaining("나무가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
     }
 
     @Test
@@ -94,7 +96,8 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.userDetailTree(2L, TREE_ID))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("잘못된 접근입니다.");
+                .hasMessageContaining("잘못된 접근입니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_FORBIDDEN);
     }
 
     @Test
@@ -115,7 +118,7 @@ public class FolderServiceTest {
         // then
         assertThat(message.isAnonymous()).isTrue();
         assertThat(message.getSenderNickname()).isEqualTo("익명");
-        assertThat(message.getSenderProfileImage()).isEqualTo("기본 이미지");
+        assertThat(message.getSenderProfileImage()).isEqualTo(BetreeUtils.getImageUrl("-1"));
         assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
         assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
     }
@@ -133,7 +136,8 @@ public class FolderServiceTest {
         // then
         assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("회원을 찾을 수 없습니다.");
+                .hasMessageContaining("회원을 찾을 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 
     @Test
@@ -153,7 +157,7 @@ public class FolderServiceTest {
         // then
         assertThat(message.isAnonymous()).isTrue();
         assertThat(message.getSenderNickname()).isEqualTo("익명");
-        assertThat(message.getSenderProfileImage()).isEqualTo("기본 이미지");
+        assertThat(message.getSenderProfileImage()).isEqualTo(BetreeUtils.getImageUrl("-1"));
         assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
         assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
     }
@@ -187,7 +191,8 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.createTree(userId, null))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("회원을 찾을 수 없습니다.");
+                .hasMessageContaining("회원을 찾을 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 
     @Test
@@ -204,7 +209,8 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.createTree(userId, apple_tree))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("나무는 최대 4개까지 추가 가능합니다.");
+                .hasMessageContaining("나무는 최대 4개까지 추가 가능합니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_COUNT_ERROR);
     }
 
     @Test
@@ -238,7 +244,8 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.updateTree(userId, null, null))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("회원을 찾을 수 없습니다.");
+                .hasMessageContaining("회원을 찾을 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 
     @Test
@@ -252,7 +259,8 @@ public class FolderServiceTest {
         given(folderRepository.findById(treeId)).willReturn(Optional.empty());
         assertThatThrownBy(() -> folderService.updateTree(userId, treeId, null))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("나무가 존재하지 않습니다.");
+                .hasMessageContaining("나무가 존재하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
     }
 
     @Test
@@ -269,7 +277,8 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.updateTree(user.getId(), treeId, null))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("잘못된 접근입니다.: 유저와 나무의 주인이 일치하지 않습니다.");
+                .hasMessageContaining("잘못된 접근입니다.: 유저와 나무의 주인이 일치하지 않습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_FORBIDDEN);
     }
 
     @Test
@@ -285,7 +294,8 @@ public class FolderServiceTest {
         TreeRequestDto treeRequestDto = TreeRequestDto.builder().name("변경 이름").fruitType(FruitType.APPLE).build();
         assertThatThrownBy(() -> folderService.updateTree(userId, treeId, treeRequestDto))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.");
+                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_DEFAULT_ERROR);
     }
 
     @Test
@@ -300,6 +310,7 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.deleteTree(userId, treeId))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("기본 나무를 삭제할 수 없습니다.");
+                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_DEFAULT_ERROR);
     }
 }

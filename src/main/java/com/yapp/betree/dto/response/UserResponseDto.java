@@ -1,6 +1,7 @@
 package com.yapp.betree.dto.response;
 
 import com.yapp.betree.domain.User;
+import com.yapp.betree.util.BetreeUtils;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class UserResponseDto {
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
-                .userImage(user.getUserImage())
+                .userImage(BetreeUtils.getImageUrl(user.getUserImage()))
                 .url(user.getUrl())
                 .build();
     }

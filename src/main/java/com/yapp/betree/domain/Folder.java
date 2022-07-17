@@ -56,6 +56,9 @@ public class Folder extends BaseTimeEntity {
         this.user = user;
     }
 
+    public boolean isDefault() {
+        return this.fruit == FruitType.DEFAULT;
+    }
 
     public void updateUser(User user) {
         this.user = user;
@@ -65,10 +68,6 @@ public class Folder extends BaseTimeEntity {
      * 나무 편집 메서드
      */
     public void update(String name, FruitType fruit) {
-        // DEFAULT 나무일 경우 수정 불가능
-        if (this.fruit == FruitType.DEFAULT) {
-            throw new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "treeId = " + id);
-        }
         if (fruit == FruitType.DEFAULT) {
             throw new BetreeException(ErrorCode.TREE_DEFAULT_ERROR, "변경할 타입을 기본 나무 이외의 다른 나무로 선택해주세요. treeId = " + id + ", FruitType = " + fruit);
         }

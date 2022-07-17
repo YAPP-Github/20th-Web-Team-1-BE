@@ -282,7 +282,7 @@ public class ForestControllerTest extends ControllerTest {
     @DisplayName("나무 삭제 - 기본폴더는 삭제할 수 없다")
     @Test
     void deleteTreeTest() throws Exception {
-        willThrow(new BetreeException(ErrorCode.TREE_DEFAULT_DELETE_ERROR))
+        willThrow(new BetreeException(ErrorCode.TREE_DEFAULT_ERROR))
                 .given(folderService).deleteTree(eq(1L), eq(18L));
 
         mockMvc.perform(delete("/api/forest/18")
@@ -292,6 +292,6 @@ public class ForestControllerTest extends ControllerTest {
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("T004"));
+                .andExpect(jsonPath("$.code").value("T002"));
     }
 }
