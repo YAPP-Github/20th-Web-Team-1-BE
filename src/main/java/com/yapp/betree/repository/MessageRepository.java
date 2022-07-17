@@ -31,8 +31,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByUserIdAndFolderIdAndDelByReceiver(Long userId, Long folderId, boolean delByReceiver);
 
     //prev
-    Optional<Message> findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(Long userId, Long folderId, Long messageId);
+    Optional<Message> findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdLessThanOrderByIdDesc(Long userId, Long folderId, boolean delByReceiver, Long messageId);
 
     //next
-    Optional<Message> findTop1ByUserIdAndFolderIdAndIdGreaterThan(Long userId, Long folderId, Long messageId);
+    Optional<Message> findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdGreaterThan(Long userId, Long folderId, boolean delByReceiver, Long messageId);
 }
