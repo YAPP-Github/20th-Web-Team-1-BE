@@ -242,10 +242,10 @@ public class MessageService {
         MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
 
         Folder folder = message.getFolder();
-        Long prevId = messageRepository.findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(userId, folder.getId(), messageId)
+        Long prevId = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdLessThanOrderByIdDesc(userId, folder.getId(), false, messageId)
                 .map(Message::getId)
                 .orElse(0L);
-        Long nextId = messageRepository.findTop1ByUserIdAndFolderIdAndIdGreaterThan(userId, folder.getId(), messageId)
+        Long nextId = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdGreaterThan(userId, folder.getId(), false, messageId)
                 .map(Message::getId)
                 .orElse(0L);
 

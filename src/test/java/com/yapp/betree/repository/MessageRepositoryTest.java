@@ -162,8 +162,8 @@ public class MessageRepositoryTest {
 
         List<Message> all = messageRepository.findAll();
         assertThat(all).hasSize(4);
-        Optional<Message> prevMessage = messageRepository.findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(user.getId(), message1.getId(), folder.getId());
-        Optional<Message> nextMessage = messageRepository.findTop1ByUserIdAndFolderIdAndIdGreaterThan(user.getId(), message1.getId(), folder.getId());
+        Optional<Message> prevMessage = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdLessThanOrderByIdDesc(user.getId(), message1.getId(), false, folder.getId());
+        Optional<Message> nextMessage = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdGreaterThan(user.getId(), message1.getId(), false, folder.getId());
 
         assertThatThrownBy(prevMessage::get).isInstanceOf(NoSuchElementException.class);
         assertThat(nextMessage.get().getId()).isEqualTo(message2.getId());
