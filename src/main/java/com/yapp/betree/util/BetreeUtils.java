@@ -55,6 +55,7 @@ public class BetreeUtils {
 
         Message message = Message.builder()
                 .id(key)
+                .senderId(-999L)
                 .content(value)
                 .anonymous(false)
                 .alreadyRead(false)

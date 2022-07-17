@@ -42,6 +42,9 @@ public class UserService {
         if (userId == -1L) {
             return SendUserDto.ofNoLogin();
         }
+        if (userId == -999L) {
+            return SendUserDto.ofBetree();
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "senderId = " + userId));
         return SendUserDto.of(user);
     }

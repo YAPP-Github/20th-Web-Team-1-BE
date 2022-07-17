@@ -55,6 +55,24 @@ public class Message extends BaseTimeEntity {
         this.folder = folder;
     }
 
+    public static Message generateWelcomeMessage(User user, Folder folder) {
+        return Message.builder()
+                .content("STEP 1. \"물 주기\"를 통해 칭찬 메시지를 작성하세요!\n" +
+                        "STEP 2. 다양한 열매 나무를 심고 칭찬 메시지를 분류하세요!\n" +
+                        "STEP 3. 열매 맺을 메시지를 선택해 나만의 나무숲을 가꾸세요!\n" +
+                        "STEP 4. URL을 통해 나만의 나무숲을 공유하고 나무를 무럭무럭 키우세요!")
+                .senderId(-999L)
+                .anonymous(false)
+                .alreadyRead(false)
+                .favorite(false)
+                .opening(true)
+                .delBySender(false)
+                .delByReceiver(false)
+                .user(user)
+                .folder(folder)
+                .build();
+    }
+
     /**
      * 읽음 여부 상태 변경 메서드
      */
