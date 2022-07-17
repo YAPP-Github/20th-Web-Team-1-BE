@@ -16,12 +16,14 @@ public class TreeResponseDto {
     private Long id;
     private String name;
     private FruitType fruit;
+    private boolean opening;
 
     @Builder
-    public TreeResponseDto(Long id, String name, FruitType fruit) {
+    public TreeResponseDto(Long id, String name, FruitType fruit, boolean opening) {
         this.id = id;
         this.name = name;
         this.fruit = fruit;
+        this.opening = opening;
     }
 
     public static TreeResponseDto of(Folder folder) {
@@ -29,12 +31,13 @@ public class TreeResponseDto {
                 .id(folder.getId())
                 .name(folder.getName())
                 .fruit(folder.getFruit())
+                .opening(folder.isOpening())
                 .build();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, fruit, opening);
     }
 
     @Override
@@ -47,6 +50,9 @@ public class TreeResponseDto {
             return false;
         }
         if (this.fruit != objDto.getFruit()) {
+            return false;
+        }
+        if (this.opening != objDto.isOpening()) {
             return false;
         }
         return true;

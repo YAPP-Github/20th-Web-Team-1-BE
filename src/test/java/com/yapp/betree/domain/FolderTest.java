@@ -63,6 +63,7 @@ public class FolderTest {
                 .id(TEST_SAVE_APPLE_TREE.getId())
                 .name(TEST_SAVE_APPLE_TREE.getName())
                 .fruit(TEST_SAVE_APPLE_TREE.getFruit())
+                .opening(TEST_SAVE_APPLE_TREE.isOpening())
                 .build();
         assertThat(of).isEqualTo(build);
         assertThat(of.hashCode()).isEqualTo(build.hashCode());
