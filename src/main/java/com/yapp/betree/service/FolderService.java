@@ -40,9 +40,19 @@ public class FolderService {
      * @param userId
      * @return List<TreeResponseDto>
      */
-    public List<TreeResponseDto> userForest(Long userId) {
+    public List<TreeResponseDto> userForest(Long longinUserId, Long userId) {
+
+        //로그인유저 == userId라면 전체 다 보여주기
+        if (longinUserId.equals(userId)) {
+            return folderRepository.findAllByUserId(userId)
+                    .stream()
+                    .map(TreeResponseDto::of)
+                    .collect(Collectors.toList());
+        }
+
         return folderRepository.findAllByUserId(userId)
                 .stream()
+                .filter(Folder::isOpening)
                 .map(TreeResponseDto::of)
                 .collect(Collectors.toList());
     }
@@ -126,7 +136,7 @@ public class FolderService {
         Folder folder = validateAndGetFolder(userId, treeId);
 
         // 기본 폴더는 삭제할 수 없음
-        if(folder.getFruit() == FruitType.DEFAULT) {
+        if (folder.getFruit() == FruitType.DEFAULT) {
             throw new BetreeException(ErrorCode.TREE_DEFAULT_DELETE_ERROR, "treeId = " + treeId);
         }
 
@@ -141,7 +151,20 @@ public class FolderService {
     }
 
     /**
+     * 유저 나무 공개 설정
+     *
+     * @param userId
+     * @param treeId
+     */
+    @Transactional
+    public void updateTreeOpening(Long userId, Long treeId) {
+        Folder folder = validateAndGetFolder(userId, treeId);
+        folder.updateOpening();
+    }
+
+    /**
      * 나무(폴더) 처리시에 userId, treeId 검증 및 tree 주인과 user 일치여부 파악
+     *
      * @param userId
      * @param treeId
      * @return Folder

@@ -35,7 +35,7 @@ public class TokenInterceptor implements HandlerInterceptor {
             log.info("CORS preflight 요청시 true 반환");
             return true;
         }
-        
+
         // 비로그인 유저 요청가능 API는 return true
         if (isPassRequest(request)) {
             log.info("[비로그인 가능 요청] 토큰 검증 과정 생략");
@@ -87,12 +87,15 @@ public class TokenInterceptor implements HandlerInterceptor {
     }
 
     private boolean isPassRequest(HttpServletRequest request) {
-        // 나무숲 조회, 나무숲 상세조회
-        if (request.getRequestURI().startsWith("/api/forest") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
+
+        // 나무숲 상세조회
+        if (request.getRequestURI().startsWith("/api/forest/") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
             return true;
         }
-        // 물주기
-        if (request.getRequestURI().equals("/api/messages") && request.getMethod().equals(String.valueOf(HttpMethod.POST))) {
+
+        // 물주기 & 나무 숲 조회
+        if (request.getRequestURI().equals("/api/messages") && request.getMethod().equals(String.valueOf(HttpMethod.POST)) ||
+                request.getRequestURI().equals("/api/forest") && request.getMethod().equals(String.valueOf(HttpMethod.GET))) {
 
             Optional<String> authHeader = Optional.ofNullable(request.getHeader("Authorization"));
 

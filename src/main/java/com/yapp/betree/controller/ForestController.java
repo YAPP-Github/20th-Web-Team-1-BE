@@ -52,12 +52,13 @@ public class ForestController {
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
     @GetMapping("/api/forest")
-    public ResponseEntity<List<TreeResponseDto>> userForest(@RequestParam Long userId) {
-        log.info("[나무숲] 유저 나무숲 조회 userId: {}", userId);
+    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                            @RequestParam Long userId) {
+        log.info("[나무숲] 유저 나무숲 조회 userId: {}, loginUserId: {}", userId, loginUser.getId());
         if (!userService.isExist(userId)) {
             throw new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId);
         }
-        return ResponseEntity.ok(folderService.userForest(userId));
+        return ResponseEntity.ok(folderService.userForest(loginUser.getId(), userId));
     }
 
     /**
@@ -173,6 +174,29 @@ public class ForestController {
             @PathVariable Long treeId) {
         log.info("[나무 삭제] userId :{}, treeId :{}", loginUser.getId(), treeId);
         folderService.deleteTree(loginUser.getId(), treeId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 유저 나무 공개 설정
+     *
+     * @param loginUser
+     * @param treeId
+     * @return
+     */
+    @ApiOperation(value = "유저 나무 공개 설정", notes = "유저 나무 공개 설정 - 공개/비공개")
+    @ApiResponses({
+            @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무 주인이 일치하지 않습니다."),
+            @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.\n" +
+                    "[T001]나무가 존재하지 않습니다.")
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping("/api/forest/opening")
+    public ResponseEntity<Void> openTree(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                         @RequestParam Long treeId) {
+
+        log.info("[나무 공개 설정] userId :{}, treeId :{}", loginUser.getId(), treeId);
+        folderService.updateTreeOpening(loginUser.getId(), treeId);
         return ResponseEntity.noContent().build();
     }
 }

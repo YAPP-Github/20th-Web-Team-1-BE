@@ -40,16 +40,19 @@ public class Folder extends BaseTimeEntity {
     @Column(nullable = false)
     private Long level;
 
+    private boolean opening;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Folder(Long id, String name, FruitType fruit, Long level, User user) {
+    public Folder(Long id, String name, FruitType fruit, Long level, boolean opening, User user) {
         this.id = id;
         this.name = name;
         this.fruit = fruit;
         this.level = level;
+        this.opening = opening;
         this.user = user;
     }
 
@@ -71,5 +74,12 @@ public class Folder extends BaseTimeEntity {
         }
         this.name = name;
         this.fruit = fruit;
+    }
+
+    /**
+     * 공개 여부 상태 변경 메서드
+     */
+    public void updateOpening() {
+        this.opening = !this.opening;
     }
 }
