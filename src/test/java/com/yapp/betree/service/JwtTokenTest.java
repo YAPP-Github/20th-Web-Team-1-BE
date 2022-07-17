@@ -3,6 +3,7 @@ package com.yapp.betree.service;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.oauth.JwtTokenDto;
 import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -63,11 +64,13 @@ public class JwtTokenTest {
 
         assertThatThrownBy(() -> jwtTokenProvider.parseToken(tokenDto.getAccessToken()))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("만료");
+                .hasMessageContaining("만료")
+                .extracting("code").isEqualTo(ErrorCode.USER_TOKEN_EXPIRED);
 
         assertThatThrownBy(() -> jwtTokenProvider.parseToken(tokenDto.getRefreshToken()))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("만료");
+                .hasMessageContaining("만료")
+                .extracting("code").isEqualTo(ErrorCode.USER_TOKEN_EXPIRED);
     }
 
     @Test
@@ -82,6 +85,7 @@ public class JwtTokenTest {
         // then
         assertThatThrownBy(() -> jwtTokenProvider.parseToken(tokenDto.getAccessToken()))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("토큰 파싱에 실패했습니다.");
+                .hasMessageContaining("토큰 파싱에 실패했습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_TOKEN_ERROR);
     }
 }

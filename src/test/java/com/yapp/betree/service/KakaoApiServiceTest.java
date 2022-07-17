@@ -7,6 +7,7 @@ import com.yapp.betree.dto.oauth.KakaoTokenInfoDto;
 import com.yapp.betree.dto.oauth.KakaoUserInfoDto;
 import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
 import com.yapp.betree.exception.BetreeException;
+import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.oauth.KakaoApiService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,7 +79,8 @@ public class KakaoApiServiceTest {
 
         assertThatThrownBy(() -> kakaoApiService.getOauthId("accessToken"))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("accessToken");
+                .hasMessageContaining("accessToken")
+                .extracting("code").isEqualTo(ErrorCode.OAUTH_ACCESS_TOKEN_EXPIRED);
     }
 
     @Test
@@ -110,6 +112,7 @@ public class KakaoApiServiceTest {
 
         assertThatThrownBy(() -> kakaoApiService.getUserInfo("accessToken"))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("email is null");
+                .hasMessageContaining("email is null")
+                .extracting("code").isEqualTo(ErrorCode.OAUTH_INVALID_USERINFO);
     }
 }

@@ -96,7 +96,8 @@ public class UserServiceTest {
 
         assertThatThrownBy(() -> userService.deleteRefreshToken(userId))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("이미 로그아웃된 유저입니다.");
+                .hasMessageContaining("이미 로그아웃된 유저입니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_ALREADY_LOGOUT_TOKEN);
                 
     }
     @Test
@@ -108,7 +109,8 @@ public class UserServiceTest {
         // then
         assertThatThrownBy(() -> userService.getUser(TEST_SAVE_USER.getId()))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("회원을 찾을 수 없습니다.");
+                .hasMessageContaining("회원을 찾을 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 
     @Test
@@ -120,6 +122,7 @@ public class UserServiceTest {
         // then
         assertThatThrownBy(() -> userService.updateUserNickname(TEST_SAVE_USER.getId(), "nickname"))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("회원을 찾을 수 없습니다.");
+                .hasMessageContaining("회원을 찾을 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 }
