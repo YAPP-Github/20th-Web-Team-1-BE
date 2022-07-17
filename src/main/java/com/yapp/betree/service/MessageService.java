@@ -9,6 +9,7 @@ import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
 import com.yapp.betree.dto.response.MessageDetailResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
+import com.yapp.betree.dto.response.TreeResponseDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
@@ -240,19 +241,20 @@ public class MessageService {
 
         MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
 
-        Long folderId = message.getFolder().getId();
-        Long prevId = messageRepository.findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(userId, folderId, messageId)
+        Folder folder = message.getFolder();
+        Long prevId = messageRepository.findTop1ByUserIdAndFolderIdAndIdLessThanOrderByIdDesc(userId, folder.getId(), messageId)
                 .map(Message::getId)
                 .orElse(0L);
-        Long nextId = messageRepository.findTop1ByUserIdAndFolderIdAndIdGreaterThan(userId, folderId, messageId)
+        Long nextId = messageRepository.findTop1ByUserIdAndFolderIdAndIdGreaterThan(userId, folder.getId(), messageId)
                 .map(Message::getId)
                 .orElse(0L);
 
-        return MessageDetailResponseDto.of(boxResponseDto, prevId, nextId);
+        return MessageDetailResponseDto.of(boxResponseDto, TreeResponseDto.of(folder), prevId, nextId);
     }
 
     /**
      * 회원가입한 유저 기본메시지 생성
+     *
      * @param user
      */
     @Transactional

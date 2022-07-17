@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.yapp.betree.exception.ErrorCode.USER_ALREADY_LOGOUT_TOKEN;
@@ -39,10 +40,10 @@ public class UserService {
 
     public SendUserDto findBySenderId(Long userId) {
         log.info("senderId로 유저 조회 : userId = {}", userId);
-        if (userId == -1L) {
+        if (Objects.equals(userId, -1L)) {
             return SendUserDto.ofNoLogin();
         }
-        if (userId == -999L) {
+        if (Objects.equals(userId, -999L)) {
             return SendUserDto.ofBetree();
         }
         User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "senderId = " + userId));
