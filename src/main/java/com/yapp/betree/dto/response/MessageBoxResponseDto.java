@@ -38,14 +38,14 @@ public class MessageBoxResponseDto {
         this.opening = message.isOpening();
         this.senderNickname = senderNickname;
         this.senderProfileImage = senderProfileImage;
-        this.createdDate= message.getCreatedDate();
+        this.createdDate = message.getCreatedDate();
     }
 
     public static MessageBoxResponseDto of(Message message, SendUserDto user) {
         return MessageBoxResponseDto.builder()
                 .message(message)
                 .senderNickname(message.isAnonymous() ? "익명" : user.getNickname())
-                .senderProfileImage(BetreeUtils.getImageUrl(message.isAnonymous() ? "-1" : user.getUserImage()))
+                .senderProfileImage(message.isAnonymous() ? BetreeUtils.getImageUrl("-1") : user.getUserImage())
                 .build();
     }
 }

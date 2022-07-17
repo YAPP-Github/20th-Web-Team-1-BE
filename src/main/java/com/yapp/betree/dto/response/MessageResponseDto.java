@@ -37,7 +37,7 @@ public class MessageResponseDto {
         return MessageResponseDto.builder()
                 .message(message)
                 .senderNickname(message.isAnonymous() ? "익명" : user.getNickname())
-                .senderProfileImage(BetreeUtils.getImageUrl(message.isAnonymous() ? "-1" : user.getUserImage()))
+                .senderProfileImage(message.isAnonymous() ? BetreeUtils.getImageUrl("-1") : user.getUserImage())
                 .build();
     }
 
