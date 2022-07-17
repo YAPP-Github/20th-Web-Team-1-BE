@@ -220,8 +220,12 @@ public class MessageService {
     @Transactional
     public void updateReadMessage(Long userId, Long messageId) {
 
-        messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
-                .updateAlreadyRead();
+        User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId));
+
+        if (messageId > 0L) { // 비트리에서 보내준 메시지(id가 음수)일 경우는 읽음처리 제외
+            messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
+                    .updateAlreadyRead();
+        }
         noticeTreeService.updateNoticeTree(userId, messageId);
     }
 
