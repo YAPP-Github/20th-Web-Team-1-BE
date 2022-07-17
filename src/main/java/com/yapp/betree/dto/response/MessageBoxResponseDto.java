@@ -3,6 +3,7 @@ package com.yapp.betree.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.dto.SendUserDto;
+import com.yapp.betree.util.BetreeUtils;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,7 +45,7 @@ public class MessageBoxResponseDto {
         return MessageBoxResponseDto.builder()
                 .message(message)
                 .senderNickname(message.isAnonymous() ? "익명" : user.getNickname())
-                .senderProfileImage(message.isAnonymous() ? "" : user.getUserImage())
+                .senderProfileImage(BetreeUtils.getImageUrl(message.isAnonymous() ? "-1" : user.getUserImage()))
                 .build();
     }
 }

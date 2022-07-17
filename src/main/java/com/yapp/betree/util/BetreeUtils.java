@@ -12,6 +12,8 @@ public class BetreeUtils {
     private static final Random RANDOM = new Random();
     private static final int RANDOM_BOUND = 4;
     private static final int RANDOM_MIN = 1;
+    private static final String BASE_IMAGE_URL = "image/v1/user_";
+    private static final String BASE_IMAGE_SUFFIX = ".png";
     public static final ConcurrentHashMap<Long, String> betreeMessages = new ConcurrentHashMap<Long, String>() {{
         put(-1L, "칭찬메시지1");
         put(-2L, "칭찬메시지2");
@@ -33,8 +35,18 @@ public class BetreeUtils {
         return "";
     }
 
-    public static String makeUserImage() {
+    public static String makeUserImageNumber() {
         return String.valueOf(RANDOM.nextInt(RANDOM_BOUND) + RANDOM_MIN);
+    }
+
+    public static String getImageUrl(String id) {
+        if ("0".equals(id)) {
+            return BASE_IMAGE_URL + "betree" + BASE_IMAGE_SUFFIX;
+        }
+        if ("-1".equals(id)) {
+            return BASE_IMAGE_URL + "unknown" + BASE_IMAGE_SUFFIX;
+        }
+        return BASE_IMAGE_URL + id + BASE_IMAGE_SUFFIX;
     }
 
     public static MessageResponseDto getBetreeMessage(Long id) {
@@ -53,7 +65,7 @@ public class BetreeUtils {
         return MessageResponseDto.builder()
                 .message(message)
                 .senderNickname("Betree")
-                .senderProfileImage("1")
+                .senderProfileImage(getImageUrl("0"))
                 .build();
     }
 }

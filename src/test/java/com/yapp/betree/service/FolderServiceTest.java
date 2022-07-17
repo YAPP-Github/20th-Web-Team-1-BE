@@ -13,6 +13,7 @@ import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
+import com.yapp.betree.util.BetreeUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -117,7 +118,7 @@ public class FolderServiceTest {
         // then
         assertThat(message.isAnonymous()).isTrue();
         assertThat(message.getSenderNickname()).isEqualTo("익명");
-        assertThat(message.getSenderProfileImage()).isEqualTo("");
+        assertThat(message.getSenderProfileImage()).isEqualTo(BetreeUtils.getImageUrl("-1"));
         assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
         assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
     }
@@ -156,7 +157,7 @@ public class FolderServiceTest {
         // then
         assertThat(message.isAnonymous()).isTrue();
         assertThat(message.getSenderNickname()).isEqualTo("익명");
-        assertThat(message.getSenderProfileImage()).isEqualTo("");
+        assertThat(message.getSenderProfileImage()).isEqualTo(BetreeUtils.getImageUrl("-1"));
         assertThat(trees.getId()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getId());
         assertThat(trees.getName()).isEqualTo(TEST_SAVE_DEFAULT_TREE.getName());
     }

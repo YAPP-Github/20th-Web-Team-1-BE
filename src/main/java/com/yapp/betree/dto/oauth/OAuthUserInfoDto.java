@@ -43,7 +43,7 @@ public class OAuthUserInfoDto {
                 .oauthId(id)
                 .nickname(nickname)
                 .email(email)
-                .userImage(BetreeUtils.makeUserImage())
+                .userImage(BetreeUtils.makeUserImageNumber())
                 .lastAccessTime(LocalDateTime.now())
                 .url(BetreeUtils.makeUserAccessUrl(this))
                 .build();

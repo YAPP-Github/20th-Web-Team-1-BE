@@ -242,7 +242,7 @@ public class AcceptanceTest {
 
         SendUserDto sender = userService.findBySenderId(message.getSenderId());
         assertThat(sender.getId()).isEqualTo(-1L);
-        assertThat(sender.getUserImage()).isEqualTo("");
+        assertThat(sender.getUserImage()).isEqualTo("1");
         assertThat(sender.getNickname()).isEqualTo("익명");
     }
 

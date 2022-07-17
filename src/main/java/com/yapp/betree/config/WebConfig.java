@@ -32,7 +32,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new TokenInterceptor(jwtTokenProvider))
                 .addPathPatterns("/api/**")
-                .excludePathPatterns("/api/signin", "/api/refresh-token");
+                .excludePathPatterns("/api/signin", "/api/refresh-token")
+                .excludePathPatterns("/static/**");
     }
 
     @Override

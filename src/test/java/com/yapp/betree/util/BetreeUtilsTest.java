@@ -19,7 +19,7 @@ public class BetreeUtilsTest {
     @Test
     @DisplayName("1~4 랜덤숫자 생성 테스트")
     void makeUesrImageTest() {
-        String randomNumber = BetreeUtils.makeUserImage();
+        String randomNumber = BetreeUtils.makeUserImageNumber();
         assertThat(randomNumber).isGreaterThanOrEqualTo("1");
         assertThat(randomNumber).isLessThanOrEqualTo("4");
     }
