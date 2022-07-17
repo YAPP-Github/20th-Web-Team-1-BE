@@ -162,7 +162,7 @@ public class ForestController {
      */
     @ApiOperation(value = "유저 나무 삭제", notes = "유저 나무 삭제 - 나무에 포함된 메시지도 모두 삭제")
     @ApiResponses({
-            @ApiResponse(code = 400, message = "[T004]기본 나무를 삭제할 수 없습니다."),
+            @ApiResponse(code = 400, message = "[T002]기본 나무를 생성,변경할 수 없습니다."),
             @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무 주인이 일치하지 않습니다."),
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")
@@ -186,6 +186,7 @@ public class ForestController {
      */
     @ApiOperation(value = "유저 나무 공개 설정", notes = "유저 나무 공개 설정 - 공개/비공개")
     @ApiResponses({
+            @ApiResponse(code = 400, message = "[T002]기본 나무를 생성,변경할 수 없습니다."),
             @ApiResponse(code = 403, message = "[U006]잘못된 접근입니다. 유저와 나무 주인이 일치하지 않습니다."),
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.\n" +
                     "[T001]나무가 존재하지 않습니다.")

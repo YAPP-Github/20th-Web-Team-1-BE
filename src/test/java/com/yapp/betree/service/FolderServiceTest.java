@@ -52,7 +52,7 @@ public class FolderServiceTest {
     private FolderService folderService;
 
     @Test
-    @DisplayName("유저 나무숲 조회 - 유저 id로 나무숲을 전체 조회한다.")
+    @DisplayName("유저 나무숲 조회 - 유저 id로 나무숲을 전체 조회한다. 기본나무는 포함되지 않는다.")
     void userForestTest() {
         // given
         given(folderRepository.findAllByUserId(USER_ID)).willReturn(Lists.newArrayList(TEST_SAVE_APPLE_TREE, TEST_SAVE_DEFAULT_TREE));
@@ -61,7 +61,7 @@ public class FolderServiceTest {
         List<TreeResponseDto> treeResponseDtos = folderService.userForest(USER_ID, USER_ID);
 
         // then
-        assertThat(treeResponseDtos).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE), TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE));
+        assertThat(treeResponseDtos).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE));
     }
 
     @Test
@@ -285,7 +285,8 @@ public class FolderServiceTest {
         TreeRequestDto treeRequestDto = TreeRequestDto.builder().name("변경 이름").fruitType(FruitType.APPLE).build();
         assertThatThrownBy(() -> folderService.updateTree(userId, treeId, treeRequestDto))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.");
+                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_DEFAULT_ERROR);
     }
 
     @Test
@@ -300,6 +301,7 @@ public class FolderServiceTest {
 
         assertThatThrownBy(() -> folderService.deleteTree(userId, treeId))
                 .isInstanceOf(BetreeException.class)
-                .hasMessageContaining("기본 나무를 삭제할 수 없습니다.");
+                .hasMessageContaining("기본 나무를 생성,변경 할 수 없습니다.")
+                .extracting("code").isEqualTo(ErrorCode.TREE_DEFAULT_ERROR);
     }
 }
