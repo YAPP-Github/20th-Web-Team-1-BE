@@ -39,4 +39,11 @@ public class SendUserDto {
                 .userImage(BetreeUtils.getImageUrl("-1"))
                 .build();
     }
+    public static SendUserDto ofBetree() {
+        return SendUserDto.builder()
+                .id(-999L)
+                .nickname("Betree")
+                .userImage(BetreeUtils.getImageUrl("0"))
+                .build();
+    }
 }

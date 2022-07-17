@@ -115,6 +115,11 @@ public class AcceptanceTest {
         assertThat(folders.get(0).getFruit()).isEqualTo(FruitType.DEFAULT);
 
         assertThat(user.getFolders().get(0).getId()).isEqualTo(folders.get(0).getId());
+
+        List<Message> all = messageRepository.findAll();
+        Message messages = all.get(0);
+        assertThat(messages.getSenderId()).isEqualTo(-999L);
+        assertThat(messages.getContent()).contains("STEP");
     }
 
     @Test

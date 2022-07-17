@@ -15,6 +15,7 @@ import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.yapp.betree.exception.ErrorCode.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -103,14 +105,10 @@ public class MessageService {
         }
 
         List<MessageBoxResponseDto> responseDtos = new ArrayList<>();
-        //익명인 메세지 저장 구분
+
         for (Message message : messages) {
-            if (message.isAnonymous()) {
-                responseDtos.add(new MessageBoxResponseDto(message, "익명", "1"));
-            } else {
-                SendUserDto sender = userService.findBySenderId(message.getSenderId());
-                responseDtos.add(MessageBoxResponseDto.of(message, sender));
-            }
+            SendUserDto sender = userService.findBySenderId(message.getSenderId());
+            responseDtos.add(MessageBoxResponseDto.of(message, sender));
         }
         return new MessagePageResponseDto(responseDtos, messages.hasNext());
     }
@@ -251,5 +249,15 @@ public class MessageService {
                 .orElse(0L);
 
         return MessageDetailResponseDto.of(boxResponseDto, prevId, nextId);
+    }
+
+    /**
+     * 회원가입한 유저 기본메시지 생성
+     * @param user
+     */
+    @Transactional
+    public void sendWelcomeMessage(User user) {
+        log.info("[회원가입] 유저 웰컴메시지 생성 userId = {}", user.getId());
+        messageRepository.save(Message.generateWelcomeMessage(user, user.getFolders().get(0)));
     }
 }

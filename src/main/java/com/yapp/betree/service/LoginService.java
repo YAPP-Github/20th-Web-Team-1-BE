@@ -26,6 +26,7 @@ public class LoginService {
     private final KakaoApiService kakaoApiService;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final MessageService messageService;
 
     @Transactional
     public JwtTokenDto createToken(String accessToken) {
@@ -39,6 +40,7 @@ public class LoginService {
             OAuthUserInfoDto oAuthUserInfoDto = kakaoApiService.getUserInfo(accessToken);
             // 2-2. DB에 유저 등록(회원가입)하며 로그인 유저 생성
             loginUser = Optional.of(userService.save(oAuthUserInfoDto.generateSignUpUser()));
+            messageService.sendWelcomeMessage(loginUser.get());
         }
 
         JwtTokenDto token = jwtTokenProvider.createToken(LoginUserDto.of(loginUser.get()));

@@ -2,6 +2,7 @@ package com.yapp.betree.service;
 
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
+import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.exception.BetreeException;
@@ -37,6 +38,8 @@ public class MessageServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserService userService;
+    @Mock
     private FolderRepository folderRepository;
     @InjectMocks
     private MessageService messageService;
@@ -53,6 +56,7 @@ public class MessageServiceTest {
 
             SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_ANONYMOUS_MESSAGE));
             given(messageRepository.findByUserIdAndFolderIdAndDelByReceiver(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), false, pageable)).willReturn(messages);
+            given(userService.findBySenderId(TEST_SAVE_USER.getId())).willReturn(SendUserDto.of(TEST_SAVE_USER));
             given(folderRepository.findByUserIdAndFruit(TEST_SAVE_USER.getId(), FruitType.DEFAULT)).willReturn(TEST_SAVE_DEFAULT_TREE);
 
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, null);
@@ -67,7 +71,7 @@ public class MessageServiceTest {
 
             SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_ANONYMOUS_MESSAGE));
             given(messageRepository.findByUserIdAndFolderIdAndDelByReceiver(TEST_SAVE_USER.getId(), TEST_SAVE_DEFAULT_TREE.getId(), false, pageable)).willReturn(messages);
-
+            given(userService.findBySenderId(TEST_SAVE_USER.getId())).willReturn(SendUserDto.of(TEST_SAVE_USER));
             MessagePageResponseDto messageList = messageService.getMessageList(TEST_SAVE_USER.getId(), pageable, TEST_SAVE_DEFAULT_TREE.getId());
 
             assertThat(messageList.getResponseDto().size()).isEqualTo(1);
