@@ -217,15 +217,19 @@ public class MessageService {
      * @param messageId
      */
     @Transactional
-    public void updateReadMessage(Long userId, Long messageId) {
+    public Boolean updateReadMessage(Long userId, Long messageId) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new BetreeException(USER_NOT_FOUND, "userId = " + userId));
+        boolean result = true;
 
         if (messageId > 0L) { // 비트리에서 보내준 메시지(id가 음수)일 경우는 읽음처리 제외
-            messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId))
-                    .updateAlreadyRead();
+            Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
+            if (!message.isAlreadyRead()) {
+                message.updateAlreadyRead();
+                result = false;
+            }
         }
         noticeTreeService.updateNoticeTree(userId, messageId);
+        return result;
     }
 
     /**

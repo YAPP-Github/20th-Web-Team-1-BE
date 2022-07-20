@@ -211,7 +211,7 @@ class MessageControllerTest extends ControllerTest {
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .param("messageId", String.valueOf(1L)))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
     @DisplayName("메세지 상세 조회 - 존재하지 않는 messageId 예외처리")

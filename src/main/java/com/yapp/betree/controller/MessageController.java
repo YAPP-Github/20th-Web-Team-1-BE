@@ -199,20 +199,17 @@ public class MessageController {
      * @param messageId
      * @return
      */
-    @ApiOperation(value = "메세지 읽음", notes = "메세지 읽음 여부 변경 (읽음으로 처리)")
+    @ApiOperation(value = "메세지 읽음", notes = "메세지 읽음 여부 변경 (읽음으로 처리)- 처음 읽은 메세지 : false, 이미 읽은 메세지 : true ")
     @ApiResponses({
             @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.")
     })
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/alreadyRead")
-    public ResponseEntity<Void> updateReadMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                  @RequestParam Long messageId) {
+    public ResponseEntity<Boolean> updateReadMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                     @RequestParam Long messageId) {
 
         log.info("[messageId] : {}", messageId);
 
-        messageService.updateReadMessage(loginUser.getId(), messageId);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(messageService.updateReadMessage(loginUser.getId(), messageId));
     }
 
     /**

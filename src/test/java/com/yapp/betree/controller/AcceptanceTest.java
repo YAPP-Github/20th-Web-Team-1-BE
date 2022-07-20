@@ -329,7 +329,7 @@ public class AcceptanceTest {
                 .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(put("/api/messages/alreadyRead")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -337,7 +337,7 @@ public class AcceptanceTest {
                 .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
         mockMvc.perform(put("/api/messages/alreadyRead") // 음수메시지
                 .contentType(MediaType.APPLICATION_JSON)
@@ -345,7 +345,7 @@ public class AcceptanceTest {
                 .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + token))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
 
         MvcResult mvcResult2 = mockMvc.perform(get("/api/notices")
