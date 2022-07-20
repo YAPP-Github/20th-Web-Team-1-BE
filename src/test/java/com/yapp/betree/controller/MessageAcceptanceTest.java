@@ -2,11 +2,7 @@ package com.yapp.betree.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.config.TestConfig;
-import com.yapp.betree.domain.Folder;
-import com.yapp.betree.domain.FolderTest;
-import com.yapp.betree.domain.Message;
-import com.yapp.betree.domain.User;
-import com.yapp.betree.domain.UserTest;
+import com.yapp.betree.domain.*;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
@@ -32,9 +28,9 @@ import java.util.*;
 import static com.yapp.betree.config.TestConfig.getClaims;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -133,5 +129,50 @@ public class MessageAcceptanceTest {
         List<Message> all = messageRepository.findAll();
         assertThat(all.get(all.size() - 1).isDelBySender()).isFalse();
         assertThat(all.get(all.size() - 1).isDelByReceiver()).isTrue();
+    }
+
+    @Test
+    @DisplayName("메세지 읽음 처리 응답 값 테스트")
+    public void alreadyReadTest() throws Exception {
+
+        User user = userRepository.save(UserTest.TEST_USER);
+
+        Message message1 = Message.builder()
+                .content("처음 읽는 메세지")
+                .senderId(UserTest.TEST_SAVE_USER.getId())
+                .user(user)
+                .build();
+        Message message2 = Message.builder()
+                .content("이미 읽은 메세지")
+                .senderId(UserTest.TEST_SAVE_USER.getId())
+                .user(user)
+                .alreadyRead(true)
+                .build();
+
+        messageRepository.save(message1);
+        messageRepository.save(message2);
+
+        String token = JwtTokenTest.JWT_TOKEN_TEST;
+        given(jwtTokenProvider.parseToken(token)).willReturn(getClaims(user.getId()));
+
+        // 처음 읽은 메세지 읽었을때 false 반환
+        mockMvc.perform(put("/api/messages/alreadyRead")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(TestConfig.COOKIE_TOKEN)
+                        .header("Authorization", "Bearer " + token)
+                        .param("messageId", String.valueOf(message1.getId())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(false));
+
+        // 이미 읽은 메세지 읽었을때 true 반환
+        mockMvc.perform(put("/api/messages/alreadyRead")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(TestConfig.COOKIE_TOKEN)
+                        .header("Authorization", "Bearer " + token)
+                        .param("messageId", String.valueOf(message2.getId())))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(true));
     }
 }
