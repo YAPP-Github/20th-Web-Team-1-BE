@@ -219,15 +219,17 @@ public class MessageService {
     @Transactional
     public Boolean updateReadMessage(Long userId, Long messageId) {
 
+        boolean result = true;
+
         if (messageId > 0L) { // 비트리에서 보내준 메시지(id가 음수)일 경우는 읽음처리 제외
             Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
-            if (message.isAlreadyRead()) {
-                return true;
+            if (!message.isAlreadyRead()) {
+                message.updateAlreadyRead();
+                result = false;
             }
-            message.updateAlreadyRead();
         }
         noticeTreeService.updateNoticeTree(userId, messageId);
-        return false;
+        return result;
     }
 
     /**
