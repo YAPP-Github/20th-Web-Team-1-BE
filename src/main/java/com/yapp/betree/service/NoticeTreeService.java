@@ -48,6 +48,7 @@ public class NoticeTreeService {
 
         List<MessageResponseDto> messages = new ArrayList<>();
         List<Long> unreadMessageIds = Arrays.stream(noticeTree.getUnreadMessages().split(","))
+                .filter(mId -> !mId.equals(""))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
@@ -155,6 +156,7 @@ public class NoticeTreeService {
 
         List<Long> unreadMessages = Arrays.asList(noticeTree.getUnreadMessages().split(","))
                 .stream()
+                .filter(mId -> !mId.equals(""))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
 
