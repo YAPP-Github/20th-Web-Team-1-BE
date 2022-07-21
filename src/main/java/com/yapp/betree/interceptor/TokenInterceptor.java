@@ -46,14 +46,18 @@ public class TokenInterceptor implements HandlerInterceptor {
 
 
         if (isInvalidRefreshToken(request.getCookies())) {
-            log.info("[리프레시토큰 검증] 비어있어도 테스트기간 동안은 통과"); // TODO 주석 제거
+            log.info("[리프레시토큰 검증] 비어있으면 실패");
             if (request.getRequestURI().equals("/api/logout")) {
+                log.info("[리프레시토큰 검증] 이미로그아웃");
                 throw new BetreeException(ErrorCode.USER_ALREADY_LOGOUT_TOKEN);
             }
-//            response.sendError(ErrorCode.USER_REFRESH_ERROR.getStatus(), ErrorCode.USER_REFRESH_ERROR.getMessage());
-//            return false;
+            log.info("[리프레시토큰 검증] 예외생성");
+            response.sendError(ErrorCode.USER_REFRESH_ERROR.getStatus(), ErrorCode.USER_REFRESH_ERROR.getMessage());
+            return false;
         }
 
+
+        log.info("[리프레시토큰 검증] 성공");
         if (authHeader.startsWith(AUTH_TYPE)) {
             authHeader = authHeader.substring(AUTH_TYPE.length()).trim();
         }
