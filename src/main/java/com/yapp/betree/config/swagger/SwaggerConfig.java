@@ -1,10 +1,16 @@
 package com.yapp.betree.config.swagger;
 
+import com.fasterxml.classmate.TypeResolver;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.AlternateTypeRules;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.AuthorizationScope;
@@ -21,6 +27,8 @@ import java.util.List;
 @EnableSwagger2
 public class SwaggerConfig {
 
+    TypeResolver typeResolver = new TypeResolver();
+
     /**
      * 스웨거 API 문서 생성
      *
@@ -29,6 +37,7 @@ public class SwaggerConfig {
     @Bean
     public Docket swggerAPI() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(Pageable.class), typeResolver.resolve(Page.class)))
                 .securitySchemes(Arrays.asList(apiKey()))
                 .securityContexts(Arrays.asList(securityContext()))
                 .forCodeGeneration(true)
@@ -69,5 +78,15 @@ public class SwaggerConfig {
                 .description("YAPP20 Web1-BeTree API 문서입니다")
                 .version("1.0")
                 .build();
+    }
+
+    @Data
+    @ApiModel
+    static class Page {
+
+        @ApiModelProperty(value = "페이지 번호(0..N)")
+        private Integer page;
+        @ApiModelProperty(value = "페이지 크기")
+        private Integer size;
     }
 }
