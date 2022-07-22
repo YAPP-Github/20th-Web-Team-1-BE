@@ -2,6 +2,7 @@ package com.yapp.betree.config.swagger;
 
 import com.fasterxml.classmate.TypeResolver;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,7 +83,10 @@ public class SwaggerConfig {
     @Data
     @ApiModel
     static class Page {
+
+        @ApiModelProperty(value = "페이지 번호(0..N)")
         private Integer page;
+        @ApiModelProperty(value = "페이지 크기")
         private Integer size;
     }
 }
