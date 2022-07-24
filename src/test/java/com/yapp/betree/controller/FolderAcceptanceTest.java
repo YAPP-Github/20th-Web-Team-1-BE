@@ -7,11 +7,19 @@ import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.domain.UserTest;
+import com.yapp.betree.dto.UserInfoFixture;
+import com.yapp.betree.dto.oauth.JwtTokenDto;
+import com.yapp.betree.dto.oauth.OAuthUserInfoDto;
+import com.yapp.betree.dto.request.TreeRequestDto;
 import com.yapp.betree.repository.FolderRepository;
 import com.yapp.betree.repository.MessageRepository;
 import com.yapp.betree.repository.UserRepository;
+import com.yapp.betree.service.FolderService;
 import com.yapp.betree.service.JwtTokenTest;
+import com.yapp.betree.service.LoginService;
+import com.yapp.betree.service.UserService;
 import com.yapp.betree.service.oauth.JwtTokenProvider;
+import com.yapp.betree.service.oauth.KakaoApiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -50,10 +58,19 @@ public class FolderAcceptanceTest {
     private MessageRepository messageRepository;
 
     @Autowired
+    private FolderService folderService;
+
+    @MockBean
+    private LoginService loginService;
+
+    @Autowired
     private FolderRepository folderRepository;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private KakaoApiService kakaoApiService;
 
     @BeforeEach
     void setUp(final WebApplicationContext webApplicationContext) {
@@ -64,8 +81,19 @@ public class FolderAcceptanceTest {
     @Test
     @DisplayName("폴더 삭제 테스트")
     public void deleteFolder() throws Exception {
-        User user = userRepository.save(UserTest.TEST_USER);
-        user.addFolder(FolderTest.TEST_APPLE_TREE);
+
+        OAuthUserInfoDto oAuthUserInfo = UserInfoFixture.createOAuthUserInfo();
+        User user = userRepository.save(oAuthUserInfo.generateSignUpUser());
+
+        given(kakaoApiService.getOauthId("accessToken")).willReturn(user.getId());
+        given(kakaoApiService.getUserInfo("accessToken")).willReturn(oAuthUserInfo);
+        given(loginService.createToken("accessToken")).willReturn(JwtTokenDto.builder().build());
+        mockMvc.perform(post("/api/signin")
+                .header("X-Kakao-Access-Token", "accessToken"))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        folderService.createTree(user.getId(), TreeRequestDto.builder().fruitType(FruitType.APPLE).name("사과나무").build());
 
         Folder apple = folderRepository.findByUserIdAndFruit(user.getId(), FruitType.APPLE);
         Message message = Message.builder()
