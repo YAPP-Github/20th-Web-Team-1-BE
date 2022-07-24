@@ -94,7 +94,7 @@ public class OAuthController {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, token.getRefreshToken())
                 .maxAge(24 * 60 * 60 * 7)
                 .path("/")
-//                .secure(true)
+                .secure(true)
 //                .sameSite("None")
                 .httpOnly(true)
                 .build();
@@ -116,7 +116,7 @@ public class OAuthController {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_REFRESH_TOKEN, null)
                 .maxAge(0)
                 .path("/")
-//                .secure(true)
+                .secure(true)
 //                .sameSite("None")
                 .httpOnly(true)
                 .build();
