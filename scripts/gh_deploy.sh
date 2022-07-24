@@ -26,7 +26,7 @@ else
   echo "> kill -9 $CURRENT_PID" >> $DEPLOY_LOG_PATH
   kill -9 $CURRENT_PID
   echo "> 로그파일 이동" >> $DEPLOY_LOG_PATH
-  mv application.log "/home/ubuntu/log/app$(date +%Y%m%d%h%m%s).log"
+  mv /home/ubuntu/$PROJECT_NAME/application.log "/home/ubuntu/log/app$(date +%Y%m%d%h%m%s).log"
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
