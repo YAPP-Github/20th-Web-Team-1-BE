@@ -25,12 +25,15 @@ else
   echo "> 현재 동작중인 어플리케이션 강제 종료 진행" >> $DEPLOY_LOG_PATH
   echo "> kill -9 $CURRENT_PID" >> $DEPLOY_LOG_PATH
   kill -9 $CURRENT_PID
+  mv nohup.out "/home/ubuntu/log/nohup$(date +%Y%m%d%h%m%s).out"
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "> DEPLOY_JAR 배포" >> $DEPLOY_LOG_PATH
-nohup java -Dserver.port=80 -jar $DEPLOY_JAR >> $APPLICATION_LOG_PATH 2> $DEPLOY_ERR_LOG_PATH &
+nohup java -jar $DEPLOY_JAR &
 
 sleep 3
 
 echo "> 배포 종료 : $(date +%c)" >> $DEPLOY_LOG_PATH
+exit
+
