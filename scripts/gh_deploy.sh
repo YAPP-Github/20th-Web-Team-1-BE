@@ -25,7 +25,8 @@ else
   echo "> 현재 동작중인 어플리케이션 강제 종료 진행" >> $DEPLOY_LOG_PATH
   echo "> kill -9 $CURRENT_PID" >> $DEPLOY_LOG_PATH
   kill -9 $CURRENT_PID
-  move application.log "/home/ubuntu/log/app$(date +%Y%m%d%h%m%s).log"
+  echo "> 로그파일 이동" >> $DEPLOY_LOG_PATH
+  mv application.log "/home/ubuntu/log/app$(date +%Y%m%d%h%m%s).log"
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
