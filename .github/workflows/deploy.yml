@@ -36,7 +36,7 @@ jobs:
       with:
         files: ${{ env.RESOURCE_PATH }} 
       env:
-        override.value: 'from deploy.yml'
+        secrets.jwt.token.secret-key: ${{ secrets.JWT_TOKEN_SECRET_KEY}}
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
