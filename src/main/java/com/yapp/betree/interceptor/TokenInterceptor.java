@@ -36,6 +36,8 @@ public class TokenInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        printUserLog(request);
+
         // 비로그인 유저 요청가능 API는 return true
         if (isPassRequest(request)) {
             log.info("[비로그인 가능 요청] 토큰 검증 과정 생략");
@@ -77,6 +79,13 @@ public class TokenInterceptor implements HandlerInterceptor {
             );
         }
         return true;
+    }
+
+    private void printUserLog(HttpServletRequest request) {
+        String ip = request.getHeader("X-Real-IP");
+        String forward = request.getHeader("X-Forwarded-For");
+        String proto = request.getHeader("X-Forwarded-Proto");
+        log.info("[요청 유저 정보] ip:{}, forward:{}, proto:{}", ip, forward, proto);
     }
 
     private boolean isFrontEndLocal(HttpServletRequest request) {
