@@ -45,7 +45,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
 
 
-        if (isInvalidRefreshToken(request.getCookies())) {
+        if (!isFrontEndLocal(request) && isInvalidRefreshToken(request.getCookies())) {
             log.info("[리프레시토큰 검증] 비어있으면 실패");
             if (request.getRequestURI().equals("/api/logout")) {
                 log.info("[리프레시토큰 검증] 이미로그아웃");
@@ -77,6 +77,15 @@ public class TokenInterceptor implements HandlerInterceptor {
             );
         }
         return true;
+    }
+
+    private boolean isFrontEndLocal(HttpServletRequest request) {
+        log.info("[요청 유저] 도메인 : {}, port: {}", request.getRemoteHost(), request.getRemotePort());
+        if ("0:0:0:0:0:0:0:1".equals(request.getRemoteHost()) || "127.0.0.1".equals(request.getRemoteHost())) {
+            log.info("로컬에서는 검증과정 생략");
+            return true;
+        }
+        return false;
     }
 
     private boolean isInvalidRefreshToken(Cookie[] cookies) {
