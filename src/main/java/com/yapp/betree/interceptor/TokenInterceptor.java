@@ -7,18 +7,32 @@ import com.yapp.betree.service.oauth.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import io.swagger.models.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
 public class TokenInterceptor implements HandlerInterceptor {
+
+    @Value("dev.email.js")
+    private String jisu;
+    @Value("dev.email.sb")
+    private String subin;
+    @Value("dev.email.si")
+    private String sooim;
+    @Value("dev.email.ym")
+    private String ym;
+    @Value("dev.email.yk")
+    private String yk;
 
     private static final String AUTH_TYPE = "Bearer";
     public static final String USER_ATTR_KEY = "user";
@@ -47,7 +61,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
 
 
-        if (!isFrontEndLocal(request) && isInvalidRefreshToken(request.getCookies())) {
+        if (!isFrontEndLocal(authHeader) && isInvalidRefreshToken(request.getCookies())) {
             log.info("[리프레시토큰 검증] 비어있으면 실패");
             if (request.getRequestURI().equals("/api/logout")) {
                 log.info("[리프레시토큰 검증] 이미로그아웃");
@@ -88,13 +102,23 @@ public class TokenInterceptor implements HandlerInterceptor {
         log.info("[요청 유저 정보] ip:{}, forward:{}, proto:{}", ip, forward, proto);
     }
 
-    private boolean isFrontEndLocal(HttpServletRequest request) {
-        log.info("[요청 유저] 도메인 : {}, port: {}", request.getRemoteHost(), request.getRemotePort());
-        if ("0:0:0:0:0:0:0:1".equals(request.getRemoteHost()) || "127.0.0.1".equals(request.getRemoteHost())) {
-            log.info("로컬에서는 검증과정 생략");
-            return true;
+    private boolean isFrontEndLocal(String authHeader) {
+        // FE, BE 개발자들 로그인할때는 토큰검증 임시로 예외처리->로컬개발 가능하게 하려고
+        List<String> devEmails = new ArrayList<>();
+        devEmails.add(jisu);
+        devEmails.add(subin);
+        devEmails.add(yk);
+        devEmails.add(ym);
+        devEmails.add(sooim);
+
+        authHeader = authHeader.substring(AUTH_TYPE.length()).trim();
+        Claims claims = jwtTokenProvider.parseToken(authHeader);
+        if (Objects.isNull(claims)) {
+            throw new BetreeException(ErrorCode.USER_TOKEN_ERROR, "토큰의 payload는 null일 수 없습니다.");
         }
-        return false;
+
+        log.info("[개발자 로그인] info : {}", claims.get("email"));
+        return devEmails.contains(claims.get("email"));
     }
 
     private boolean isInvalidRefreshToken(Cookie[] cookies) {
