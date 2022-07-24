@@ -37,9 +37,9 @@ jobs:
         files: ${{ env.RESOURCE_PATH }} 
       env:
         secrets.jwt.token.secret-key: ${{ secrets.JWT_TOKEN_SECRET_KEY }}
-        spring.datasource.url: ${{ secrests.RDS_URL }}
-        spring.datasource.username: ${{ secrests.RDS_USER_NAME }}
-        spring.datasource.password: ${{ secrests.RDS_PASSWORD }}
+        spring.datasource.url: ${{ secrets.RDS_URL }}
+        spring.datasource.username: ${{ secrets.RDS_USER_NAME }}
+        spring.datasource.password: ${{ secrets.RDS_PASSWORD }}
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
