@@ -95,7 +95,7 @@ public class OAuthController {
                 .maxAge(24 * 60 * 60 * 7)
                 .path("/")
                 .secure(true)
-//                .sameSite("None")
+                .sameSite("None")
                 .httpOnly(true)
                 .build();
         response.setHeader(SET_COOKIE_HEADER, cookie.toString());
@@ -117,7 +117,7 @@ public class OAuthController {
                 .maxAge(0)
                 .path("/")
                 .secure(true)
-//                .sameSite("None")
+                .sameSite("None")
                 .httpOnly(true)
                 .build();
         response.setHeader(SET_COOKIE_HEADER, cookie.toString());
