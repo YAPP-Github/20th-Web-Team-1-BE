@@ -24,7 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns("*")
                 .allowedMethods("*")
                 .allowCredentials(true)
-                .allowHeaders("*")
+                .allowedHeaders("*")
                 .exposedHeaders("Authorization, X-Kakao-Access-Token")
                 .maxAge(3600);
     }
