@@ -45,5 +45,13 @@ secrets:
   jwt:
     token:
       secret-key: B1e2t3r4e5e6S7e8c9r0e1t
-      expiration-time: 86400000
+      expiration-time: 600000
       refresh-expiration-time: 86400000
+
+dev:
+  email:
+    js: default
+    sb: default
+    si: default
+    yk: default
+    ym: default

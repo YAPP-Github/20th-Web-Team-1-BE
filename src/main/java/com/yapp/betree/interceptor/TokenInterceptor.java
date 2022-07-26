@@ -23,6 +23,16 @@ import java.util.Optional;
 @Slf4j
 public class TokenInterceptor implements HandlerInterceptor {
 
+    @Value("dev.email.js")
+    private String jisu;
+    @Value("dev.email.sb")
+    private String subin;
+    @Value("dev.email.si")
+    private String sooim;
+    @Value("dev.email.ym")
+    private String ym;
+    @Value("dev.email.yk")
+    private String yk;
 
     private static final String AUTH_TYPE = "Bearer";
     public static final String USER_ATTR_KEY = "user";
@@ -51,6 +61,19 @@ public class TokenInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
 
 
+        if (!isFrontEndLocal(authHeader) && isInvalidRefreshToken(request.getCookies())) {
+            log.info("[리프레시토큰 검증] 비어있으면 실패");
+            if (request.getRequestURI().equals("/api/logout")) {
+                log.info("[리프레시토큰 검증] 이미로그아웃");
+                throw new BetreeException(ErrorCode.USER_ALREADY_LOGOUT_TOKEN);
+            }
+            log.info("[리프레시토큰 검증] 예외생성");
+            response.sendError(ErrorCode.USER_REFRESH_ERROR.getStatus(), ErrorCode.USER_REFRESH_ERROR.getMessage());
+            return false;
+        }
+
+
+        log.info("[리프레시토큰 검증] 성공");
         if (authHeader.startsWith(AUTH_TYPE)) {
             authHeader = authHeader.substring(AUTH_TYPE.length()).trim();
         }
@@ -77,6 +100,25 @@ public class TokenInterceptor implements HandlerInterceptor {
         String forward = request.getHeader("X-Forwarded-For");
         String proto = request.getHeader("X-Forwarded-Proto");
         log.info("[요청 유저 정보] ip:{}, forward:{}, proto:{}", ip, forward, proto);
+    }
+
+    private boolean isFrontEndLocal(String authHeader) {
+        // FE, BE 개발자들 로그인할때는 토큰검증 임시로 예외처리->로컬개발 가능하게 하려고
+        List<String> devEmails = new ArrayList<>();
+        devEmails.add(jisu);
+        devEmails.add(subin);
+        devEmails.add(yk);
+        devEmails.add(ym);
+        devEmails.add(sooim);
+
+        authHeader = authHeader.substring(AUTH_TYPE.length()).trim();
+        Claims claims = jwtTokenProvider.parseToken(authHeader);
+        if (Objects.isNull(claims)) {
+            throw new BetreeException(ErrorCode.USER_TOKEN_ERROR, "토큰의 payload는 null일 수 없습니다.");
+        }
+
+        log.info("[개발자 로그인] info : {}", claims.get("email"));
+        return devEmails.contains(claims.get("email"));
     }
 
     private boolean isInvalidRefreshToken(Cookie[] cookies) {
