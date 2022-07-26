@@ -261,7 +261,7 @@ public class MessageService {
                     .orElse(0L);
         }
 
-        return MessageDetailResponseDto.of(boxResponseDto, TreeResponseDto.of(folder), prevId, nextId);
+        return MessageDetailResponseDto.of(boxResponseDto, TreeResponseDto.of(folder), nextId, prevId);
     }
 
     /**
