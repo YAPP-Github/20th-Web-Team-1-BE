@@ -14,11 +14,14 @@ import com.yapp.betree.repository.UserRepository;
 import com.yapp.betree.util.BetreeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +38,7 @@ public class NoticeTreeService {
     private final NoticeTreeRepository noticeTreeRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+
 
 
     @Transactional
@@ -65,8 +69,10 @@ public class NoticeTreeService {
         return new NoticeResponseDto(messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(userId, false, false).size(), messages);
     }
 
+    @Scheduled(cron = "0 * */1 * * *") // 1시간마다 갱신
     @Transactional
     public void batchNoticeTree() {
+        log.info("실행 시간 {}", LocalDateTime.now());
         // 전체 유저 조회
         List<User> users = userRepository.findAll();
         for (User user : users) {
@@ -87,8 +93,12 @@ public class NoticeTreeService {
      * @param userId
      */
     private void noticeTree(Long userId) {
+        log.info("...유저 {} 알림나무 생성중 ...", userId);
         // 안읽은 메시지
         List<Message> unreadMessages = messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(userId, false, false);
+
+        // 안읽은 메시지 랜덤하게 sorting
+        Collections.shuffle(unreadMessages);
 
         // 안읽은 메시지 먼저 8개 리스트에 넣음
         Set<MessageResponseDto> noticeTreeMessages = new HashSet<>();
@@ -97,8 +107,13 @@ public class NoticeTreeService {
             noticeTreeMessages.add(MessageResponseDto.of(m, sender));
         }
 
+        log.info("...유저 {} 알림나무 생성중 ...안읽은 메시지 {}개 총 {}개 ", userId, unreadMessages.size(), noticeTreeMessages.size());
+
         // 즐겨찾기 메시지
         List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(userId, true, false);
+
+        // 랜덤 셔플
+       Collections.shuffle(favoriteMessages);
         for (Message m : favoriteMessages) {
             if (noticeTreeMessages.size() >= 8) {
                 break; // 8개까지만 담음
@@ -106,13 +121,16 @@ public class NoticeTreeService {
             SendUserDto sender = userService.findBySenderId(m.getSenderId());
             noticeTreeMessages.add(MessageResponseDto.of(m, sender));
         }
+        log.info("...유저 {} 알림나무 생성중 ...즐겨찾기 메시지 {}개 총 {}개 ", userId, favoriteMessages.size(), noticeTreeMessages.size());
 
         // 비트리 제공 메시지로 8개까지 다시 채움
         long remainCount = 8 - noticeTreeMessages.size();
-        for (long i = 1; i <= remainCount; i++) {
-            noticeTreeMessages.add(BetreeUtils.getBetreeMessage(i));
+        List<Long> betreeMessageNumber = BetreeUtils.getRandomNum(remainCount);
+        for(Long number : betreeMessageNumber) {
+            noticeTreeMessages.add(BetreeUtils.getBetreeMessage(number));
         }
 
+        log.info("...유저 {} 알림나무 생성중 ...비트리 메시지 {}개 총 {}개 ", userId, remainCount, noticeTreeMessages.size());
         log.info("[유저 알림나무 갱신 - 리스트 생성] userId = {}, 알림나무 = {}", userId, noticeTreeMessages);
         String unreads = noticeTreeMessages
                 .stream()

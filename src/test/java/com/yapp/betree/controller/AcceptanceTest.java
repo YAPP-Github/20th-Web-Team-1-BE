@@ -361,17 +361,6 @@ public class AcceptanceTest {
         assertThat(noticeResponseDto2.getMessages()).hasSize(5);
         assertThat(noticeResponseDto2.getTotalUnreadMessageCount()).isEqualTo(2);
 
-        // 읽은메시지 볼 수 없음
-        assertThat(
-                noticeResponseDto2.getMessages().stream()
-                        .filter(messageResponseDto -> messageResponseDto.getId() == message1.getId())
-                        .count()
-        ).isEqualTo(0);
-        assertThat(
-                noticeResponseDto2.getMessages().stream()
-                        .filter(messageResponseDto -> messageResponseDto.getId() == message2.getId())
-                        .count()
-        ).isEqualTo(0);
     }
 
     @Test
