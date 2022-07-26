@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.yapp.betree.exception.ErrorCode.*;
@@ -242,12 +241,25 @@ public class MessageService {
         MessageBoxResponseDto boxResponseDto = MessageBoxResponseDto.of(message, userService.findBySenderId(message.getSenderId()));
 
         Folder folder = message.getFolder();
-        Long prevId = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdLessThanOrderByIdDesc(userId, folder.getId(), false, messageId)
-                .map(Message::getId)
-                .orElse(0L);
-        Long nextId = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdGreaterThan(userId, folder.getId(), false, messageId)
-                .map(Message::getId)
-                .orElse(0L);
+
+        Long prevId;
+        Long nextId;
+        // 즐겨찾기 메세지는 즐겨찾기 메세지끼리 이전, 다음 메세지 보여주기
+        if (message.isFavorite()) {
+            prevId = messageRepository.findTop1ByUserIdAndFavoriteAndDelByReceiverAndIdLessThanOrderByIdDesc(userId, true, false, message.getId())
+                    .map(Message::getId)
+                    .orElse(0L);
+            nextId = messageRepository.findTop1ByUserIdAndFavoriteAndDelByReceiverAndIdGreaterThan(userId, true, false, message.getId())
+                    .map(Message::getId)
+                    .orElse(0L);
+        } else {
+            prevId = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdLessThanOrderByIdDesc(userId, folder.getId(), false, messageId)
+                    .map(Message::getId)
+                    .orElse(0L);
+            nextId = messageRepository.findTop1ByUserIdAndFolderIdAndDelByReceiverAndIdGreaterThan(userId, folder.getId(), false, messageId)
+                    .map(Message::getId)
+                    .orElse(0L);
+        }
 
         return MessageDetailResponseDto.of(boxResponseDto, TreeResponseDto.of(folder), prevId, nextId);
     }

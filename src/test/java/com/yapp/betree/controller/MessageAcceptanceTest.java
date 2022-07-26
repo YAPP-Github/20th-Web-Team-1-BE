@@ -175,4 +175,54 @@ public class MessageAcceptanceTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(true));
     }
+
+    @Disabled
+    @Test
+    @DisplayName("즐겨찾기 이전,다음 메세지")
+    public void FavoriteDetail() throws Exception {
+
+        Folder folder = FolderTest.TEST_DEFAULT_TREE;
+        User user = UserTest.TEST_USER;
+        user.addFolder(folder);
+        userRepository.save(user);
+
+        Message message1 = Message.builder()
+                .content("즐겨찾기")
+                .senderId(user.getId())
+                .folder(folder)
+                .user(user)
+                .favorite(true)
+                .build();
+        Message message2 = Message.builder()
+                .content("즐겨찾기 X")
+                .senderId(user.getId())
+                .user(user)
+                .folder(folder)
+                .favorite(false)
+                .build();
+        Message message3 = Message.builder()
+                .content("즐겨찾기 O")
+                .senderId(user.getId())
+                .user(user)
+                .folder(folder)
+                .favorite(true)
+                .build();
+
+        messageRepository.save(message1);
+        messageRepository.save(message2);
+        messageRepository.save(message3);
+
+        String token = JwtTokenTest.JWT_TOKEN_TEST;
+        given(jwtTokenProvider.parseToken(token)).willReturn(getClaims(user.getId()));
+
+        // 즐겨찾기 이전, 다음 메세지 조회
+        mockMvc.perform(get("/api/messages/" + message3.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(TestConfig.COOKIE_TOKEN)
+                        .header("Authorization", "Bearer " + token))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.prevId").value(message1.getId()));
+        ;
+    }
 }
