@@ -251,6 +251,9 @@ public class AcceptanceTest {
         assertThat(sender.getNickname()).isEqualTo("익명");
     }
 
+
+    //랜덤설정으로 테스트불가
+    @Disabled
     @Test
     @DisplayName("알림나무 읽음처리 테스트")
     void noticeTreeTest() throws Exception {
