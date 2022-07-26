@@ -69,7 +69,7 @@ public class NoticeTreeService {
         return new NoticeResponseDto(messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(userId, false, false).size(), messages);
     }
 
-    @Scheduled(cron = "0 * */1 * * *") // 1시간마다 갱신
+    @Scheduled(cron = "0 0 */1 * * *") // 1시간마다 갱신
     @Transactional
     public void batchNoticeTree() {
         log.info("실행 시간 {}", LocalDateTime.now());
