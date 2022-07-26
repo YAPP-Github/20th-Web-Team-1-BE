@@ -121,8 +121,6 @@ public class OAuthControllerTest extends ControllerTest {
         assertThat(mvcResult.getResponse().getHeader("Authorization")).isNull();
     }
 
-    // 쿠키 설정 제거로 테스트불가능
-    @Disabled
     @Test
     @DisplayName("로그아웃 - 이미 로그아웃된 유저는 예외메시지를 반환한다.")
     void deleteRefreshTokenTest() throws Exception {
@@ -138,8 +136,6 @@ public class OAuthControllerTest extends ControllerTest {
         assertThat(mvcResult.getResponse().getHeader("Authorization")).isNull();
     }
 
-    //쿠키 설정 제거로 테스트 불가능
-    @Disabled
     @Test
     @DisplayName("이미 로그아웃되어 헤더(쿠키)에 리프레시 토큰이 존재하지 않을경우 예외가 발생한다.")
     void refreshTokenCookieNullTest() throws Exception {
