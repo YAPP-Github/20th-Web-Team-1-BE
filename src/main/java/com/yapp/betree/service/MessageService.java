@@ -198,7 +198,7 @@ public class MessageService {
                 .stream()
                 .map(message -> {
                     SendUserDto sender = userService.findBySenderId(message.getSenderId());
-                    return new MessageBoxResponseDto.of(message, sender);
+                    return MessageBoxResponseDto.of(message, sender);
                 })
                 .collect(Collectors.toList());
 
