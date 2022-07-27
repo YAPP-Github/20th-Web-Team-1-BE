@@ -197,8 +197,8 @@ public class MessageService {
         List<MessageBoxResponseDto> responseMessages = messages
                 .stream()
                 .map(message -> {
-                    User sender = userRepository.findById(message.getSenderId()).orElseThrow(() -> new BetreeException(USER_NOT_FOUND));
-                    return new MessageBoxResponseDto(message, sender.getNickname(), sender.getUserImage());
+                    SendUserDto sender = userService.findBySenderId(message.getSenderId());
+                    return new MessageBoxResponseDto.of(message, sender);
                 })
                 .collect(Collectors.toList());
 
