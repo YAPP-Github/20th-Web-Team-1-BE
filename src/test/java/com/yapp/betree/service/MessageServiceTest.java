@@ -150,7 +150,7 @@ public class MessageServiceTest {
 
         SliceImpl<Message> messages = new SliceImpl<>(Collections.singletonList(TEST_SAVE_MESSAGE));
         given(messageRepository.findByUserIdAndFavoriteAndDelByReceiver(TEST_SAVE_USER.getId(), true, false, pageable)).willReturn(messages);
-        given(userRepository.findById(TEST_SAVE_MESSAGE.getSenderId())).willReturn(Optional.of(TEST_SAVE_USER));
+        given(userService.findBySenderId(TEST_SAVE_USER.getId())).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
         MessagePageResponseDto favoriteMessage = messageService.getFavoriteMessage(TEST_SAVE_USER.getId(), pageable);
 
