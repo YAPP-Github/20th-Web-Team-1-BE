@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
-    List<Message> findByUserIdAndOpeningAndDelByReceiver(Long userId, boolean opening, boolean delByReceiver);
+    List<Message> findByUserIdAndOpeningAndDelByReceiverAndFolderId(Long userId, boolean opening, boolean delByReceiver, Long folderId);
 
     Slice<Message> findByUserIdAndFolderIdAndDelByReceiver(Long userId, Long treeId, boolean delByReceiver, Pageable pageable);
 

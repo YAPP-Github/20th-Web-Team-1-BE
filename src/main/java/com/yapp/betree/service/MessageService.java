@@ -6,6 +6,7 @@ import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
+import com.yapp.betree.dto.request.OpeningRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
 import com.yapp.betree.dto.response.MessageDetailResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
@@ -113,19 +114,19 @@ public class MessageService {
      * 선택한 메세지 공개로 설정 (열매 맺기)
      *
      * @param userId
-     * @param messageIds
+     * @param dto
      */
     @Transactional
-    public void updateMessageOpening(Long userId, List<Long> messageIds) {
+    public void updateMessageOpening(Long userId, OpeningRequestDto dto) {
         //선택한 개수 8개 초과면 오류
-        if (messageIds.size() > 8) {
+        if (dto.getMessageIds().size() > 8) {
             throw new BetreeException(ErrorCode.INVALID_INPUT_VALUE, "열매로 맺을 수 있는 메세지 개수는 최대 8개입니다.");
         }
         //이미 선택된 메세지 가져와서 false로 변경
-        messageRepository.findByUserIdAndOpeningAndDelByReceiver(userId, true, false).forEach(Message::updateOpening);
+        messageRepository.findByUserIdAndOpeningAndDelByReceiverAndFolderId(userId, true, false, dto.getTreeId()).forEach(Message::updateOpening);
 
         // 지금 선택된 메세지만 true로 변경
-        for (Long id : messageIds) {
+        for (Long id : dto.getMessageIds()) {
             messageRepository.findById(id).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId = " + id)).updateOpening();
         }
     }
