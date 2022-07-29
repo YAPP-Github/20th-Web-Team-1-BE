@@ -79,10 +79,10 @@ public class FolderService {
         }
 
         // 이전, 다음 폴더 없을때 0L으로 처리
-        Long prevId = folderRepository.findTop1ByUserAndIdLessThanOrderByIdDesc(folder.getUser(), treeId)
+        Long prevId = folderRepository.findTop1ByUserAndFruitIsNotAndIdLessThanOrderByIdDesc(folder.getUser(), FruitType.DEFAULT, treeId)
                 .map(Folder::getId)
                 .orElse(0L);
-        Long nextId = folderRepository.findTop1ByUserAndIdGreaterThan(folder.getUser(), treeId)
+        Long nextId = folderRepository.findTop1ByUserAndFruitIsNotAndIdGreaterThan(folder.getUser(), FruitType.DEFAULT, treeId)
                 .map(Folder::getId)
                 .orElse(0L);
 

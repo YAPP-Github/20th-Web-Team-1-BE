@@ -169,8 +169,8 @@ public class FolderServiceTest {
         List<Message> messages = Lists.newArrayList(TEST_SAVE_MESSAGE);
 
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
-        given(folderRepository.findTop1ByUserAndIdGreaterThan(TEST_SAVE_USER, TREE_ID)).willReturn(Optional.empty());
-        given(folderRepository.findTop1ByUserAndIdGreaterThan(TEST_SAVE_USER, TREE_ID)).willReturn(Optional.empty());
+        given(folderRepository.findTop1ByUserAndFruitIsNotAndIdGreaterThan(TEST_SAVE_USER, FruitType.DEFAULT, TREE_ID)).willReturn(Optional.empty());
+        given(folderRepository.findTop1ByUserAndFruitIsNotAndIdGreaterThan(TEST_SAVE_USER, FruitType.DEFAULT, TREE_ID)).willReturn(Optional.empty());
         given(messageRepository.findTop8ByFolderIdAndOpeningAndDelByReceiver(TREE_ID, true, false)).willReturn(messages);
         given(userService.findBySenderId(USER_ID)).willReturn(SendUserDto.of(TEST_SAVE_USER));
 
@@ -181,6 +181,7 @@ public class FolderServiceTest {
         assertThat(trees.getPrevId()).isEqualTo(0L);
         assertThat(trees.getNextId()).isEqualTo(0L);
     }
+
     @Test
     @DisplayName("유저 상세 나무 조회 - 비공개나무 조회시 예외 반환한다.")
     void userDetailTreeOpeningFalseTest() {
@@ -190,7 +191,7 @@ public class FolderServiceTest {
         given(folderRepository.findById(TREE_ID)).willReturn(Optional.of(TEST_SAVE_DEFAULT_TREE));
 
         // when
-        assertThatThrownBy(()->folderService.userDetailTree(USER_ID, TREE_ID, -1L))
+        assertThatThrownBy(() -> folderService.userDetailTree(USER_ID, TREE_ID, -1L))
                 .isInstanceOf(BetreeException.class)
                 .extracting("code").isEqualTo(ErrorCode.TREE_NOT_FOUND);
     }

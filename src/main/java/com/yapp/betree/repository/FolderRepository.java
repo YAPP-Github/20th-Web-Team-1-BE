@@ -18,10 +18,10 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     Folder findByUserIdAndFruit(Long userId, FruitType fruitType);
 
     //prev
-    Optional<Folder> findTop1ByUserAndIdLessThanOrderByIdDesc(User user, Long id);
+    Optional<Folder> findTop1ByUserAndFruitIsNotAndIdLessThanOrderByIdDesc(User user, FruitType fruitType, Long id);
 
     //next
-    Optional<Folder> findTop1ByUserAndIdGreaterThan(User user, Long id);
+    Optional<Folder> findTop1ByUserAndFruitIsNotAndIdGreaterThan(User user, FruitType fruitType, Long id);
 
     Long countByUserIdAndFruitIsNot(Long userId, FruitType fruitType);
 }
