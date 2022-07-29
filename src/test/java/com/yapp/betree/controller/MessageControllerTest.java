@@ -3,6 +3,7 @@ package com.yapp.betree.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.dto.request.MessageRequestDto;
+import com.yapp.betree.dto.request.OpeningRequestDto;
 import com.yapp.betree.dto.response.MessageBoxResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.exception.BetreeException;
@@ -130,13 +131,14 @@ class MessageControllerTest extends ControllerTest {
     @Test
     void updateMessageOpening() throws Exception {
 
-        List<String> idList = Arrays.asList(String.valueOf(9L), String.valueOf(10L));
+        List<Long> idList = Arrays.asList(9L, 10L);
+        OpeningRequestDto dto = OpeningRequestDto.builder().messageIds(idList).treeId(0L).build();
 
         mockMvc.perform(put("/api/messages/opening")
                 .cookie(TestConfig.COOKIE_TOKEN)
                 .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(idList)))
+                .content(objectMapper.writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }

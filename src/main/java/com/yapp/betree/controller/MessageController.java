@@ -3,6 +3,7 @@ package com.yapp.betree.controller;
 import com.yapp.betree.annotation.LoginUser;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.MessageRequestDto;
+import com.yapp.betree.dto.request.OpeningRequestDto;
 import com.yapp.betree.dto.response.MessageDetailResponseDto;
 import com.yapp.betree.dto.response.MessagePageResponseDto;
 import com.yapp.betree.service.MessageService;
@@ -83,7 +84,7 @@ public class MessageController {
      * 메세지 공개 여부 설정 (열매 맺기)
      *
      * @param loginUser
-     * @param messageIds 선택한 메세지 ID List
+     * @param requestDto 열매 맺기 요청 DTO
      */
     @ApiOperation(value = "열매 맺기", notes = "메세지 공개 여부 설정")
     @ApiResponses({
@@ -92,11 +93,11 @@ public class MessageController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/api/messages/opening")
     public ResponseEntity<Void> openingMessage(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                               @RequestBody List<Long> messageIds) {
+                                               @RequestBody @Valid OpeningRequestDto requestDto) {
 
-        log.info("[messageIds] : {}", messageIds);
+        log.info("[messageIds] : {}", requestDto.getMessageIds());
 
-        messageService.updateMessageOpening(loginUser.getId(), messageIds);
+        messageService.updateMessageOpening(loginUser.getId(), requestDto);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
