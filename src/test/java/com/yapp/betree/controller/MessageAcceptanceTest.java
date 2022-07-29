@@ -216,7 +216,7 @@ public class MessageAcceptanceTest {
         given(jwtTokenProvider.parseToken(token)).willReturn(getClaims(user.getId()));
 
         // 즐겨찾기 이전, 다음 메세지 조회
-        mockMvc.perform(get("/api/messages/" + message3.getId())
+        mockMvc.perform(get("/api/messages/favorite/" + message3.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .cookie(TestConfig.COOKIE_TOKEN)
                         .header("Authorization", "Bearer " + token))

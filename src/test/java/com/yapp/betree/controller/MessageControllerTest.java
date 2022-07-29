@@ -220,7 +220,7 @@ class MessageControllerTest extends ControllerTest {
     @Test
     void getMessageDetail() throws Exception {
 
-        given(messageService.getMessageDetail(anyLong(),eq(1L))).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
+        given(messageService.getMessageDetail(anyLong(), eq(1L), eq(false))).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
         mockMvc.perform(get("/api/messages/1")
                         .cookie(TestConfig.COOKIE_TOKEN)

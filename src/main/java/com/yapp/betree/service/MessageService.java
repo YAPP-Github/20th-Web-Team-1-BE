@@ -235,7 +235,7 @@ public class MessageService {
      * @param messageId
      * @return
      */
-    public MessageDetailResponseDto getMessageDetail(Long userId, Long messageId) {
+    public MessageDetailResponseDto getMessageDetail(Long userId, Long messageId, boolean favorite) {
 
         Message message = messageRepository.findByIdAndUserIdAndDelByReceiver(messageId, userId, false).orElseThrow(() -> new BetreeException(MESSAGE_NOT_FOUND, "messageId =" + messageId));
 
@@ -246,7 +246,7 @@ public class MessageService {
         Long prevId;
         Long nextId;
         // 즐겨찾기 메세지는 즐겨찾기 메세지끼리 이전, 다음 메세지 보여주기
-        if (message.isFavorite()) {
+        if (favorite) {
             prevId = messageRepository.findTop1ByUserIdAndFavoriteAndDelByReceiverAndIdLessThanOrderByIdDesc(userId, true, false, message.getId())
                     .map(Message::getId)
                     .orElse(0L);

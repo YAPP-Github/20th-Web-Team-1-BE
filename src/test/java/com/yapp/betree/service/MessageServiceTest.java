@@ -181,7 +181,7 @@ public class MessageServiceTest {
 
         given(messageRepository.findByIdAndUserIdAndDelByReceiver(10L, TEST_SAVE_USER.getId(), false)).willThrow(new BetreeException(ErrorCode.MESSAGE_NOT_FOUND));
 
-        assertThatThrownBy(() -> messageService.getMessageDetail(TEST_SAVE_USER.getId(), 10L))
+        assertThatThrownBy(() -> messageService.getMessageDetail(TEST_SAVE_USER.getId(), 10L, false))
                 .isInstanceOf(BetreeException.class)
                 .hasMessageContaining("메세지가 존재하지 않습니다.")
                 .extracting("code").isEqualTo(ErrorCode.MESSAGE_NOT_FOUND);

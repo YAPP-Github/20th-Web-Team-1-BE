@@ -231,6 +231,26 @@ public class MessageController {
 
         log.info("[메세지 상세 조회] userId: {}, messageId: {}", loginUser.getId(), messageId);
 
-        return ResponseEntity.ok(messageService.getMessageDetail(loginUser.getId(), messageId));
+        return ResponseEntity.ok(messageService.getMessageDetail(loginUser.getId(), messageId, false));
+    }
+
+    /**
+     * 즐겨찾기한 메세지 상세 조회
+     *
+     * @param loginUser
+     * @return
+     */
+    @ApiOperation(value = "즐겨찾기 메세지 상세 조회", notes = "즐겨찾기한 메세지 상세 조회")
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "[M001]메세지가 존재하지 않습니다.\n" +
+                    "[U005]회원을 찾을 수 없습니다. (보낸 유저가 존재하지 않음)")
+    })
+    @GetMapping("/api/messages/favorite/{messageId}")
+    public ResponseEntity<MessageDetailResponseDto> getFavoriteMessageDetail(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                                             @PathVariable Long messageId) {
+
+        log.info("[메세지 상세 조회] userId: {}, messageId: {}", loginUser.getId(), messageId);
+
+        return ResponseEntity.ok(messageService.getMessageDetail(loginUser.getId(), messageId, true));
     }
 }
