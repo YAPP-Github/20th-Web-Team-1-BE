@@ -69,7 +69,7 @@ public class NoticeTreeService {
         return new NoticeResponseDto(messageRepository.findByUserIdAndAlreadyReadAndDelByReceiver(userId, false, false).size(), messages);
     }
 
-    @Scheduled(cron = "0 0 */1 * * *") // 1시간마다 갱신
+    @Scheduled(cron = "0 0 0/1 * * *") // 1시간마다 갱신
     @Transactional
     public void batchNoticeTree() {
         log.info("실행 시간 {}", LocalDateTime.now());
@@ -113,7 +113,7 @@ public class NoticeTreeService {
         List<Message> favoriteMessages = messageRepository.findAllByUserIdAndFavoriteAndDelByReceiver(userId, true, false);
 
         // 랜덤 셔플
-       Collections.shuffle(favoriteMessages);
+        Collections.shuffle(favoriteMessages);
         for (Message m : favoriteMessages) {
             if (noticeTreeMessages.size() >= 8) {
                 break; // 8개까지만 담음
@@ -126,7 +126,7 @@ public class NoticeTreeService {
         // 비트리 제공 메시지로 8개까지 다시 채움
         long remainCount = 8 - noticeTreeMessages.size();
         List<Long> betreeMessageNumber = BetreeUtils.getRandomNum(remainCount);
-        for(Long number : betreeMessageNumber) {
+        for (Long number : betreeMessageNumber) {
             noticeTreeMessages.add(BetreeUtils.getBetreeMessage(number));
         }
 
