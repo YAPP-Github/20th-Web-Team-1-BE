@@ -118,6 +118,7 @@ public class FolderService {
                 .user(user)
                 .name(treeRequestDto.getName())
                 .level(0L)
+                .opening(true)
                 .build();
 
         return folderRepository.save(folder).getId();
