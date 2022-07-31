@@ -124,13 +124,13 @@ public class NoticeTreeService {
         log.info("...유저 {} 알림나무 생성중 ...즐겨찾기 메시지 {}개 총 {}개 ", userId, favoriteMessages.size(), noticeTreeMessages.size());
 
         // 비트리 제공 메시지로 8개까지 다시 채움
-        long remainCount = 8 - noticeTreeMessages.size();
-        List<Long> betreeMessageNumber = BetreeUtils.getRandomNum(remainCount);
-        for (Long number : betreeMessageNumber) {
-            noticeTreeMessages.add(BetreeUtils.getBetreeMessage(number));
-        }
+//        long remainCount = 8 - noticeTreeMessages.size();
+//        List<Long> betreeMessageNumber = BetreeUtils.getRandomNum(remainCount);
+//        for (Long number : betreeMessageNumber) {
+//            noticeTreeMessages.add(BetreeUtils.getBetreeMessage(number));
+//        }
 
-        log.info("...유저 {} 알림나무 생성중 ...비트리 메시지 {}개 총 {}개 ", userId, remainCount, noticeTreeMessages.size());
+        log.info("...유저 {} 알림나무 생성중 ... 총 {}개 ", userId, noticeTreeMessages.size());
         log.info("[유저 알림나무 갱신 - 리스트 생성] userId = {}, 알림나무 = {}", userId, noticeTreeMessages);
         String unreads = noticeTreeMessages
                 .stream()
