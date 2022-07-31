@@ -17,7 +17,7 @@ public class BetreeUtils {
     private static final int RANDOM_BOUND = 4;
     private static final int RANDOM_MIN = 1;
     private static final String BASE_IMAGE_URL = "image/v2/user_";
-    private static final String BASE_IMAGE_SUFFIX = ".svg";
+    private static final String BASE_IMAGE_SUFFIX = ".png";
     public static final ConcurrentHashMap<Long, String> betreeMessages = new ConcurrentHashMap<Long, String>() {{
         put(-1L, "나무에 물을 주고 나만의 비트리를 길러보세요!");
         put(-2L, "조금만 더 힘 내봅시다!!");
