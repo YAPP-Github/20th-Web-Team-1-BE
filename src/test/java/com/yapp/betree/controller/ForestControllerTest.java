@@ -5,6 +5,7 @@ import com.yapp.betree.config.TestConfig;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.domain.MessageTest;
 import com.yapp.betree.dto.SendUserDto;
+import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
@@ -76,8 +77,13 @@ public class ForestControllerTest extends ControllerTest {
     @Test
     void userForestTest() throws Exception {
         Long userId = 1L;
+
+        ForestResponseDto dto = ForestResponseDto.builder()
+                .nickname(TEST_SAVE_USER.getNickname())
+                .responseDtoList(Lists.newArrayList(TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE))).build();
+
         given(userService.isExist(userId)).willReturn(true);
-        given(folderService.userForest(userId, userId)).willReturn(Lists.newArrayList(TreeResponseDto.of(TEST_SAVE_DEFAULT_TREE)));
+        given(folderService.userForest(userId, userId)).willReturn(dto);
 
         mockMvc.perform(get("/api/forest")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,7 +91,7 @@ public class ForestControllerTest extends ControllerTest {
                         .header("Authorization", "Bearer " + JwtTokenTest.JWT_TOKEN_TEST)
                         .param("userId", String.valueOf(userId)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(TEST_SAVE_DEFAULT_TREE.getId()))
+                .andExpect(jsonPath("$.responseDtoList[0].id").value(TEST_SAVE_DEFAULT_TREE.getId()))
                 .andDo(print());
     }
 
@@ -94,7 +100,7 @@ public class ForestControllerTest extends ControllerTest {
     void otherUserForestTest() throws Exception {
         Long userId = 2L;
         given(userService.isExist(userId)).willReturn(true);
-        given(folderService.userForest(userId, userId)).willReturn(Lists.emptyList());
+        given(folderService.userForest(userId, userId)).willReturn(any());
 
         mockMvc.perform(get("/api/forest")
                         .contentType(MediaType.APPLICATION_JSON)
