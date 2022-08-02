@@ -6,6 +6,7 @@ import com.yapp.betree.domain.Message;
 import com.yapp.betree.domain.User;
 import com.yapp.betree.dto.SendUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
+import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.MessageResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
 import com.yapp.betree.dto.response.TreeResponseDto;
@@ -57,12 +58,13 @@ public class FolderServiceTest {
     void userForestTest() {
         // given
         given(folderRepository.findAllByUserId(USER_ID)).willReturn(Lists.newArrayList(TEST_SAVE_APPLE_TREE, TEST_SAVE_DEFAULT_TREE));
+        given(userService.findById(USER_ID)).willReturn(Optional.ofNullable(TEST_SAVE_USER));
 
         // when
-        List<TreeResponseDto> treeResponseDtos = folderService.userForest(USER_ID, USER_ID);
+        ForestResponseDto forestResponseDto = folderService.userForest(USER_ID, USER_ID);
 
         // then
-        assertThat(treeResponseDtos).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE));
+        assertThat(forestResponseDto.getResponseDtoList()).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE));
     }
 
     @Test
@@ -70,12 +72,13 @@ public class FolderServiceTest {
     void otherUserForestTest() {
         // given
         given(folderRepository.findAllByUserId(USER_ID)).willReturn(Lists.newArrayList(TEST_SAVE_APPLE_TREE));
+        given(userService.findById(USER_ID)).willReturn(Optional.ofNullable(TEST_SAVE_USER));
 
         // when
-        List<TreeResponseDto> treeResponseDtos = folderService.userForest(-1L, USER_ID);
+        ForestResponseDto forestResponseDto = folderService.userForest(-1L, USER_ID);
 
         // then
-        assertThat(treeResponseDtos).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE));
+        assertThat(forestResponseDto.getResponseDtoList()).contains(TreeResponseDto.of(TEST_SAVE_APPLE_TREE));
     }
 
     @Test

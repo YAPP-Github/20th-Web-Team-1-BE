@@ -4,8 +4,8 @@ import com.yapp.betree.annotation.LoginUser;
 import com.yapp.betree.domain.FruitType;
 import com.yapp.betree.dto.LoginUserDto;
 import com.yapp.betree.dto.request.TreeRequestDto;
+import com.yapp.betree.dto.response.ForestResponseDto;
 import com.yapp.betree.dto.response.TreeFullResponseDto;
-import com.yapp.betree.dto.response.TreeResponseDto;
 import com.yapp.betree.exception.BetreeException;
 import com.yapp.betree.exception.ErrorCode;
 import com.yapp.betree.service.FolderService;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Api
 @RestController
@@ -52,8 +51,8 @@ public class ForestController {
             @ApiResponse(code = 404, message = "[U005]회원을 찾을 수 없습니다.")
     })
     @GetMapping("/api/forest")
-    public ResponseEntity<List<TreeResponseDto>> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser,
-                                                            @RequestParam Long userId) {
+    public ResponseEntity<ForestResponseDto> userForest(@ApiIgnore @LoginUser LoginUserDto loginUser,
+                                                        @RequestParam Long userId) {
         log.info("[나무숲] 유저 나무숲 조회 userId: {}, loginUserId: {}", userId, loginUser.getId());
         if (!userService.isExist(userId)) {
             throw new BetreeException(ErrorCode.USER_NOT_FOUND, "userId = " + userId);
