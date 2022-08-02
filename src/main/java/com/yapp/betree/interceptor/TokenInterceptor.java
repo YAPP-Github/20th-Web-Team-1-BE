@@ -61,7 +61,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                 .orElseThrow(() -> new BetreeException(ErrorCode.USER_TOKEN_ERROR, "헤더에 토큰이 존재하지 않습니다."));
 
 
-        if (!isFrontEndLocal(authHeader) && isInvalidRefreshToken(request.getCookies())) {
+        if (isInvalidRefreshToken(request.getCookies())) {
             log.info("[리프레시토큰 검증] 비어있으면 실패");
             if (request.getRequestURI().equals("/api/logout")) {
                 log.info("[리프레시토큰 검증] 이미로그아웃");
