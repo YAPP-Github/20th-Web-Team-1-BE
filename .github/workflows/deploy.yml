@@ -40,11 +40,6 @@ jobs:
         spring.datasource.url: ${{ secrets.RDS_URL }}
         spring.datasource.username: ${{ secrets.RDS_USER_NAME }}
         spring.datasource.password: ${{ secrets.RDS_PASSWORD }}
-        dev.email.js: ${{ secrets.EMAIL_JS }}
-        dev.email.sb: ${{ secrets.EMAIL_SB }}
-        dev.email.si: ${{ secrets.EMAIL_SI }}
-        dev.email.yk: ${{ secrets.EMAIL_YK }}
-        dev.email.ym: ${{ secrets.EMAIL_YM }}
 
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
