@@ -57,10 +57,10 @@ public class Message extends BaseTimeEntity {
 
     public static Message generateWelcomeMessage(User user, Folder folder) {
         return Message.builder()
-                .content("STEP 1. \"물 주기\"를 통해 칭찬 메시지를 작성하세요!\n" +
-                        "STEP 2. 다양한 열매 나무를 심고 칭찬 메시지를 분류하세요!\n" +
-                        "STEP 3. 열매 맺을 메시지를 선택해 나만의 나무숲을 가꾸세요!\n" +
-                        "STEP 4. URL을 통해 나만의 나무숲을 공유하고 나무를 무럭무럭 키우세요!")
+                .content("STEP 1.\n \"물 주기\"를 통해 칭찬 메시지를 작성하세요!\n" +
+                        "STEP 2.\n 다양한 열매 나무를 심고 칭찬 메시지를 분류하세요!\n" +
+                        "STEP 3.\n 열매 맺을 메시지를 선택해 나만의 나무숲을 가꾸세요!\n" +
+                        "STEP 4.\n URL을 통해 나만의 나무숲을 공유하고 나무를 무럭무럭 키우세요!")
                 .senderId(-999L)
                 .anonymous(false)
                 .alreadyRead(false)
